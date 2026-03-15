@@ -57,7 +57,13 @@
     "title": "Upcoming Events",
     "subtitle": "Religious ceremonies and Dhamma talks.",
     "details": "Event Details",
-    "location": "Location"
+    "location": "Location",
+    "sponsorship": {
+      "title": "Sponsorship Opportunity",
+      "offer": "You can become a sponsor for this auspicious event and earn great merits.",
+      "cta": "Become a Sponsor",
+      "donorsTitle": "Auspicious Donors"
+    }
   },
   "footer": {
     "quote": "\"The gift of Dhamma excels all gifts.\"",

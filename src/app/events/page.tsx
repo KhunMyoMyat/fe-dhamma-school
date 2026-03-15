@@ -89,9 +89,19 @@ export default function EventsPage() {
                   <h3 className="text-3xl font-bold text-white mb-3 group-hover:text-gold transition-colors leading-tight">
                     {event.title}
                   </h3>
-                  <p className="text-lg font-myanmar text-cream/70 mb-8 line-clamp-2">
-                    {event.titleMm}
+                  <p className="text-lg font-myanmar text-cream/70 mb-4 line-clamp-2">
+                    {language === "mm" ? event.titleMm : (event.description || event.title)}
                   </p>
+
+                  {(event.mainSponsor || event.mainSponsorMm) && (
+                    <div className="bg-gold/10 rounded-xl p-4 border border-gold/20 mb-8">
+                      <p className="text-[10px] uppercase font-black tracking-widest text-gold/60 mb-1">Main Sponsor</p>
+                      <p className="text-sm font-bold text-gold font-myanmar">
+                        {language === "mm" ? (event.mainSponsorMm || event.mainSponsor) : (event.mainSponsor || event.mainSponsorMm)}
+                      </p>
+                    </div>
+                  )}
+
                   <Link href={`/events/${event.id}`}>
                     <Button
                       variant="outline"
