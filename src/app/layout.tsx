@@ -3,6 +3,7 @@ import { Inter, Padauk } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "@/providers/QueryProvider";
 import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -34,13 +35,7 @@ export default function RootLayout({
             <main className="flex-grow">
               {children}
             </main>
-            <footer className="bg-navy text-cream py-12 border-t-4 border-gold">
-              <div className="container mx-auto px-4 text-center">
-                <p className="font-myanmar text-xl mb-4 text-gold">သဗ္ဗဒါနံ ဓမ္မဒါနံ ဇိနာတိ</p>
-                <div className="h-px w-24 bg-gold/30 mx-auto mb-6" />
-                <p className="text-cream/50">&copy; {new Date().getFullYear()} Dhamma School. All rights reserved.</p>
-              </div>
-            </footer>
+            <Footer />
           </div>
         </QueryProvider>
       </body>
