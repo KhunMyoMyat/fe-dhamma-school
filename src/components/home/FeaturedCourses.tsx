@@ -58,7 +58,7 @@ export function FeaturedCourses({ courses }: { courses: any[] }) {
       >
         {courses?.map((course: any) => (
           <motion.div key={course.id} variants={item}>
-            <Card className="h-full group hover:shadow-2xl hover:shadow-maroon/10 border-ornament transition-all duration-700 overflow-hidden bg-white/70 backdrop-blur-md rounded-[2.5rem]">
+            <Card className="h-full group hover:shadow-2xl hover:shadow-maroon/10 border-ornament transition-all duration-700 overflow-hidden bg-white/70 backdrop-blur-md rounded-[2.5rem] py-0 gap-0 border-none ring-0">
               <div className="aspect-4/3 relative overflow-hidden">
                 <div className="absolute inset-0 bg-maroon/20 group-hover:bg-transparent transition-colors z-10" />
                 <Image
