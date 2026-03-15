@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Sidebar } from "@/components/admin/Sidebar";
+import { cn } from "@/lib/utils";
 
 
 export default function AdminLayout({
@@ -37,6 +38,8 @@ export default function AdminLayout({
     }
   }, [pathname, router]);
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cream/20">
@@ -56,8 +59,16 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-cream/10">
-      {!isLoginPage && <Sidebar />}
-      <main className={!isLoginPage ? "lg:pl-72 min-h-screen" : "min-h-screen"}>
+      {!isLoginPage && (
+        <Sidebar 
+          isOpen={isSidebarOpen} 
+          setIsOpen={setIsSidebarOpen} 
+        />
+      )}
+      <main className={cn(
+        "min-h-screen transition-all duration-300",
+        !isLoginPage && isSidebarOpen ? "lg:pl-72" : ""
+      )}>
         {children}
       </main>
     </div>

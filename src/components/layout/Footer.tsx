@@ -1,8 +1,15 @@
 "use client";
 
 import { Sprout } from "lucide-react";
+import { useTranslation } from "@/providers/LanguageProvider";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
+  const { t } = useTranslation();
+  const pathname = usePathname();
+
+  if (pathname?.startsWith("/admin")) return null;
+
   return (
     <footer className="bg-navy pt-15 pb-10 border-t border-gold/10">
       <div className="container mx-auto px-4 text-center">
@@ -15,13 +22,11 @@ export default function Footer() {
           </span>
         </div>
         <p className="text-white font-myanmar text-sm italic max-w-lg mx-auto mb-10">
-          "သဗ္ဗဒါနံ ဓမ္မဒါနံ ဇိနာတိ" - အလှူအားလုံးတွင် တရားအလှူသည် အမြတ်ဆုံး
-          ဖြစ်၏။
+          {t("footer.quote")}
         </p>
         <div className="h-px w-20 bg-gold/30 mx-auto mb-8" />
         <p className="text-white text-[10px] uppercase tracking-[0.3em] font-bold">
-          © {new Date().getFullYear()} Dhamma School Myanmar. All Rights
-          Reserved.
+          © {new Date().getFullYear()} Dhamma School. {t("footer.copyright")}
         </p>
       </div>
     </footer>

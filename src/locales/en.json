@@ -1,0 +1,66 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "back": "Back",
+    "viewAll": "View All",
+    "comingSoon": "Coming Soon",
+    "language": "Language",
+    "tba": "TBA"
+  },
+  "nav": {
+    "home": "Home",
+    "courses": "Courses",
+    "events": "Events",
+    "teachings": "Teachings",
+    "donate": "Donate Now"
+  },
+  "home": {
+    "hero": {
+      "badge": "Education for Enlightenment",
+      "title": "Our",
+      "titleGold": "Dhamma Courses",
+      "subtitle": "Discover the path to inner peace and wisdom through our comprehensive studies of Buddha's teachings."
+    },
+    "stats": {
+      "students": "Active Students",
+      "courses": "Online Courses",
+      "teachers": "Qualified Teachers",
+      "sessions": "Guided Sessions"
+    },
+    "featured": {
+      "badge": "Dhamma Education",
+      "title": "Featured",
+      "titleGold": "Studies",
+      "subtitle": "Available Dhamma Courses"
+    },
+    "events": {
+      "title": "Spiritual",
+      "titleGold": "Events",
+      "subtitle": "Upcoming Religious Ceremonies and Gatherings"
+    }
+  },
+  "courses": {
+    "title": "Our Dhamma Courses",
+    "subtitle": "Structured courses for learning the Buddha's teachings in depth.",
+    "enroll": "Enroll Course",
+    "startsOn": "Starts On",
+    "schedule": "Schedule",
+    "duration": "Duration",
+    "instructor": "Instructor",
+    "level": "Level",
+    "free": "Free Course",
+    "dhammaDana": "Dhamma Dāna",
+    "limitedSeats": "Limited Seats Available",
+    "confirmEnroll": "Confirm Enrollment"
+  },
+  "events": {
+    "title": "Upcoming Events",
+    "subtitle": "Religious ceremonies and Dhamma talks.",
+    "details": "Event Details",
+    "location": "Location"
+  },
+  "footer": {
+    "quote": "\"The gift of Dhamma excels all gifts.\"",
+    "copyright": "All Rights Reserved."
+  }
+}

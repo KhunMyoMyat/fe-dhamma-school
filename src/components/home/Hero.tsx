@@ -6,7 +6,11 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
+import { useTranslation } from "@/providers/LanguageProvider";
+
 export function Hero() {
+  const { t } = useTranslation();
+
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
       <div className="absolute inset-0 z-0">
@@ -31,18 +35,16 @@ export function Hero() {
           <div className="flex items-center gap-3 mb-8">
             <div className="h-px w-12 bg-gold" />
             <span className="text-gold font-bold tracking-[0.2em] uppercase text-sm">
-              Sacred Knowledge
+              {t("home.hero.badge")}
             </span>
           </div>
 
           <h1 className="text-6xl md:text-8xl font-black text-white mb-8 leading-[1.05] tracking-tight">
-            Path to <span className="text-gradient-gold">Enlightenment</span>{" "}
-            <br />& Inner <span className="text-saffron">Peace</span>
+            {t("home.hero.title")} <span className="text-gradient-gold">{t("home.hero.titleGold")}</span>
           </h1>
 
           <p className="text-xl md:text-2xl text-cream/90 mb-12 leading-relaxed font-myanmar max-w-2xl text-balance">
-            ဗုဒ္ဓမြတ်စွာဘုရား၏ ဓမ္မတရားတော်များကို လေ့လာသင်ယူရင်း
-            ပိုမိုအဓိပ္ပာယ်ရှိသော ဘဝတစ်ခုကို အတူတကွ တည်ဆောက်ကြပါစို့။
+            {t("home.hero.subtitle")}
           </p>
 
           <div className="flex flex-wrap gap-6">
@@ -51,7 +53,7 @@ export function Hero() {
                 size="lg"
                 className="gradient-maroon text-white h-16 px-10 text-xl border-2 border-gold shadow-2xl shadow-maroon/40 hover:scale-105 transition-all rounded-full group"
               >
-                Start Learning{" "}
+                {t("common.viewAll")}{" "}
                 <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" />
               </Button>
             </Link>
@@ -61,7 +63,7 @@ export function Hero() {
                 variant="outline"
                 className="glass-card text-gold h-16 px-10 text-xl border-2 border-gold/50 hover:bg-gold hover:text-navy transition-all rounded-full"
               >
-                Read Dhamma
+                {t("nav.teachings")}
               </Button>
             </Link>
           </div>

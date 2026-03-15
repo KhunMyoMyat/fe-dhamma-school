@@ -23,19 +23,23 @@ const item = {
   show: { opacity: 1, y: 0 },
 };
 
+import { useTranslation } from "@/providers/LanguageProvider";
+
 export function FeaturedCourses({ courses }: { courses: any[] }) {
+  const { t, language } = useTranslation();
+
   return (
     <section className="container mx-auto px-4 py-32 lotus-pattern">
       <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">
         <div>
           <Badge className="bg-maroon/10 text-maroon hover:bg-maroon/20 mb-4 px-4 py-1">
-            Dhamma Education
+            {t("home.featured.badge")}
           </Badge>
           <h2 className="text-5xl font-black text-maroon mb-2 tracking-tight">
-            Featured <span className="text-gold">Studies</span>
+            {t("home.featured.title")} <span className="text-gold">{t("home.featured.titleGold")}</span>
           </h2>
           <p className="text-lg text-gold-dark font-myanmar">
-            သင်ကြားနိုင်သော ဓမ္မသင်တန်းများ
+            {t("home.featured.subtitle")}
           </p>
         </div>
         <Link href="/courses">
@@ -43,7 +47,7 @@ export function FeaturedCourses({ courses }: { courses: any[] }) {
             variant="ghost"
             className="text-maroon hover:text-gold group font-bold text-lg"
           >
-            View All Courses{" "}
+            {t("courses.viewAll")}{" "}
             <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" />
           </Button>
         </Link>
@@ -88,9 +92,9 @@ export function FeaturedCourses({ courses }: { courses: any[] }) {
                       <Calendar className="size-4 text-maroon" />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[10px] uppercase font-black tracking-widest text-gold-dark/60 leading-none mb-1">Starts On</span>
+                      <span className="text-[10px] uppercase font-black tracking-widest text-gold-dark/60 leading-none mb-1">{t("courses.startsOn")}</span>
                       <span className="font-semibold text-navy/90">
-                        {course.startDate ? new Date(course.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : "TBA"}
+                        {course.startDate ? new Date(course.startDate).toLocaleDateString(language === 'en' ? 'en-GB' : language === 'th' ? 'th-TH' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : t("common.tba")}
                       </span>
                     </div>
                   </div>
@@ -107,7 +111,7 @@ export function FeaturedCourses({ courses }: { courses: any[] }) {
                         <ArrowRight className="size-4 text-maroon" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[10px] uppercase font-black tracking-widest text-gold-dark/60 leading-none mb-1">Schedule</span>
+                        <span className="text-[10px] uppercase font-black tracking-widest text-gold-dark/60 leading-none mb-1">{t("courses.schedule")}</span>
                         <span className="font-semibold text-navy/90 text-[13px]">
                           {course.daysOfWeek.map((d: string) => d.substring(0, 3)).join(', ')} • {course.classTime}
                         </span>
@@ -119,14 +123,14 @@ export function FeaturedCourses({ courses }: { courses: any[] }) {
                       <Users className="size-4 text-maroon" />
                     </div>
                     <span className="font-semibold text-navy/90">
-                      {course.teacher?.name || "Venerable Monk"}
+                      {course.teacher?.name || t("courses.instructor")}
                     </span>
                   </div>
                 </div>
 
                 <Link href={`/courses/${course.id}`}>
                   <Button className="w-full bg-cream hover:bg-gold hover:text-navy text-maroon border-2 border-gold/30 transition-all font-black py-6 rounded-2xl shadow-sm">
-                    Enroll Course
+                    {t("courses.enroll")}
                   </Button>
                 </Link>
               </CardContent>
