@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Star } from "lucide-react";
 
+import Link from "next/link";
+
 export function CallToAction() {
   return (
     <section className="container mx-auto px-4 pt-32">
@@ -35,13 +37,15 @@ export function CallToAction() {
           </p>
 
           <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
-            <Button
-              size="lg"
-              className="bg-gold text-navy h-20 px-12 text-2xl font-black hover:bg-white hover:scale-105 transition-all rounded-full border-4 border-gold shadow-2xl group"
-            >
-              Donate Now{" "}
-              <ArrowRight className="ml-3 group-hover:translate-x-2 transition-transform" />
-            </Button>
+            <Link href="/donate">
+              <Button
+                size="lg"
+                className="bg-gold text-navy h-20 px-12 text-2xl font-black hover:bg-white hover:scale-105 transition-all rounded-full border-4 border-gold shadow-2xl group"
+              >
+                Donate Now{" "}
+                <ArrowRight className="ml-3 group-hover:translate-x-2 transition-transform" />
+              </Button>
+            </Link>
             <span className="text-cream/50 font-bold uppercase tracking-widest text-sm">
               Every donation counts
             </span>
@@ -51,3 +55,4 @@ export function CallToAction() {
     </section>
   );
 }
+

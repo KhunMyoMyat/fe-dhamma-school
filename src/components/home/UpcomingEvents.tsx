@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
+import Link from "next/link";
+
 export function UpcomingEvents({ events }: { events: any[] }) {
   return (
     <section className="bg-navy py-32 text-cream relative overflow-hidden">
@@ -61,12 +63,14 @@ export function UpcomingEvents({ events }: { events: any[] }) {
                 <p className="text-base font-myanmar text-cream/70 mb-6">
                   {event.titleMm}
                 </p>
-                <Button
-                  variant="outline"
-                  className="w-fit border-white/20 hover:border-gold text-white hover:bg-gold hover:text-navy rounded-full transition-all"
-                >
-                  Event Details
-                </Button>
+                <Link href={`/events/${event.id}`}>
+                  <Button
+                    variant="outline"
+                    className="w-fit border-white/20 hover:border-gold text-white hover:bg-gold hover:text-navy rounded-full transition-all"
+                  >
+                    Event Details
+                  </Button>
+                </Link>
               </div>
             </motion.div>
           ))}
@@ -75,3 +79,4 @@ export function UpcomingEvents({ events }: { events: any[] }) {
     </section>
   );
 }
+
