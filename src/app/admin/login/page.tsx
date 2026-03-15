@@ -36,7 +36,7 @@ export default function AdminLoginPage() {
     setError(null);
     try {
       const response = await api.post("/auth/login", data);
-      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("token", response.data.access_token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
       router.push("/admin/dashboard");
     } catch (err: any) {

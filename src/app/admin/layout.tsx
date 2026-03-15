@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { Sidebar } from "@/components/admin/Sidebar";
+
 
 export default function AdminLayout({
   children,
@@ -17,8 +19,6 @@ export default function AdminLayout({
   useEffect(() => {
     const token = localStorage.getItem("token");
     
-    // If we are on login page, we don't need to check token globally here
-    // but we can redirect to dashboard if token exists
     if (pathname === "/admin/login") {
       if (token) {
         router.push("/admin/dashboard");
@@ -29,7 +29,6 @@ export default function AdminLayout({
       return;
     }
 
-    // Protection for other admin routes
     if (!token) {
       router.push("/admin/login");
     } else {
@@ -53,5 +52,14 @@ export default function AdminLayout({
 
   if (!isAuthorized) return null;
 
-  return <>{children}</>;
+  const isLoginPage = pathname === "/admin/login";
+
+  return (
+    <div className="min-h-screen bg-cream/10">
+      {!isLoginPage && <Sidebar />}
+      <main className={!isLoginPage ? "lg:pl-72 min-h-screen" : "min-h-screen"}>
+        {children}
+      </main>
+    </div>
+  );
 }
