@@ -13,10 +13,12 @@ import {
   Info,
   BookOpen,
   Languages,
-  User
+  User,
+  Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { cn } from "@/lib/utils";
 
 const courseSchema = z.object({
   title: z.string().min(3, "English Title must be at least 3 characters"),
@@ -28,6 +30,10 @@ const courseSchema = z.object({
   schedule: z.string().optional().or(z.literal("")),
   teacherId: z.string().optional().or(z.literal("")),
   image: z.string().optional().or(z.literal("")),
+  startDate: z.string().optional().or(z.literal("")),
+  daysOfWeek: z.array(z.string()),
+  classTime: z.string().optional().or(z.literal("")),
+  daysPerWeek: z.number().optional().or(z.literal(0)),
   isActive: z.boolean(),
 });
 
@@ -53,9 +59,14 @@ export function CourseForm({ initialData, isEditing = false }: CourseFormProps) 
     formState: { errors },
   } = useForm<CourseFormValues>({
     resolver: zodResolver(courseSchema),
-    defaultValues: initialData || {
-      level: "beginner",
-      isActive: true,
+    defaultValues: {
+      ...initialData,
+      startDate: initialData?.startDate ? new Date(initialData.startDate).toISOString().split('T')[0] : "",
+      daysOfWeek: initialData?.daysOfWeek || [],
+      classTime: initialData?.classTime || "",
+      daysPerWeek: initialData?.daysPerWeek || 0,
+      level: initialData?.level || "beginner",
+      isActive: initialData?.isActive ?? true,
     },
   });
 
@@ -72,18 +83,32 @@ export function CourseForm({ initialData, isEditing = false }: CourseFormProps) 
     fetchTeachers();
   }, []);
 
-  const onSubmit = async (data: CourseFormValues) => {
+  const onSubmit = async (values: CourseFormValues) => {
     setIsLoading(true);
     setError(null);
     try {
+      // Clean up empty strings for optional fields
+      const data = {
+        ...values,
+        teacherId: values.teacherId || undefined,
+        image: values.image || undefined,
+        duration: values.duration || undefined,
+        schedule: values.schedule || undefined,
+        daysOfWeek: values.daysOfWeek,
+        classTime: values.classTime || undefined,
+        daysPerWeek: values.daysPerWeek ? Number(values.daysPerWeek) : undefined,
+        startDate: values.startDate ? new Date(values.startDate).toISOString() : undefined,
+      };
+
       if (isEditing) {
-        await api.patch(`/courses/${initialData.id}`, data);
+        await api.put(`/courses/${initialData.id}`, data);
       } else {
         await api.post("/courses", data);
       }
       router.push("/admin/courses");
       router.refresh();
     } catch (err: any) {
+      console.error("❌ Course Submit Error:", err.response?.data || err.message);
       setError(err.response?.data?.message || "Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
@@ -211,6 +236,67 @@ export function CourseForm({ initialData, isEditing = false }: CourseFormProps) 
               placeholder="Ex: 8 Weeks, Sat 9-11AM"
               className="w-full h-16 bg-cream/50 border-2 border-gold/10 rounded-2xl px-6 focus:border-maroon focus:bg-white outline-none transition-all font-bold text-navy"
             />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Start Date</label>
+            <div className="relative">
+              <input 
+                {...register("startDate")}
+                type="date"
+                className="w-full h-16 bg-cream/50 border-2 border-gold/10 rounded-2xl px-6 focus:border-maroon focus:bg-white outline-none transition-all font-bold text-navy appearance-none"
+              />
+              <Calendar className="absolute right-6 top-1/2 -translate-y-1/2 size-5 text-navy/20 pointer-events-none" />
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-6 border-t border-gold/10 space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-2">
+              <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Days Per Week</label>
+              <select 
+                {...register("daysPerWeek", { valueAsNumber: true })}
+                className="w-full h-16 bg-cream/50 border-2 border-gold/10 rounded-2xl px-6 focus:border-maroon focus:bg-white outline-none transition-all font-bold text-navy appearance-none"
+              >
+                <option value={0}>Select frequency</option>
+                {[1,2,3,4,5,6,7].map(n => <option key={n} value={n}>{n} Days / Week</option>)}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Class Time</label>
+              <input 
+                {...register("classTime")}
+                placeholder="Ex: 9:00 AM - 11:00 AM"
+                className="w-full h-16 bg-cream/50 border-2 border-gold/10 rounded-2xl px-6 focus:border-maroon focus:bg-white outline-none transition-all font-bold text-navy"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Select Days of Week</label>
+            <div className="flex flex-wrap gap-3">
+              {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
+                <label 
+                  key={day} 
+                  className={cn(
+                    "flex items-center gap-2 px-6 py-3 rounded-xl border-2 cursor-pointer transition-all font-bold text-sm",
+                    watch("daysOfWeek")?.includes(day) 
+                      ? "bg-maroon border-maroon text-white shadow-lg shadow-maroon/20" 
+                      : "bg-white border-gold/10 text-navy/40 hover:border-gold/30"
+                  )}
+                >
+                  <input 
+                    type="checkbox" 
+                    value={day} 
+                    {...register("daysOfWeek")} 
+                    className="hidden"
+                  />
+                  {day}
+                </label>
+              ))}
+            </div>
           </div>
         </div>
 

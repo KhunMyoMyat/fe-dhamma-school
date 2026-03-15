@@ -96,14 +96,14 @@ export function HomeStats() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelected(null)}
-              className="fixed inset-0 bg-navy/80 backdrop-blur-md z-[100] cursor-zoom-out"
+              className="fixed inset-0 bg-navy/80 backdrop-blur-md z-100 cursor-zoom-out"
             />
             <motion.div
               layoutId={selected.label}
               initial={{ opacity: 0, scale: 0.8, y: 50 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8, y: 50 }}
-              className="fixed inset-0 flex items-center justify-center z-[101] p-4 pt-28 pointer-events-none"
+              className="fixed inset-0 flex items-center justify-center z-101 p-4 pt-28 pointer-events-none"
             >
               <div className="bg-white rounded-[2.5rem] shadow-2xl border-4 border-gold/30 pointer-events-auto relative max-h-[85vh] w-full max-w-xl flex flex-col overflow-hidden">
                 <div className="absolute top-4 right-4 z-20">

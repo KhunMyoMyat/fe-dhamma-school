@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, BookOpen, Users } from "lucide-react";
+import { ArrowRight, BookOpen, Users, Calendar } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -85,10 +85,35 @@ export function FeaturedCourses({ courses }: { courses: any[] }) {
                 <div className="flex flex-col gap-4 text-sm text-navy/70 mb-10">
                   <div className="flex items-center gap-4">
                     <div className="size-10 rounded-full bg-cream flex items-center justify-center border border-gold/20">
+                      <Calendar className="size-4 text-maroon" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] uppercase font-black tracking-widest text-gold-dark/60 leading-none mb-1">Starts On</span>
+                      <span className="font-semibold text-navy/90">
+                        {course.startDate ? new Date(course.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : "TBA"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="size-10 rounded-full bg-cream flex items-center justify-center border border-gold/20">
                       <BookOpen className="size-4 text-maroon" />
                     </div>
                     <span className="font-semibold">{course.duration}</span>
                   </div>
+
+                  {course.daysOfWeek?.length > 0 && (
+                    <div className="flex items-center gap-4">
+                      <div className="size-10 rounded-full bg-cream flex items-center justify-center border border-gold/20">
+                        <ArrowRight className="size-4 text-maroon" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] uppercase font-black tracking-widest text-gold-dark/60 leading-none mb-1">Schedule</span>
+                        <span className="font-semibold text-navy/90 text-[13px]">
+                          {course.daysOfWeek.map((d: string) => d.substring(0, 3)).join(', ')} • {course.classTime}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                   <div className="flex items-center gap-4">
                     <div className="size-10 rounded-full bg-cream flex items-center justify-center border border-gold/20">
                       <Users className="size-4 text-maroon" />

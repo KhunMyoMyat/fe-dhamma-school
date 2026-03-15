@@ -9,13 +9,15 @@ import {
   Trash2, 
   Eye,
   Loader2,
-  BookOpen
+  BookOpen,
+  Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import api from "@/lib/api";
 import Image from "next/image";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 export default function AdminCoursesPage() {
   const [courses, setCourses] = useState<any[]>([]);
@@ -25,8 +27,9 @@ export default function AdminCoursesPage() {
   const fetchCourses = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get("/courses/active");
-      setCourses(response.data);
+      const response = await api.get("/courses");
+      // Handle paginated response: { data: [...], meta: {...} }
+      setCourses(response.data.data || response.data);
     } catch (error) {
       console.error("Error fetching courses:", error);
     } finally {
@@ -97,7 +100,7 @@ export default function AdminCoursesPage() {
               <thead>
                 <tr className="bg-cream/50 border-b border-gold/10">
                   <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em]">Course Info</th>
-                  <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em]">Teacher</th>
+                  <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em]">Teacher & Schedule</th>
                   <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em]">Level</th>
                   <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em]">Status</th>
                   <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em] text-right">Actions</th>
@@ -123,13 +126,28 @@ export default function AdminCoursesPage() {
                       </div>
                     </td>
                     <td className="p-6">
-                      <div className="flex items-center gap-2">
-                        <div className="size-8 rounded-full bg-maroon/5 flex items-center justify-center">
-                          <Plus className="size-3 text-maroon" />
+                      <div className="flex flex-col gap-3">
+                        {/* Teacher */}
+                        <div className="flex items-center gap-2">
+                          <div className="size-8 rounded-full bg-maroon/5 flex items-center justify-center">
+                            <Plus className="size-3 text-maroon" />
+                          </div>
+                          <span className="font-bold text-navy/70 text-sm">
+                            {course.teacher?.name || "Unassigned"}
+                          </span>
                         </div>
-                        <span className="font-bold text-navy/70 text-sm">
-                          {course.teacher?.name || "Unassigned"}
-                        </span>
+                        
+                        {/* Schedule Details */}
+                        <div className="flex flex-col pl-2 border-l-2 border-gold/20">
+                          <div className="flex items-center gap-1.5 text-navy/80 font-bold text-[10px] uppercase tracking-wider mb-0.5">
+                            <Calendar className="size-3 text-gold" />
+                            {course.startDate ? new Date(course.startDate).toLocaleDateString() : "TBA"}
+                          </div>
+                          <div className="font-bold text-maroon text-[11px] mb-0.5">
+                            {course.daysOfWeek?.length > 0 ? course.daysOfWeek.map((d: any) => d.substring(0, 3)).join(', ') : "No days set"}
+                          </div>
+                          {course.classTime && <span className="text-[10px] text-navy/40 font-medium">{course.classTime}</span>}
+                        </div>
                       </div>
                     </td>
                     <td className="p-6">
@@ -139,8 +157,16 @@ export default function AdminCoursesPage() {
                     </td>
                     <td className="p-6">
                       <div className="flex items-center gap-2">
-                        <div className="size-2 rounded-full bg-green-500 animate-pulse" />
-                        <span className="text-xs font-black text-green-600 uppercase tracking-widest">Active</span>
+                        <div className={cn(
+                          "size-2 rounded-full",
+                          course.isActive ? "bg-green-500 animate-pulse" : "bg-navy/20"
+                        )} />
+                        <span className={cn(
+                          "text-xs font-black uppercase tracking-widest",
+                          course.isActive ? "text-green-600" : "text-navy/30"
+                        )}>
+                          {course.isActive ? "Active" : "Draft"}
+                        </span>
                       </div>
                     </td>
                     <td className="p-6">
