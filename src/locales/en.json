@@ -5,7 +5,9 @@
     "viewAll": "View All",
     "comingSoon": "Coming Soon",
     "language": "Language",
-    "tba": "TBA"
+    "tba": "TBA",
+    "scroll": "Scroll",
+    "dhammaSchool": "Dhamma School"
   },
   "nav": {
     "home": "Home",
@@ -68,6 +70,13 @@
           "description": "Dana is the foundation of merit. Your generosity fuels the free education of many, creating a legacy of wisdom for future generations."
         }
       }
+    },
+    "cta": {
+      "title": "Support the",
+      "titleGold": "Gift of Dhamma",
+      "subtitle": "Your dana helps us provide free Buddhist education and maintain this online sanctuary. Help us keep the light of wisdom burning for all.",
+      "button": "Donate Now",
+      "footer": "Every donation counts"
     }
   },
   "courses": {

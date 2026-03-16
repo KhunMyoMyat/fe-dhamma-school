@@ -77,7 +77,7 @@ export function Hero() {
         className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 text-white/40 flex flex-col items-center gap-2"
       >
         <span className="text-[10px] uppercase tracking-widest font-bold">
-          Scroll
+          {t("common.scroll")}
         </span>
         <div className="w-px h-12 bg-linear-to-b from-gold to-transparent" />
       </motion.div>

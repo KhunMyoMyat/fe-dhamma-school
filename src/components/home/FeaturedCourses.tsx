@@ -47,7 +47,7 @@ export function FeaturedCourses({ courses }: { courses: any[] }) {
             variant="ghost"
             className="text-maroon hover:text-gold group font-bold text-lg"
           >
-            {t("courses.viewAll")}{" "}
+            {t("common.viewAll")}{" "}
             <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" />
           </Button>
         </Link>

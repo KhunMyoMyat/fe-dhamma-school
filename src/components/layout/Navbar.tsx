@@ -30,7 +30,7 @@ export default function Navbar() {
           </div>
           <div className="hidden sm:flex flex-col">
             <h1 className="text-maroon font-black text-2xl tracking-tighter leading-none mb-0.5">
-              Dhamma School
+              {t("common.dhammaSchool")}
             </h1>
             <p className="text-gold font-myanmar text-xs font-bold leading-none tracking-widest opacity-80">
               ဓမ္မစာသင်ကျောင်း

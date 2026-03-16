@@ -51,7 +51,7 @@ export function UpcomingEvents({ events }: { events: any[] }) {
                     {new Date(event.date).getDate()}
                   </span>
                   <span className="block text-[10px] uppercase">
-                    {new Date(event.date).toLocaleDateString("en-US", {
+                    {new Date(event.date).toLocaleDateString(language === 'en' ? 'en-US' : language === 'th' ? 'th-TH' : 'en-US', {
                       month: "short",
                     })}
                   </span>

@@ -18,7 +18,7 @@ export default function Footer() {
             <Sprout className="text-gold size-6" />
           </div>
           <span className="text-3xl font-black text-gold tracking-tighter uppercase">
-            Dhamma School
+            {t("common.dhammaSchool")}
           </span>
         </div>
         <p className="text-white font-myanmar text-sm italic max-w-lg mx-auto mb-10">
@@ -26,7 +26,7 @@ export default function Footer() {
         </p>
         <div className="h-px w-20 bg-gold/30 mx-auto mb-8" />
         <p className="text-white text-[10px] uppercase tracking-[0.3em] font-bold">
-          © {new Date().getFullYear()} Dhamma School. {t("footer.copyright")}
+          © {new Date().getFullYear()} {t("common.dhammaSchool")}. {t("footer.copyright")}
         </p>
       </div>
     </footer>
