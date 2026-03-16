@@ -17,8 +17,9 @@ export function UpcomingEvents({ events }: { events: any[] }) {
       <div className="absolute inset-0 opacity-5 lotus-pattern pointer-events-none" />
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-24">
-          <h2 className="text-5xl md:text-6xl font-black mb-6 tracking-tight">
-            {t("home.events.title")} <span className="text-gold">{t("home.events.titleGold")}</span>
+          <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tight">
+            {t("home.events.title")}{" "}
+            <span className="text-gold">{t("home.events.titleGold")}</span>
           </h2>
           <div className="h-1.5 w-24 gradient-gold mx-auto mb-6" />
           <p className="font-myanmar text-gold-light text-xl">
@@ -51,9 +52,16 @@ export function UpcomingEvents({ events }: { events: any[] }) {
                     {new Date(event.date).getDate()}
                   </span>
                   <span className="block text-[10px] uppercase">
-                    {new Date(event.date).toLocaleDateString(language === 'en' ? 'en-US' : language === 'th' ? 'th-TH' : 'en-US', {
-                      month: "short",
-                    })}
+                    {new Date(event.date).toLocaleDateString(
+                      language === "en"
+                        ? "en-US"
+                        : language === "th"
+                          ? "th-TH"
+                          : "en-US",
+                      {
+                        month: "short",
+                      },
+                    )}
                   </span>
                 </div>
               </div>
@@ -83,4 +91,3 @@ export function UpcomingEvents({ events }: { events: any[] }) {
     </section>
   );
 }
-

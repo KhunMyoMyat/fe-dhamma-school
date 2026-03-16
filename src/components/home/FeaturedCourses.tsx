@@ -30,15 +30,16 @@ export function FeaturedCourses({ courses }: { courses: any[] }) {
 
   return (
     <section className="container mx-auto px-4 py-32 lotus-pattern">
-      <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">
+      <div className="flex flex-col md:flex-row items-center md:items-end justify-between mb-16 gap-6">
         <div>
-          <Badge className="bg-maroon/10 text-maroon hover:bg-maroon/20 mb-4 px-4 py-1">
+          <Badge className="bg-maroon/10 text-maroon hover:bg-maroon/20 mb-5 px-4 py-2">
             {t("home.featured.badge")}
           </Badge>
-          <h2 className="text-5xl font-black text-maroon mb-2 tracking-tight">
-            {t("home.featured.title")} <span className="text-gold">{t("home.featured.titleGold")}</span>
+          <h2 className="text-4xl md:text-5xl font-black text-maroon mb-6 tracking-tight">
+            {t("home.featured.title")}{" "}
+            <span className="text-gold">{t("home.featured.titleGold")}</span>
           </h2>
-          <p className="text-lg text-gold-dark font-myanmar">
+          <p className="text-lg md:text-xl text-gold-dark font-myanmar">
             {t("home.featured.subtitle")}
           </p>
         </div>
@@ -92,9 +93,24 @@ export function FeaturedCourses({ courses }: { courses: any[] }) {
                       <Calendar className="size-4 text-maroon" />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[10px] uppercase font-black tracking-widest text-gold-dark/60 leading-none mb-1">{t("courses.startsOn")}</span>
+                      <span className="text-[10px] uppercase font-black tracking-widest text-gold-dark/60 leading-none mb-1">
+                        {t("courses.startsOn")}
+                      </span>
                       <span className="font-semibold text-navy/90">
-                        {course.startDate ? new Date(course.startDate).toLocaleDateString(language === 'en' ? 'en-GB' : language === 'th' ? 'th-TH' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : t("common.tba")}
+                        {course.startDate
+                          ? new Date(course.startDate).toLocaleDateString(
+                              language === "en"
+                                ? "en-GB"
+                                : language === "th"
+                                  ? "th-TH"
+                                  : "en-GB",
+                              {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              },
+                            )
+                          : t("common.tba")}
                       </span>
                     </div>
                   </div>
@@ -111,9 +127,14 @@ export function FeaturedCourses({ courses }: { courses: any[] }) {
                         <ArrowRight className="size-4 text-maroon" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[10px] uppercase font-black tracking-widest text-gold-dark/60 leading-none mb-1">{t("courses.schedule")}</span>
+                        <span className="text-[10px] uppercase font-black tracking-widest text-gold-dark/60 leading-none mb-1">
+                          {t("courses.schedule")}
+                        </span>
                         <span className="font-semibold text-navy/90 text-[13px]">
-                          {course.daysOfWeek.map((d: string) => d.substring(0, 3)).join(', ')} • {course.classTime}
+                          {course.daysOfWeek
+                            .map((d: string) => d.substring(0, 3))
+                            .join(", ")}{" "}
+                          • {course.classTime}
                         </span>
                       </div>
                     </div>

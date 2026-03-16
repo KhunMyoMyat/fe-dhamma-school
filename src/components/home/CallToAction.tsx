@@ -28,10 +28,10 @@ export function CallToAction() {
             <Star className="size-10 text-maroon" />
           </div>
 
-          <h2 className="text-5xl md:text-7xl font-black mb-8 leading-tight tracking-tight text-balance">
-            {t("home.cta.title")} <br />{" "}
-            <span className="text-gradient-gold">{t("home.cta.titleGold")}</span>
-          </h2>
+          <div className="text-5xl md:text-7xl font-black mb-4 leading-tight tracking-tight text-balance">
+            <p>{t("home.cta.title")}</p>
+            <p className="text-gradient-gold mt-3">{t("home.cta.titleGold")}</p>
+          </div>
 
           <p className="text-xl md:text-2xl text-cream/80 max-w-3xl mx-auto mb-12 font-medium leading-relaxed font-myanmar text-balance">
             {t("home.cta.subtitle")}
@@ -56,4 +56,3 @@ export function CallToAction() {
     </section>
   );
 }
-

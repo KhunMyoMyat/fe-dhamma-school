@@ -30,7 +30,7 @@ export function Hero() {
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
-          className="max-w-4xl"
+          className="max-w-5xl"
         >
           <div className="flex items-center gap-3 mb-8">
             <div className="h-px w-12 bg-gold" />
@@ -39,8 +39,11 @@ export function Hero() {
             </span>
           </div>
 
-          <h1 className="text-6xl md:text-8xl font-black text-white mb-8 leading-[1.05] tracking-tight">
-            {t("home.hero.title")} <span className="text-gradient-gold">{t("home.hero.titleGold")}</span>
+          <h1 className="text-4xl md:text-6xl font-black text-white mb-8 leading-[1.05] tracking-tight">
+            {t("home.hero.title")}{" "}
+            <span className="text-gradient-gold">
+              {t("home.hero.titleGold")}
+            </span>
           </h1>
 
           <p className="text-xl md:text-2xl text-cream/90 mb-12 leading-relaxed font-myanmar max-w-2xl text-balance">
