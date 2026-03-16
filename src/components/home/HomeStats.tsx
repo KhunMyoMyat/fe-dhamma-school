@@ -4,59 +4,33 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sprout, ShieldCheck, Users, Heart, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const stats = [
   {
     icon: Sprout,
-    label: "Growth",
-    text: "Spiritual Development",
-    title: "Elevate Your Soul",
-    titleMm: "စိတ်ဓာတ်မြင့်တင်မှု",
-    description:
-      "Our teachings go beyond memory; we focus on the transformation of the heart. Experience a journey where ancient wisdom meets your personal growth path.",
-    descriptionMm:
-      "သင်ရိုးညွှန်းတမ်းများသည် အလွတ်ကျက်မှတ်ရန်သာမဟုတ်ဘဲ လက်တွေ့ဘဝတွင် စိတ်၏ငြိမ်းချမ်းမှုနှင့် ရင့်ကျက်မှုကို ရရှိစေရန် ရည်ရွယ်ပါသည်။",
+    id: "growth",
     color: "maroon",
   },
   {
     icon: ShieldCheck,
-    label: "Pure",
-    text: "Authentic Teachings",
-    title: "Original Wisdom",
-    titleMm: "ဒေသနာတော်အစစ်",
-    description:
-      "Every lesson is anchored in the Tipitaka, ensuring you receive the Buddha's words in their purest most authentic form, undiluted by time.",
-    descriptionMm:
-      "အချိန်ကာလများ ပြောင်းလဲသော်လည်း မြတ်ဗုဒ္ဓ၏ မူရင်းပိဋကတ်တော် ဒေသနာတော်များအတိုင်း တိကျမှန်ကန်စွာ လေ့လာခွင့်ရရှိမည် ဖြစ်ပါသည်။",
+    id: "pure",
     color: "gold",
   },
   {
     icon: Users,
-    label: "Sangha",
-    text: "Global Community",
-    title: "Circle of Dhamma",
-    titleMm: "ဓမ္မမိတ်ဆွေများ",
-    description:
-      "Build deep, meaningful connections with fellow practitioners and monastics worldwide. In our Sangha, every seeker finds a home.",
-    descriptionMm:
-      "တစ်ကမ္ဘာလုံးရှိ ဓမ္မမိတ်ဆွေများ၊ သံဃာတော်များနှင့် ဆက်သွယ်ကာ သာသနာပြုလုပ်ငန်းများတွင် နွေးထွေးစွာ ပါဝင်လက်တွဲနိုင်ပါသည်။",
+    id: "sangha",
     color: "navy",
   },
   {
     icon: Heart,
-    label: "Dana",
-    text: "Generous Support",
-    title: "The Power of Giving",
-    titleMm: "စွန့်ကြဲခြင်း၏စွမ်းအား",
-    description:
-      "Dana is the foundation of merit. Your generosity fuels the free education of many, creating a legacy of wisdom for future generations.",
-    descriptionMm:
-      "ပေးကမ်းစွန့်ကြဲခြင်းသည် ဘဝ၏ အခြေခံအကျဆုံး ကုသိုလ်ဖြစ်ပါသည်။ သင်၏ စေတနာသည် နောင်လာနောက်သားများအတွက် ပညာအလင်းတိုင် ဖြစ်လာပါလိမ့်မည်။",
+    id: "id",
     color: "saffron",
   },
 ];
 
 export function HomeStats() {
+  const { t, language } = useTranslation();
   const [selected, setSelected] = useState<null | (typeof stats)[0]>(null);
 
   return (
@@ -75,13 +49,15 @@ export function HomeStats() {
             >
               <v.icon className="size-7 text-maroon" />
             </div>
-            <h3 className="font-bold text-maroon mb-1 text-lg">{v.label}</h3>
+            <h3 className="font-bold text-maroon mb-1 text-lg">
+              {t(`home.values.items.${v.id}.label`)}
+            </h3>
             <p className="text-xs text-navy/50 font-medium tracking-wide uppercase">
-              {v.text}
+              {t(`home.values.items.${v.id}.text`)}
             </p>
             <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
               <span className="text-[10px] text-gold font-bold flex items-center gap-1">
-                Discover More <Sparkles className="size-3" />
+                {t("home.values.discover")} <Sparkles className="size-3" />
               </span>
             </div>
           </motion.div>
@@ -99,7 +75,7 @@ export function HomeStats() {
               className="fixed inset-0 bg-navy/80 backdrop-blur-md z-100 cursor-zoom-out"
             />
             <motion.div
-              layoutId={selected.label}
+              layoutId={selected.id}
               initial={{ opacity: 0, scale: 0.8, y: 50 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8, y: 50 }}
@@ -122,22 +98,22 @@ export function HomeStats() {
                   </div>
 
                   <Badge className="bg-gold/10 text-gold mb-3 border-gold/20 px-3 py-0.5">
-                    Core Value
+                    {t("home.values.badge")}
                   </Badge>
 
                   <h3 className="text-3xl font-black text-maroon mb-1 leading-tight">
-                    {selected.title}
+                    {t(`home.values.items.${selected.id}.title`)}
                   </h3>
-                  <p className="text-xl font-black text-gold mb-6 font-myanmar">
-                    {selected.titleMm}
-                  </p>
+                  {language === "en" && (
+                    <p className="text-xl font-black text-gold mb-6 font-myanmar">
+                      {/* Optional: You can put a secondary language title here if needed, 
+                          but since we use t(), it will switch automatically */}
+                    </p>
+                  )}
 
                   <div className="space-y-4">
                     <p className="text-base text-navy/70 leading-relaxed font-medium">
-                      {selected.description}
-                    </p>
-                    <p className="text-lg text-navy/80 leading-relaxed font-myanmar italic border-l-4 border-gold/20 pl-4 bg-gold/5 py-3 rounded-r-xl">
-                      {selected.descriptionMm}
+                      {t(`home.values.items.${selected.id}.description`)}
                     </p>
                   </div>
 
@@ -146,7 +122,7 @@ export function HomeStats() {
                       onClick={() => setSelected(null)}
                       className="w-full bg-maroon text-white hover:bg-gold hover:text-navy font-bold py-6 rounded-2xl transition-all shadow-lg shadow-maroon/10"
                     >
-                      Back to Home
+                      {t("home.values.back")}
                     </Button>
                   </div>
                 </div>

@@ -37,6 +37,37 @@
       "title": "Spiritual",
       "titleGold": "Events",
       "subtitle": "Upcoming Religious Ceremonies and Gatherings"
+    },
+    "values": {
+      "badge": "Core Value",
+      "discover": "Discover More",
+      "back": "Back to Home",
+      "items": {
+        "growth": {
+          "label": "Growth",
+          "text": "Spiritual Development",
+          "title": "Elevate Your Soul",
+          "description": "Our teachings go beyond memory; we focus on the transformation of the heart. Experience a journey where ancient wisdom meets your personal growth path."
+        },
+        "pure": {
+          "label": "Pure",
+          "text": "Authentic Teachings",
+          "title": "Original Wisdom",
+          "description": "Every lesson is anchored in the Tipitaka, ensuring you receive the Buddha's words in their purest most authentic form, undiluted by time."
+        },
+        "sangha": {
+          "label": "Sangha",
+          "text": "Global Community",
+          "title": "Circle of Dhamma",
+          "description": "Build deep, meaningful connections with fellow practitioners and monastics worldwide. In our Sangha, every seeker finds a home."
+        },
+        "dana": {
+          "label": "Dana",
+          "text": "Generous Support",
+          "title": "The Power of Giving",
+          "description": "Dana is the foundation of merit. Your generosity fuels the free education of many, creating a legacy of wisdom for future generations."
+        }
+      }
     }
   },
   "courses": {
