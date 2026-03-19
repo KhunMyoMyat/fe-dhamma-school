@@ -18,6 +18,8 @@ import api from "@/lib/api";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import toast from "react-hot-toast";
+
 
 export default function AdminCoursesPage() {
   const [courses, setCourses] = useState<any[]>([]);
@@ -157,10 +159,32 @@ export default function AdminCoursesPage() {
                     </td>
                     <td className="p-6">
                       <div className="flex items-center gap-2">
-                        <div className={cn(
-                          "size-2 rounded-full",
-                          course.isActive ? "bg-green-500 animate-pulse" : "bg-navy/20"
-                        )} />
+                        <button
+                          onClick={async () => {
+                            try {
+                              const newStatus = !course.isActive;
+                              await api.put(`/courses/${course.id}`, { isActive: newStatus });
+                              toast.success(`Course ${newStatus ? 'activated' : 'deactivated'} successfully! \nသင်တန်းအခြေအနေ ပြောင်းလဲပြီးပါပြီ။`);
+                              fetchCourses();
+                            } catch (error) {
+                              toast.error("Failed to update status. \nအခြေအနေပြောင်းလဲမှု မအောင်မြင်ပါ။");
+                            }
+                          }}
+                          className={cn(
+                            "relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors duration-200 outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-maroon/20",
+                            course.isActive ? "bg-green-500" : "bg-navy/20"
+                          )}
+                          title="Toggle Active Status"
+                        >
+                          <span className="sr-only">Toggle Active</span>
+                          <span
+                            aria-hidden="true"
+                            className={cn(
+                              "pointer-events-none absolute left-0 inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                              course.isActive ? "translate-x-4" : "translate-x-0"
+                            )}
+                          />
+                        </button>
                         <span className={cn(
                           "text-xs font-black uppercase tracking-widest",
                           course.isActive ? "text-green-600" : "text-navy/30"
@@ -183,9 +207,13 @@ export default function AdminCoursesPage() {
                         </Link>
                         <button 
                           onClick={() => {
-                            if(confirm("Are you sure you want to delete this course?")) {
-                              // Delete logic here
-                              api.delete(`/courses/${course.id}`).then(() => fetchCourses());
+                            if(confirm("Are you sure you want to delete this course? \nဒီသင်တန်းကို ဖျက်ရန် သေချာပါသလား?")) {
+                              const promise = api.delete(`/courses/${course.id}`).then(() => fetchCourses());
+                              toast.promise(promise, {
+                                loading: 'Deleting course...',
+                                success: 'Course deleted successfully! \nသင်တန်းဖျက်ခြင်း အောင်မြင်ပါသည်။',
+                                error: 'Failed to delete course! \nသင်တန်းဖျက်ခြင်း မအောင်မြင်ပါ။',
+                              });
                             }
                           }}
                           className="p-2 hover:bg-red-50 rounded-lg text-navy/30 hover:text-red-500 transition-colors" 

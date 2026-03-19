@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
 import { cn } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 const courseSchema = z.object({
   title: z.string().min(3, "English Title must be at least 3 characters"),
@@ -49,7 +50,6 @@ export function CourseForm({ initialData, isEditing = false }: CourseFormProps) 
   const router = useRouter();
   const [teachers, setTeachers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -85,7 +85,6 @@ export function CourseForm({ initialData, isEditing = false }: CourseFormProps) 
 
   const onSubmit = async (values: CourseFormValues) => {
     setIsLoading(true);
-    setError(null);
     try {
       // Clean up empty strings for optional fields
       const data = {
@@ -98,18 +97,23 @@ export function CourseForm({ initialData, isEditing = false }: CourseFormProps) 
         classTime: values.classTime || undefined,
         daysPerWeek: values.daysPerWeek ? Number(values.daysPerWeek) : undefined,
         startDate: values.startDate ? new Date(values.startDate).toISOString() : undefined,
+        isActive: Boolean(values.isActive),
       };
 
       if (isEditing) {
         await api.put(`/courses/${initialData.id}`, data);
+        toast.success("Course updated successfully! \nသင်တန်းအချက်အလက် ပြင်ဆင်မှု အောင်မြင်ပါသည်။");
       } else {
         await api.post("/courses", data);
+        toast.success("New course created successfully! \nသင်တန်းအသစ် ဖန်တီးမှု အောင်မြင်ပါသည်။");
       }
-      router.push("/admin/courses");
-      router.refresh();
+      setTimeout(() => {
+        router.push("/admin/courses");
+        router.refresh();
+      }, 1000); // Give toast time to show before navigation
     } catch (err: any) {
       console.error("❌ Course Submit Error:", err.response?.data || err.message);
-      setError(err.response?.data?.message || "Something went wrong. Please try again.");
+      toast.error(err.response?.data?.message || "Something went wrong. Please try again. \nအမှားအယွင်းဖြစ်ပွားနေပါသည်။");
     } finally {
       setIsLoading(false);
     }
@@ -117,12 +121,6 @@ export function CourseForm({ initialData, isEditing = false }: CourseFormProps) 
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-10 max-w-5xl">
-      {error && (
-        <div className="bg-red-50 text-red-600 p-6 rounded-2xl border border-red-100 font-myanmar flex items-center gap-3 shadow-sm">
-          <Info className="size-5 shrink-0" />
-          {error}
-        </div>
-      )}
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
