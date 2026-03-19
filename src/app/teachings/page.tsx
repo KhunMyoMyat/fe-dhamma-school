@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { Sprout, FileText, ArrowUpRight, Loader2, Music2, Video } from "lucide-react";
+import { Sprout, FileText, ArrowUpRight, Loader2, Music2, Video, Globe } from "lucide-react";
 import api from "@/lib/api";
 import Link from "next/link";
 import { resolveFileUrl } from "@/lib/fileUrl";
@@ -15,6 +15,7 @@ export default function TeachingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedLanguage, setSelectedLanguage] = useState<"all" | "mm" | "en" | "th">("all");
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
 
   useEffect(() => {
@@ -58,12 +59,21 @@ export default function TeachingsPage() {
   }, [teachings]);
 
   const filteredTeachings = teachings.filter((teaching) => {
-    const searchText = collectSearchText(teaching.translations);
+    const translations = Array.isArray(teaching.translations) ? teaching.translations : [];
+    const languageFilteredTranslations =
+      selectedLanguage === "all"
+        ? translations
+        : translations.filter((t: any) => t?.locale === selectedLanguage);
+
+    const matchesLanguage =
+      selectedLanguage === "all" || languageFilteredTranslations.length > 0;
+
+    const searchText = collectSearchText(languageFilteredTranslations);
     const matchesSearch = searchText.includes(search.toLowerCase());
     const matchesCategory =
       selectedCategory === "all" ||
       (teaching.category && teaching.category.toLowerCase() === selectedCategory);
-    return matchesSearch && matchesCategory;
+    return matchesLanguage && matchesSearch && matchesCategory;
   });
 
   const sortedTeachings = [...filteredTeachings].sort((a, b) => {
@@ -116,6 +126,21 @@ export default function TeachingsPage() {
                   />
                 </div>
                 <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-navy/30 pointer-events-none" />
+                    <select
+                      value={selectedLanguage}
+                      onChange={(e) => setSelectedLanguage(e.target.value as "all" | "mm" | "en" | "th")}
+                      className="h-11 pl-10 pr-4 rounded-xl border-2 border-gold/10 bg-cream/30 font-bold text-navy/60 uppercase tracking-widest text-xs focus:border-maroon focus:bg-white outline-none transition-all"
+                      title="Filter by language"
+                      aria-label="Filter by language"
+                    >
+                      <option value="all">Any language</option>
+                      <option value="mm">MM</option>
+                      <option value="en">EN</option>
+                      <option value="th">TH</option>
+                    </select>
+                  </div>
                   <select
                     value={sortOrder}
                     onChange={(e) => setSortOrder(e.target.value as "newest" | "oldest")}
@@ -129,6 +154,7 @@ export default function TeachingsPage() {
                     onClick={() => {
                       setSearch("");
                       setSelectedCategory("all");
+                      setSelectedLanguage("all");
                       setSortOrder("newest");
                     }}
                     className="h-11 px-4 rounded-xl border-2 border-maroon/20 text-maroon font-bold text-xs uppercase tracking-widest hover:bg-maroon hover:text-white transition-colors"
@@ -171,10 +197,13 @@ export default function TeachingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                 {sortedTeachings.map((teaching, index) => {
                   const documentUrl = resolveFileUrl(teaching.documentUrl);
-                  const translation = pickTranslation(teaching.translations);
+                  const translation =
+                    selectedLanguage === "all"
+                      ? pickTranslation(teaching.translations)
+                      : pickTranslation(teaching.translations, [selectedLanguage]);
                   return (
                     <motion.div
-                key={teaching.id}
+                      key={teaching.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.05 }}
