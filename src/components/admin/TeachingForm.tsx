@@ -15,7 +15,8 @@ import {
   Link as LinkIcon,
   Music2,
   Video,
-  X
+  X,
+  Image as ImageIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
@@ -34,6 +35,7 @@ const teachingSchema = z.object({
     )
     .min(1, "Add at least one translation"),
   category: z.string().optional().or(z.literal("")),
+  coverImageUrl: z.string().optional().or(z.literal("")),
   audioUrl: z.string().optional().or(z.literal("")),
   videoUrl: z.string().optional().or(z.literal("")),
   documentUrl: z.string().optional().or(z.literal("")),
@@ -42,6 +44,15 @@ const teachingSchema = z.object({
   documentSize: z.number().optional().or(z.literal(0)),
   teacherId: z.string().optional().or(z.literal("")),
   isPublished: z.boolean(),
+}).superRefine((val, ctx) => {
+  if (val.category === "dhamma_book") {
+    if (!val.documentUrl) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Document is required for Dhamma Book", path: ["documentUrl"] });
+    }
+    if (!val.coverImageUrl) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Cover image is required for Dhamma Book", path: ["coverImageUrl"] });
+    }
+  }
 });
 
 type TeachingFormValues = z.infer<typeof teachingSchema>;
@@ -53,6 +64,7 @@ interface TeachingFormProps {
 
 const CATEGORY_OPTIONS = [
   "dhamma",
+  "dhamma_book",
   "sutra",
   "vinaya",
   "abhidhamma",
@@ -101,6 +113,7 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
             }))
           : [{ locale: "mm", title: "", content: "" }],
       category: initialData?.category || "dhamma",
+      coverImageUrl: initialData?.coverImageUrl || "",
       isPublished: initialData?.isPublished ?? true,
       documentSize: initialData?.documentSize || 0,
       documentType: initialData?.documentType || "",
@@ -149,6 +162,25 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
     }
   };
 
+  const handleCoverUpload = async (file: File) => {
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await api.post("/upload/image", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      const data = response.data;
+      setValue("coverImageUrl", data.url);
+      toast.success("Cover uploaded successfully!");
+    } catch (err: any) {
+      console.error("Cover upload failed:", err?.response?.data || err?.message);
+      toast.error(err?.response?.data?.message || "Cover upload failed. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const onSubmit = async (values: TeachingFormValues) => {
     setIsLoading(true);
     try {
@@ -162,6 +194,7 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
         ...values,
         translations,
         category: values.category || "dhamma",
+        coverImageUrl: values.coverImageUrl || undefined,
         audioUrl: values.audioUrl || undefined,
         videoUrl: values.videoUrl || undefined,
         documentUrl: shouldClearDocument ? "" : values.documentUrl || undefined,
@@ -196,7 +229,10 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
   const documentName = watch("documentName");
   const documentSize = watch("documentSize");
   const documentType = watch("documentType");
+  const category = watch("category");
+  const coverImageUrl = watch("coverImageUrl");
   const resolvedDocumentUrl = resolveFileUrl(documentUrl);
+  const resolvedCoverImageUrl = resolveFileUrl(coverImageUrl);
   const translationValues = watch("translations");
   const usedLocales = new Set((translationValues || []).map((t) => t?.locale));
   const nextLocale = LOCALE_OPTIONS.find((opt) => !usedLocales.has(opt.value))?.value;
@@ -308,7 +344,7 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
             >
               {CATEGORY_OPTIONS.map((cat) => (
                 <option key={cat} value={cat} className="capitalize">
-                  {cat}
+                  {cat === "dhamma_book" ? "Dhamma Book" : cat}
                 </option>
               ))}
             </select>
@@ -345,6 +381,67 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
             </div>
           </div>
         </div>
+
+        {category === "dhamma_book" && (
+          <div className="pt-2 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-xl bg-maroon/5 flex items-center justify-center">
+                <ImageIcon className="size-5 text-maroon" />
+              </div>
+              <div>
+                <p className="font-black text-maroon uppercase tracking-tight text-lg">Book Cover</p>
+                <p className="text-xs text-navy/40 font-bold">Upload a cover image (recommended)</p>
+              </div>
+            </div>
+
+            <div className="border-2 border-dashed rounded-2xl p-6 bg-cream/30 flex flex-col md:flex-row md:items-center gap-4 border-gold/10">
+              <div className="flex-1">
+                {coverImageUrl ? (
+                  <div className="flex items-center gap-4">
+                    <div className="size-16 rounded-2xl overflow-hidden border border-gold/10 bg-white">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={resolvedCoverImageUrl} alt="Cover" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="text-sm font-bold text-navy/60 break-words">{coverImageUrl}</div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-navy/40 font-bold">Upload a cover so the book card shows an image.</p>
+                )}
+                {errors.coverImageUrl && (
+                  <p className="text-xs font-bold text-red-500 mt-2">{errors.coverImageUrl.message as string}</p>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3">
+                {coverImageUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setValue("coverImageUrl", "")}
+                    className="h-11 px-4 rounded-xl border-2 border-red-200 text-red-500 font-bold hover:bg-red-50 transition-colors"
+                  >
+                    <X className="size-4 mr-1" /> Remove
+                  </button>
+                )}
+                <label className={cn(
+                  "inline-flex items-center gap-2 h-11 px-5 rounded-xl font-bold cursor-pointer transition-colors",
+                  isUploading ? "bg-gold/20 text-gold" : "bg-maroon text-white hover:bg-gold hover:text-navy"
+                )}>
+                  {isUploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+                  {isUploading ? "Uploading..." : coverImageUrl ? "Replace" : "Upload"}
+                  <input
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.gif,.webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleCoverUpload(file);
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-2">
@@ -411,6 +508,9 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
                 </div>
               ) : (
                 <p className="text-sm text-navy/40 font-bold">Upload a PDF or EPUB so users can read and download.</p>
+              )}
+              {errors.documentUrl && (
+                <p className="text-xs font-bold text-red-500 mt-2">{errors.documentUrl.message as string}</p>
               )}
             </div>
 

@@ -19,6 +19,19 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'loremflickr.com',
       },
+      // Local backend uploads (dev)
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '4000',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '4000',
+        pathname: '/uploads/**',
+      },
     ],
   },
 };

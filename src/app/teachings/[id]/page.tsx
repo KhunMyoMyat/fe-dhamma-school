@@ -72,9 +72,11 @@ export default function TeachingDetailPage({ params }: { params: Promise<{ id: s
   }
 
   const resolvedDocumentUrl = resolveFileUrl(teaching.documentUrl);
+  const resolvedCoverImageUrl = resolveFileUrl(teaching.coverImageUrl);
   const showPdf = isPdf(resolvedDocumentUrl, teaching.documentType);
   const pdfViewerUrl = resolvedDocumentUrl ? withPdfToolbar(resolvedDocumentUrl) : "";
   const translation = pickTranslation(teaching.translations);
+  const isBook = String(teaching.category || "").toLowerCase() === "dhamma_book";
 
   return (
     <div className="min-h-screen bg-cream/10 pt-24">
@@ -90,7 +92,7 @@ export default function TeachingDetailPage({ params }: { params: Promise<{ id: s
 
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <Badge className="bg-maroon/10 text-maroon border-maroon/20 uppercase tracking-widest text-[10px] font-black">
-              {teaching.category || "dhamma"}
+              {teaching.category === "dhamma_book" ? "Dhamma Book" : (teaching.category || "dhamma")}
             </Badge>
             {teaching.audioUrl && <Music2 className="size-4 text-navy/40" />}
             {teaching.videoUrl && <Video className="size-4 text-navy/40" />}
@@ -113,15 +115,29 @@ export default function TeachingDetailPage({ params }: { params: Promise<{ id: s
         </div>
 
         <div className="max-w-4xl mx-auto space-y-8">
-          <div className="bg-white rounded-[2rem] border border-gold/10 shadow-xl shadow-maroon/5 p-8">
-            {translation?.content ? (
-              <p className="text-navy/70 leading-relaxed whitespace-pre-line">
-                {translation.content}
-              </p>
-            ) : (
-              <p className="text-navy/40">Full content will be updated soon.</p>
-            )}
-          </div>
+          {!isBook && (
+            <div className="bg-white rounded-[2rem] border border-gold/10 shadow-xl shadow-maroon/5 p-8">
+              {translation?.content ? (
+                <p className="text-navy/70 leading-relaxed whitespace-pre-line">
+                  {translation.content}
+                </p>
+              ) : (
+                <p className="text-navy/40">Full content will be updated soon.</p>
+              )}
+            </div>
+          )}
+
+          {isBook && resolvedCoverImageUrl && (
+            <div className="bg-white rounded-[2rem] border border-gold/10 shadow-xl shadow-maroon/5 p-8 space-y-4">
+              <h2 className="text-xl font-black text-maroon">Cover</h2>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={resolvedCoverImageUrl}
+                alt={translation?.title || "Book cover"}
+                className="w-full max-h-[60vh] object-contain rounded-2xl border border-gold/10 bg-cream/10"
+              />
+            </div>
+          )}
 
           {(teaching.audioUrl || teaching.videoUrl) && (
             <div className="bg-white rounded-[2rem] border border-gold/10 shadow-xl shadow-maroon/5 p-8 space-y-4">

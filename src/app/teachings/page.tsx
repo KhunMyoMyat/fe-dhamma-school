@@ -9,6 +9,7 @@ import Link from "next/link";
 import { resolveFileUrl } from "@/lib/fileUrl";
 import { cn } from "@/lib/utils";
 import { collectSearchText, pickTranslation } from "@/lib/translations";
+import Image from "next/image";
 
 export default function TeachingsPage() {
   const [teachings, setTeachings] = useState<any[]>([]);
@@ -35,6 +36,7 @@ export default function TeachingsPage() {
   const categories = useMemo(() => {
     const CANONICAL = [
       { id: "dhamma", label: "Dhamma" },
+      { id: "dhamma_book", label: "Dhamma Book" },
       { id: "sutra", label: "Sutra" },
       { id: "vinaya", label: "Vinaya" },
       { id: "abhidhamma", label: "Abhidhamma" },
@@ -59,6 +61,9 @@ export default function TeachingsPage() {
   }, [teachings]);
 
   const filteredTeachings = teachings.filter((teaching) => {
+    // If filtering books, only show items with a document.
+    if (selectedCategory === "dhamma_book" && !teaching.documentUrl) return false;
+
     const translations = Array.isArray(teaching.translations) ? teaching.translations : [];
     const languageFilteredTranslations =
       selectedLanguage === "all"
@@ -197,72 +202,104 @@ export default function TeachingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                 {sortedTeachings.map((teaching, index) => {
                   const documentUrl = resolveFileUrl(teaching.documentUrl);
+                  const coverUrl = resolveFileUrl(teaching.coverImageUrl);
                   const translation =
                     selectedLanguage === "all"
                       ? pickTranslation(teaching.translations)
                       : pickTranslation(teaching.translations, [selectedLanguage]);
+                  const isBook = String(teaching.category || "").toLowerCase() === "dhamma_book";
                   return (
                     <motion.div
                       key={teaching.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.05 }}
-                viewport={{ once: true }}
-                className="group bg-white rounded-[2rem] border border-gold/10 shadow-xl shadow-maroon/5 p-8 flex flex-col"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <Badge className="bg-maroon/5 text-maroon border-maroon/10 uppercase tracking-widest text-[10px] font-black">
-                    {teaching.category || "dhamma"}
-                  </Badge>
-                  <div className="flex items-center gap-2 text-navy/30">
-                    {teaching.audioUrl && <Music2 className="size-4" />}
-                    {teaching.videoUrl && <Video className="size-4" />}
-                    {teaching.documentUrl && <FileText className="size-4" />}
-                  </div>
-                </div>
-
-                <h3 className="text-2xl font-black text-maroon mb-2 leading-tight">
-                  {translation?.title || "Untitled"}
-                </h3>
-                {translation?.locale && (
-                  <p className="text-xs text-gold-dark font-bold uppercase tracking-widest mb-3">
-                    {translation.locale}
-                  </p>
-                )}
-
-                <p className="text-navy/60 text-sm leading-relaxed flex-1 break-words whitespace-pre-line">
-                  {translation?.content
-                    ? translation.content.slice(0, 160) + (translation.content.length > 160 ? "..." : "")
-                    : "Summary coming soon."}
-                </p>
-
-                <div className="mt-6 space-y-3">
-                  {teaching.teacher?.name && (
-                    <p className="text-xs font-bold text-navy/40 uppercase tracking-widest">
-                      Teacher: <span className="text-navy/70">{teaching.teacher.name}</span>
-                    </p>
-                  )}
-
-                  <div className="flex flex-wrap items-center gap-3">
-                    <Link
-                      href={`/teachings/${teaching.id}`}
-                      className="inline-flex items-center gap-2 text-maroon font-bold text-sm hover:text-gold transition-colors"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.05 }}
+                      viewport={{ once: true }}
+                      className={cn(
+                        "group bg-white rounded-[2rem] border border-gold/10 shadow-xl shadow-maroon/5 flex flex-col overflow-hidden",
+                        isBook ? "p-0" : "p-8"
+                      )}
                     >
-                      Read Teaching
-                      <ArrowUpRight className="size-4" />
-                    </Link>
-                    {documentUrl && (
-                      <a
-                        href={documentUrl}
-                        download
-                        className="inline-flex items-center gap-2 text-navy/60 font-bold text-sm hover:text-maroon transition-colors"
-                      >
-                        Download
-                        <FileText className="size-4" />
-                      </a>
-                    )}
-                  </div>
-                </div>
+                      {isBook && (
+                        <div className="relative w-full aspect-[4/3] bg-cream/30 border-b border-gold/10">
+                          {coverUrl ? (
+                            <Image
+                              src={coverUrl}
+                              alt={translation?.title || "Book cover"}
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center text-navy/30 font-bold uppercase tracking-widest text-xs">
+                              No cover
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <div className={cn(isBook ? "p-8" : "")}>
+                      <div className="flex items-center justify-between mb-4">
+                        <Badge className="bg-maroon/5 text-maroon border-maroon/10 uppercase tracking-widest text-[10px] font-black">
+                          {teaching.category === "dhamma_book" ? "Dhamma Book" : (teaching.category || "dhamma")}
+                        </Badge>
+                        <div className="flex items-center gap-2 text-navy/30">
+                          {teaching.audioUrl && <Music2 className="size-4" />}
+                          {teaching.videoUrl && <Video className="size-4" />}
+                          {teaching.documentUrl && <FileText className="size-4" />}
+                        </div>
+                      </div>
+
+                      <h3 className="text-2xl font-black text-maroon mb-2 leading-tight">
+                        {translation?.title || "Untitled"}
+                      </h3>
+                      {translation?.locale && (
+                        <p className="text-xs text-gold-dark font-bold uppercase tracking-widest mb-3">
+                          {translation.locale}
+                        </p>
+                      )}
+
+                      {!isBook && (
+                        <p className="text-navy/60 text-sm leading-relaxed flex-1 break-words whitespace-pre-line">
+                          {translation?.content
+                            ? translation.content.slice(0, 160) + (translation.content.length > 160 ? "..." : "")
+                            : "Summary coming soon."}
+                        </p>
+                      )}
+                      {isBook && (
+                        <p className="text-navy/50 text-sm leading-relaxed flex-1">
+                          PDF / eBook available to read and download.
+                        </p>
+                      )}
+
+                      <div className="mt-6 space-y-3">
+                        {teaching.teacher?.name && (
+                          <p className="text-xs font-bold text-navy/40 uppercase tracking-widest">
+                            Teacher: <span className="text-navy/70">{teaching.teacher.name}</span>
+                          </p>
+                        )}
+
+                        <div className="flex flex-wrap items-center gap-3">
+                          <Link
+                            href={`/teachings/${teaching.id}`}
+                            className="inline-flex items-center gap-2 text-maroon font-bold text-sm hover:text-gold transition-colors"
+                          >
+                            {isBook ? "Open Book" : "Read Teaching"}
+                            <ArrowUpRight className="size-4" />
+                          </Link>
+                          {documentUrl && (
+                            <a
+                              href={documentUrl}
+                              download
+                              className="inline-flex items-center gap-2 text-navy/60 font-bold text-sm hover:text-maroon transition-colors"
+                            >
+                              Download
+                              <FileText className="size-4" />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                      </div>
                     </motion.div>
                   );
                 })}
