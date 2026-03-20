@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Heart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function DonatePage() {
   return (
@@ -19,6 +20,17 @@ export default function DonatePage() {
           <p className="text-xl text-navy/70 leading-relaxed font-myanmar max-w-2xl mx-auto">
             "သဗ္ဗဒါနံ ဓမ္မဒါနံ ဇိနာတိ" - အလှူအားလုံးတွင် တရားအလှူသည် အမြတ်ဆုံး ဖြစ်၏။
           </p>
+
+          <div className="mt-10 flex justify-center">
+            <Link href="/monthly-donors">
+              <Button
+                variant="outline"
+                className="h-14 px-8 rounded-full border-gold/40 text-gold hover:bg-gold hover:text-navy font-black tracking-tight"
+              >
+                View Monthly Donors
+              </Button>
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">

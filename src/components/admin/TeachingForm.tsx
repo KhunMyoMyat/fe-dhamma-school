@@ -77,7 +77,7 @@ const LOCALE_OPTIONS = [
   { value: "mm", label: "Myanmar (MM)" },
   { value: "en", label: "English (EN)" },
   { value: "th", label: "Thai (TH)" },
-];
+] as const;
 
 function formatBytes(bytes?: number) {
   if (!bytes || bytes <= 0) return "";

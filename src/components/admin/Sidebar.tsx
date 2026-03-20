@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   ChevronRight,
+  HandCoins,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, Menu } from "lucide-react";
@@ -20,6 +21,7 @@ const menuItems = [
   { label: "Courses", icon: BookOpen, href: "/admin/courses" },
   { label: "Events", icon: Calendar, href: "/admin/events" },
   { label: "Teachings", icon: Sprout, href: "/admin/teachings" },
+  { label: "Donations", icon: HandCoins, href: "/admin/donations" },
   { label: "Inquiries", icon: MessageSquare, href: "/admin/inquiries" },
 ];
 

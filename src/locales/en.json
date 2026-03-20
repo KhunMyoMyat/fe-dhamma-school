@@ -14,7 +14,20 @@
     "courses": "Courses",
     "events": "Events",
     "teachings": "Teachings",
+    "monthlyDonors": "Monthly Donors",
     "donate": "Donate Now"
+  },
+  "donors": {
+    "monthly": {
+      "badge": "Dana",
+      "title": "Monthly Donators List",
+      "subtitle": "With gratitude to everyone supporting the Gift of Dhamma.",
+      "filter": "Select month",
+      "empty": "No donors recorded for this month yet.",
+      "showing": "Showing",
+      "donations": "Donations",
+      "last": "Last"
+    }
   },
   "home": {
     "hero": {

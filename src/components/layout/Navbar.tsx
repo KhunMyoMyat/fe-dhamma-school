@@ -19,6 +19,7 @@ export default function Navbar() {
     { href: "/courses", label: t("nav.courses") },
     { href: "/events", label: t("nav.events") },
     { href: "/teachings", label: t("nav.teachings") },
+    { href: "/monthly-donors", label: t("nav.monthlyDonors") },
   ];
 
   return (

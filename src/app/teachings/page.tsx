@@ -215,13 +215,10 @@ export default function TeachingsPage() {
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: index * 0.05 }}
                       viewport={{ once: true }}
-                      className={cn(
-                        "group bg-white rounded-[2rem] border border-gold/10 shadow-xl shadow-maroon/5 flex flex-col overflow-hidden",
-                        isBook ? "p-0" : "p-8"
-                      )}
+                      className="group bg-white rounded-[2rem] border border-gold/10 shadow-lg shadow-maroon/5 flex flex-col overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-maroon/10"
                     >
                       {isBook && (
-                        <div className="relative w-full aspect-[4/3] bg-cream/30 border-b border-gold/10">
+                        <div className="relative w-full h-44 bg-cream/30 border-b border-gold/10">
                           {coverUrl ? (
                             <Image
                               src={coverUrl}
@@ -238,8 +235,8 @@ export default function TeachingsPage() {
                         </div>
                       )}
 
-                      <div className={cn(isBook ? "p-8" : "")}>
-                      <div className="flex items-center justify-between mb-4">
+                      <div className="p-6 flex flex-col flex-1">
+                      <div className="flex items-center justify-between mb-3 min-h-7">
                         <Badge className="bg-maroon/5 text-maroon border-maroon/10 uppercase tracking-widest text-[10px] font-black">
                           {teaching.category === "dhamma_book" ? "Dhamma Book" : (teaching.category || "dhamma")}
                         </Badge>
@@ -250,36 +247,34 @@ export default function TeachingsPage() {
                         </div>
                       </div>
 
-                      <h3 className="text-2xl font-black text-maroon mb-2 leading-tight">
+                      <h3 className="text-2xl font-black text-maroon mb-1.5 leading-tight line-clamp-2 min-h-[3.25rem]">
                         {translation?.title || "Untitled"}
                       </h3>
-                      {translation?.locale && (
-                        <p className="text-xs text-gold-dark font-bold uppercase tracking-widest mb-3">
-                          {translation.locale}
-                        </p>
-                      )}
+                      <p className="text-xs text-gold-dark font-bold uppercase tracking-widest mb-3 min-h-4">
+                        {translation?.locale || ""}
+                      </p>
 
                       {!isBook && (
-                        <p className="text-navy/60 text-sm leading-relaxed flex-1 break-words whitespace-pre-line">
-                          {translation?.content
-                            ? translation.content.slice(0, 160) + (translation.content.length > 160 ? "..." : "")
-                            : "Summary coming soon."}
+                        <p className="text-navy/60 text-sm leading-relaxed break-words whitespace-pre-line line-clamp-3 min-h-[4.25rem]">
+                          {translation?.content || "Summary coming soon."}
                         </p>
                       )}
                       {isBook && (
-                        <p className="text-navy/50 text-sm leading-relaxed flex-1">
+                        <p className="text-navy/50 text-sm leading-relaxed min-h-[4.25rem]">
                           PDF / eBook available to read and download.
                         </p>
                       )}
 
-                      <div className="mt-6 space-y-3">
-                        {teaching.teacher?.name && (
-                          <p className="text-xs font-bold text-navy/40 uppercase tracking-widest">
-                            Teacher: <span className="text-navy/70">{teaching.teacher.name}</span>
-                          </p>
-                        )}
+                      <div className="mt-5 space-y-3 flex-1 flex flex-col">
+                        <p className="text-[11px] font-bold text-navy/40 uppercase tracking-widest min-h-4">
+                          {teaching.teacher?.name ? (
+                            <>Teacher: <span className="text-navy/70">{teaching.teacher.name}</span></>
+                          ) : (
+                            ""
+                          )}
+                        </p>
 
-                        <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-3 mt-auto">
                           <Link
                             href={`/teachings/${teaching.id}`}
                             className="inline-flex items-center gap-2 text-maroon font-bold text-sm hover:text-gold transition-colors"
