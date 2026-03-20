@@ -33,7 +33,8 @@ export default function MonthlyDonorsPage() {
   const [month, setMonth] = useState<number>(now.getUTCMonth() + 1);
 
   const [rows, setRows] = useState<MonthlyDonorRow[]>([]);
-  const [meta, setMeta] = useState<PaginatedResponse<MonthlyDonorRow>["meta"] | null>(null);
+  type MonthlyDonorMeta = PaginatedResponse<MonthlyDonorRow>["meta"] & { totalsByCurrency?: { currency: string; total: number }[] };
+  const [meta, setMeta] = useState<MonthlyDonorMeta | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,7 +45,7 @@ export default function MonthlyDonorsPage() {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await api.get<PaginatedResponse<MonthlyDonorRow>>("/donations/monthly-donors", {
+        const res = await api.get<PaginatedResponse<MonthlyDonorRow> & { meta: { totalsByCurrency: any[] } }>("/donations/monthly-donors", {
           params: { year, month, page: 1, limit: 200 },
         });
         if (cancelled) return;
@@ -142,51 +143,74 @@ export default function MonthlyDonorsPage() {
               <p className="text-cream/60 font-bold">{t("donors.monthly.empty")}</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between text-xs text-cream/40 font-bold uppercase tracking-widest px-2">
-                <span>
-                  {t("donors.monthly.showing")} {rows.length}
-                  {meta?.total ? ` / ${meta.total}` : ""}
-                </span>
-                <span>
-                  {monthLabel(month)} {year}
-                </span>
+            <div className="space-y-8">
+              <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 md:p-10 backdrop-blur-md">
+                <p className="text-xs font-black text-gold/60 uppercase tracking-[0.2em] mb-6 text-center">
+                  {t("donors.monthly.total_stats")} ({monthLabel(month)} {year})
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                  {["MMK", "USD", "THB", "SGD"].map((curr) => {
+                    const amount = meta?.totalsByCurrency?.find(t => t.currency === curr)?.total || 0;
+                    return (
+                      <div key={curr} className="text-center group">
+                        <p className="text-2xl md:text-3xl font-black text-white group-hover:text-gold transition-colors">
+                          {amount.toLocaleString()}
+                        </p>
+                        <p className="text-[10px] font-black text-cream/40 uppercase tracking-widest mt-1">
+                          {curr}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
-              {rows.map((row, idx) => (
-                <div
-                  key={`${row.donorName}-${row.currency}-${idx}`}
-                  className="p-6 rounded-[2.5rem] bg-linear-to-br from-white/10 to-white/5 border border-white/10 backdrop-blur-md flex items-center justify-between gap-6"
-                >
-                  <div className="min-w-0">
-                    <p className="text-lg md:text-xl font-black text-white truncate">
-                      {row.donorName}
-                    </p>
-                    <p className="text-xs text-cream/50 font-bold uppercase tracking-widest mt-1">
-                      {t("donors.monthly.donations")}: {row.donationCount}
-                      {row.lastDonationAt ? (
-                        <span className="ml-3 opacity-80">
-                          {t("donors.monthly.last")}:{" "}
-                          {new Date(row.lastDonationAt).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "short",
-                            day: "2-digit",
-                          })}
-                        </span>
-                      ) : null}
-                    </p>
-                  </div>
-
-                  <div className="shrink-0 text-right">
-                    <p className="text-2xl font-black text-gold">
-                      {row.totalAmount.toLocaleString("en-US", { maximumFractionDigits: 2 })}
-                    </p>
-                    <p className="text-xs text-cream/50 font-bold uppercase tracking-widest">
-                      {row.currency}
-                    </p>
-                  </div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between text-xs text-cream/40 font-bold uppercase tracking-widest px-2">
+                  <span>
+                    {t("donors.monthly.showing")} {rows.length}
+                    {meta?.total ? ` / ${meta.total}` : ""}
+                  </span>
+                  <span className="text-gold/60">
+                    {monthLabel(month)} {year}
+                  </span>
                 </div>
-              ))}
+
+                {rows.map((row, idx) => (
+                  <div
+                    key={`${row.donorName}-${row.currency}-${idx}`}
+                    className="p-6 rounded-[2.5rem] bg-linear-to-br from-white/10 to-white/5 border border-white/10 backdrop-blur-md flex items-center justify-between gap-6"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-lg md:text-xl font-black text-white truncate">
+                        {row.donorName}
+                      </p>
+                      <p className="text-xs text-cream/50 font-bold uppercase tracking-widest mt-1">
+                        {t("donors.monthly.donations")}: {row.donationCount}
+                        {row.lastDonationAt ? (
+                          <span className="ml-3 opacity-80">
+                            {t("donors.monthly.last")}:{" "}
+                            {new Date(row.lastDonationAt).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "short",
+                              day: "2-digit",
+                            })}
+                          </span>
+                        ) : null}
+                      </p>
+                    </div>
+
+                    <div className="shrink-0 text-right">
+                      <p className="text-2xl font-black text-gold">
+                        {row.totalAmount.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+                      </p>
+                      <p className="text-xs text-cream/50 font-bold uppercase tracking-widest">
+                        {row.currency}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

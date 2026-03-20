@@ -26,6 +26,15 @@
       "title": "Monthly Donators List",
       "subtitle": "With gratitude to everyone supporting the Gift of Dhamma.",
       "filter": "Select month",
+      "categories": {
+        "label": "Category",
+        "robes": "Robes (Chivara)",
+        "alms": "Alms (Piṇḍapāta)",
+        "monastery": "Monastery (Senāsana)",
+        "medicine": "Medicine (Bhesajja)",
+        "education": "Education",
+        "general": "General Donation"
+      },
       "empty": "No donors recorded for this month yet.",
       "showing": "Showing",
       "donations": "Donations",

@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import Link from "next/link";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { Button } from "@/components/ui/button";
 import { Loader2, Plus, Search, Check, X, Pencil, Trash2, ArrowLeft, Banknote } from "lucide-react";
+import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { EditMonthlyDonorModal } from "@/components/admin/donations/EditMonthlyDonorModal";
 import { AddDonationModal } from "@/components/admin/donations/AddDonationModal";
@@ -15,6 +17,7 @@ type MonthlyDonorSubscription = {
   phone: string | null;
   amount: number;
   currency: string;
+  category: string;
   startDate: string;
   status: string;
   remarks: string | null;
@@ -27,20 +30,35 @@ type PaginatedResponse<T> = {
 };
 
 export default function AdminMonthlyDonorsPage() {
+  const { t } = useTranslation();
   const [donors, setDonors] = useState<MonthlyDonorSubscription[]>([]);
-  const [meta, setMeta] = useState<PaginatedResponse<MonthlyDonorSubscription>["meta"] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const limit = 20;
+
+  type MonthlyDonorMeta = PaginatedResponse<MonthlyDonorSubscription>["meta"] & { totalsByCurrency?: { currency: string; total: number }[] };
+  const [meta, setMeta] = useState<MonthlyDonorMeta | null>(null);
+
+  const query = useMemo(() => search.trim(), [search]);
 
   const [savingId, setSavingId] = useState<string | null>(null);
 
   const fetchDonors = async () => {
     setIsLoading(true);
     try {
-      const res = await api.get<PaginatedResponse<MonthlyDonorSubscription>>("/donations/monthly-donor-subscriptions", {
-        params: { search, page, limit },
+      const res = await api.get<PaginatedResponse<MonthlyDonorSubscription> & { meta: { totalsByCurrency: any[] } }>("/donations/monthly-donor-subscriptions", {
+        params: { 
+          page, 
+          limit, 
+          ...(query ? { search: query } : {}),
+          sortBy,
+          sortOrder,
+          ...(categoryFilter ? { category: categoryFilter } : {})
+        },
       });
       setDonors(res.data.data);
       setMeta(res.data.meta);
@@ -56,7 +74,7 @@ export default function AdminMonthlyDonorsPage() {
       fetchDonors();
     }, 500);
     return () => clearTimeout(delayDebounceFn);
-  }, [search, page]);
+  }, [page, query, sortBy, sortOrder, categoryFilter]);
 
   const updateStatus = async (id: string, newStatus: string) => {
     setSavingId(id);
@@ -106,19 +124,76 @@ export default function AdminMonthlyDonorsPage() {
       </div>
 
       <div className="bg-white rounded-[2.5rem] shadow-xl shadow-navy/5 border border-navy/5 overflow-hidden">
-        <div className="p-6 md:p-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-navy/5 bg-cream/10">
-          <div className="relative w-full sm:w-96">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-navy/40" />
-            <input
-              type="text"
-              placeholder="Search by name, phone, remarks..."
-              value={search}
+        <div className="p-6 md:p-8 flex flex-col gap-6 border-b border-navy/5 bg-cream/10">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="relative md:col-span-2 group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-navy/40" />
+              <input
+                type="text"
+                placeholder="Search by name, phone, remarks..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full h-12 bg-white border border-navy/10 rounded-xl pl-12 pr-4 text-sm font-bold text-navy outline-none focus:border-gold/50 focus:ring-4 focus:ring-gold/10 transition-all font-myanmar"
+              />
+            </div>
+
+            <select
+              value={categoryFilter}
               onChange={(e) => {
-                setSearch(e.target.value);
+                setCategoryFilter(e.target.value);
                 setPage(1);
               }}
-              className="w-full bg-white border border-navy/10 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold text-navy outline-none focus:border-gold/50 focus:ring-4 focus:ring-gold/10 transition-all"
-            />
+              className="h-12 bg-white border border-navy/10 rounded-xl px-4 focus:border-gold/50 focus:ring-4 focus:ring-gold/10 outline-none font-bold text-navy/70 text-sm cursor-pointer"
+            >
+              <option value="">All Categories</option>
+              <option value="robes">{t("donors.monthly.categories.robes")}</option>
+              <option value="alms">{t("donors.monthly.categories.alms")}</option>
+              <option value="monastery">{t("donors.monthly.categories.monastery")}</option>
+              <option value="medicine">{t("donors.monthly.categories.medicine")}</option>
+              <option value="education">{t("donors.monthly.categories.education")}</option>
+              <option value="general">{t("donors.monthly.categories.general")}</option>
+            </select>
+
+            <select
+              value={`${sortBy}:${sortOrder}`}
+              onChange={(e) => {
+                const [field, order] = e.target.value.split(":");
+                setSortBy(field);
+                setSortOrder(order as any);
+                setPage(1);
+              }}
+              className="h-12 bg-white border border-navy/10 rounded-xl px-4 focus:border-gold/50 focus:ring-4 focus:ring-gold/10 outline-none font-bold text-navy/70 text-sm cursor-pointer"
+            >
+              <option value="createdAt:desc">Newest First</option>
+              <option value="createdAt:asc">Oldest First</option>
+              <option value="amount:desc">Highest Amount</option>
+              <option value="amount:asc">Lowest Amount</option>
+              <option value="name:asc">Name A-Z</option>
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="bg-navy/5 border border-navy/10 p-4 rounded-2xl">
+              <p className="text-[10px] font-black text-navy/40 uppercase tracking-widest mb-0.5">Total Commitments</p>
+              <p className="text-xl font-black text-navy">{meta?.total ?? 0}</p>
+            </div>
+            <div className="bg-gold/5 border border-gold/10 p-4 rounded-2xl col-span-1 md:col-span-2">
+              <p className="text-[10px] font-black text-gold/60 uppercase tracking-widest mb-2">Total Monthly Commitment (by Currency)</p>
+              <div className="flex flex-wrap gap-x-6 gap-y-2">
+                {["MMK", "USD", "THB", "SGD"].map((curr) => {
+                  const amount = meta?.totalsByCurrency?.find(t => t.currency === curr)?.total || 0;
+                  return (
+                    <div key={curr} className="flex items-baseline gap-1.5">
+                      <p className="text-xl font-black text-navy">{amount.toLocaleString()}</p>
+                      <p className="text-[10px] font-black text-navy/40 uppercase tracking-widest">{curr}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -129,6 +204,7 @@ export default function AdminMonthlyDonorsPage() {
                 <th className="p-6 py-4">Donor Name</th>
                 <th className="p-6 py-4">Contact</th>
                 <th className="p-6 py-4">Commitment</th>
+                <th className="p-6 py-4">Category</th>
                 <th className="p-6 py-4">Start Date</th>
                 <th className="p-6 py-4">Status</th>
                 <th className="p-6 py-4 text-center">Actions</th>
@@ -137,7 +213,7 @@ export default function AdminMonthlyDonorsPage() {
             <tbody className="text-navy/80 text-sm font-medium divide-y divide-navy/5">
               {isLoading && donors.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-12 text-center">
+                  <td colSpan={7} className="p-12 text-center">
                     <Loader2 className="size-8 animate-spin mx-auto text-gold mb-4" />
                     <p className="text-navy/50 font-bold uppercase tracking-widest text-xs">
                       Loading data...
@@ -146,7 +222,7 @@ export default function AdminMonthlyDonorsPage() {
                 </tr>
               ) : donors.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-12 text-center text-navy/50 font-bold">
+                  <td colSpan={7} className="p-12 text-center text-navy/50 font-bold">
                     No matching records found.
                   </td>
                 </tr>
@@ -171,6 +247,11 @@ export default function AdminMonthlyDonorsPage() {
                       <span className="text-xs font-black text-navy/40 uppercase">
                         {donor.currency}
                       </span>
+                    </td>
+                    <td className="p-6">
+                      <Badge variant="outline" className="bg-navy/5 text-navy/70 border-navy/10 capitalize">
+                        {t(`donors.monthly.categories.${donor.category || 'general'}`)}
+                      </Badge>
                     </td>
                     <td className="p-6 whitespace-nowrap">
                       {new Date(donor.startDate).toLocaleDateString("en-US", {
@@ -231,6 +312,7 @@ export default function AdminMonthlyDonorsPage() {
                               donorName: donor.name,
                               amount: donor.amount.toString(),
                               currency: donor.currency,
+                              category: donor.category,
                             }}
                             triggerButton={
                               <button

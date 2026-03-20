@@ -18,6 +18,7 @@ export function RegisterMonthlyDonorModal() {
     phone: "",
     amount: "",
     currency: "MMK",
+    category: "general",
     startDate: new Date().toISOString().slice(0, 10),
     remarks: "",
   });
@@ -38,6 +39,7 @@ export function RegisterMonthlyDonorModal() {
         phone: formData.phone,
         amount: Number(formData.amount),
         currency: formData.currency,
+        category: formData.category,
         startDate: new Date(formData.startDate).toISOString(),
         remarks: formData.remarks,
       });
@@ -50,6 +52,7 @@ export function RegisterMonthlyDonorModal() {
           phone: "",
           amount: "",
           currency: "MMK",
+          category: "general",
           startDate: new Date().toISOString().slice(0, 10),
           remarks: "",
         });
@@ -180,6 +183,25 @@ export function RegisterMonthlyDonorModal() {
                       <option className="bg-navy text-white text-base py-2" value="SGD">SGD (Singapore Dollar)</option>
                     </select>
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-cream/70 uppercase tracking-widest mb-1.5 ml-1">
+                    {t("donors.monthly.categories.label")} *
+                  </label>
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                    className="w-full bg-navy border border-white/20 rounded-2xl px-4 py-3 text-white outline-none focus:border-gold/50 transition-all font-medium"
+                  >
+                    <option className="bg-navy text-white text-base py-2" value="robes">{t("donors.monthly.categories.robes")}</option>
+                    <option className="bg-navy text-white text-base py-2" value="alms">{t("donors.monthly.categories.alms")}</option>
+                    <option className="bg-navy text-white text-base py-2" value="monastery">{t("donors.monthly.categories.monastery")}</option>
+                    <option className="bg-navy text-white text-base py-2" value="medicine">{t("donors.monthly.categories.medicine")}</option>
+                    <option className="bg-navy text-white text-base py-2" value="education">{t("donors.monthly.categories.education")}</option>
+                    <option className="bg-navy text-white text-base py-2" value="general">{t("donors.monthly.categories.general")}</option>
+                  </select>
                 </div>
 
                 <div>

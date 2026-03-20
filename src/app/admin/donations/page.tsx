@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
@@ -13,6 +14,7 @@ type Donation = {
   donorName: string;
   amount: number;
   currency: string;
+  category?: string;
   message?: string | null;
   date?: string;
   createdAt?: string;
@@ -24,11 +26,16 @@ type PaginatedResponse<T> = {
 };
 
 export default function AdminDonationsPage() {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
   const [rows, setRows] = useState<Donation[]>([]);
-  const [meta, setMeta] = useState<PaginatedResponse<Donation>["meta"] | null>(null);
+  type DonationMeta = PaginatedResponse<Donation>["meta"] & { totalsByCurrency?: { currency: string; total: number }[] };
+  const [meta, setMeta] = useState<DonationMeta | null>(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const limit = 20;
 
@@ -39,8 +46,15 @@ export default function AdminDonationsPage() {
     const fetchDonations = async () => {
       setIsLoading(true);
       try {
-        const res = await api.get<PaginatedResponse<Donation>>("/donations", {
-          params: { page, limit, ...(query ? { search: query } : {}) },
+        const res = await api.get<PaginatedResponse<Donation> & { meta: { totalsByCurrency: any[] } }>("/donations", {
+          params: { 
+            page, 
+            limit, 
+            ...(query ? { search: query } : {}),
+            sortBy,
+            sortOrder,
+            ...(categoryFilter ? { category: categoryFilter } : {})
+          },
         });
         if (cancelled) return;
         setRows(res.data.data ?? []);
@@ -59,7 +73,7 @@ export default function AdminDonationsPage() {
     return () => {
       cancelled = true;
     };
-  }, [page, query, refreshKey]);
+  }, [page, query, refreshKey, sortBy, sortOrder, categoryFilter]);
 
   return (
     <div className="p-8 md:p-12 space-y-10">
@@ -89,24 +103,78 @@ export default function AdminDonationsPage() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col md:flex-row items-center gap-4 bg-white p-4 rounded-[1.5rem] border border-gold/10 shadow-sm">
-        <div className="relative flex-1 group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-navy/20 group-focus-within:text-maroon transition-colors" />
-          <input
-            type="text"
-            placeholder="Search donor, currency, message..."
-            value={search}
+      {/* Filters & Stats */}
+      <div className="flex flex-col gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-6 rounded-[2rem] border border-gold/10 shadow-xl shadow-maroon/5">
+          <div className="relative md:col-span-2 group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-navy/20 group-focus-within:text-maroon transition-colors" />
+            <input
+              type="text"
+              placeholder="Search donor, message..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="w-full h-12 bg-cream/30 border-none rounded-xl pl-12 pr-4 focus:ring-2 focus:ring-maroon/20 outline-none font-myanmar font-medium"
+            />
+          </div>
+
+          <select
+            value={categoryFilter}
             onChange={(e) => {
-              setSearch(e.target.value);
+              setCategoryFilter(e.target.value);
               setPage(1);
             }}
-            className="w-full h-12 bg-cream/30 border-none rounded-xl pl-12 pr-4 focus:ring-2 focus:ring-maroon/20 outline-none font-myanmar font-medium"
-          />
+            className="h-12 bg-cream/30 border-none rounded-xl px-4 focus:ring-2 focus:ring-maroon/20 outline-none font-bold text-navy/70 text-sm cursor-pointer"
+          >
+            <option value="">All Categories</option>
+            <option value="robes">{t("donors.monthly.categories.robes")}</option>
+            <option value="alms">{t("donors.monthly.categories.alms")}</option>
+            <option value="monastery">{t("donors.monthly.categories.monastery")}</option>
+            <option value="medicine">{t("donors.monthly.categories.medicine")}</option>
+            <option value="education">{t("donors.monthly.categories.education")}</option>
+            <option value="general">{t("donors.monthly.categories.general")}</option>
+          </select>
+
+          <select
+            value={`${sortBy}:${sortOrder}`}
+            onChange={(e) => {
+              const [field, order] = e.target.value.split(":");
+              setSortBy(field);
+              setSortOrder(order as any);
+              setPage(1);
+            }}
+            className="h-12 bg-cream/30 border-none rounded-xl px-4 focus:ring-2 focus:ring-maroon/20 outline-none font-bold text-navy/70 text-sm cursor-pointer"
+          >
+            <option value="createdAt:desc">Newest First</option>
+            <option value="createdAt:asc">Oldest First</option>
+            <option value="amount:desc">Highest Amount</option>
+            <option value="amount:asc">Lowest Amount</option>
+            <option value="donorName:asc">Name A-Z</option>
+          </select>
         </div>
-        <Badge className="bg-gold/10 text-gold border border-gold/20 rounded-xl px-4 py-2 font-black text-xs uppercase tracking-widest">
-          {meta?.total ?? 0} total
-        </Badge>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="bg-maroon/5 border border-maroon/10 p-6 rounded-[2rem] flex flex-col justify-center">
+            <p className="text-xs font-black text-maroon/40 uppercase tracking-widest mb-1">Total Records</p>
+            <p className="text-3xl font-black text-navy">{meta?.total ?? 0}</p>
+          </div>
+          <div className="bg-gold/5 border border-gold/10 p-6 rounded-[2rem] flex flex-col justify-center col-span-1 md:col-span-2">
+            <p className="text-xs font-black text-gold/60 uppercase tracking-widest mb-3">Total Amount (Filtered by Currency)</p>
+            <div className="flex flex-wrap gap-x-10 gap-y-4">
+              {["MMK", "USD", "THB", "SGD"].map((curr) => {
+                const amount = meta?.totalsByCurrency?.find(t => t.currency === curr)?.total || 0;
+                return (
+                  <div key={curr} className="flex items-baseline gap-2">
+                    <p className="text-3xl font-black text-navy">{amount.toLocaleString()}</p>
+                    <p className="text-sm font-black text-navy/40 uppercase tracking-widest">{curr}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Table */}
@@ -133,6 +201,9 @@ export default function AdminDonationsPage() {
                     Amount
                   </th>
                   <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em]">
+                    Category
+                  </th>
+                  <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em]">
                     Message
                   </th>
                   <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em]">
@@ -155,6 +226,11 @@ export default function AdminDonationsPage() {
                           </p>
                           <p className="text-xs font-black text-navy/40 uppercase tracking-widest">{d.currency}</p>
                         </div>
+                      </td>
+                      <td className="p-6">
+                        <Badge variant="outline" className="bg-navy/5 text-navy/70 border-navy/10 capitalize">
+                          {t(`donors.monthly.categories.${d.category || 'general'}`)}
+                        </Badge>
                       </td>
                       <td className="p-6 max-w-xl">
                         <p className="text-sm text-navy/60 line-clamp-2">{d.message || "-"}</p>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Loader2, Pencil, X } from "lucide-react";
 import api from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface EditMonthlyDonorModalProps {
   donor: any;
@@ -11,6 +12,7 @@ interface EditMonthlyDonorModalProps {
 }
 
 export function EditMonthlyDonorModal({ donor, onSuccess }: EditMonthlyDonorModalProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +22,7 @@ export function EditMonthlyDonorModal({ donor, onSuccess }: EditMonthlyDonorModa
     phone: donor.phone || "",
     amount: donor.amount?.toString() || "",
     currency: donor.currency || "MMK",
+    category: donor.category || "general",
     startDate: donor.startDate ? new Date(donor.startDate).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
     remarks: donor.remarks || "",
   });
@@ -41,6 +44,7 @@ export function EditMonthlyDonorModal({ donor, onSuccess }: EditMonthlyDonorModa
         phone: formData.phone,
         amount: Number(formData.amount),
         currency: formData.currency,
+        category: formData.category,
         startDate: new Date(formData.startDate).toISOString(),
         remarks: formData.remarks,
       });
@@ -93,7 +97,7 @@ export function EditMonthlyDonorModal({ donor, onSuccess }: EditMonthlyDonorModa
               )}
 
               <div>
-                <label className="block text-xs font-black text-navy/60 uppercase tracking-widest mb-1.5 ml-1">
+                <label className="block text-xs font-black text-navy/60 uppercase tracking-widest mb-1.5 ml-1 text-left">
                   Name *
                 </label>
                 <input
@@ -167,6 +171,25 @@ export function EditMonthlyDonorModal({ donor, onSuccess }: EditMonthlyDonorModa
 
               <div>
                 <label className="block text-xs font-black text-navy/60 uppercase tracking-widest mb-1.5 ml-1 text-left">
+                  {t("donors.monthly.categories.label")} *
+                </label>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  className="w-full bg-cream/30 border border-navy/10 rounded-xl px-4 py-3 text-navy font-bold outline-none focus:ring-2 focus:ring-maroon/20 transition-all cursor-pointer text-left"
+                >
+                  <option value="robes">{t("donors.monthly.categories.robes")}</option>
+                  <option value="alms">{t("donors.monthly.categories.alms")}</option>
+                  <option value="monastery">{t("donors.monthly.categories.monastery")}</option>
+                  <option value="medicine">{t("donors.monthly.categories.medicine")}</option>
+                  <option value="education">{t("donors.monthly.categories.education")}</option>
+                  <option value="general">{t("donors.monthly.categories.general")}</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-black text-navy/60 uppercase tracking-widest mb-1.5 ml-1 text-left">
                   Message / Remarks
                 </label>
                 <textarea
@@ -175,10 +198,11 @@ export function EditMonthlyDonorModal({ donor, onSuccess }: EditMonthlyDonorModa
                   onChange={handleChange}
                   rows={2}
                   className="w-full bg-cream/30 border border-navy/10 rounded-xl px-4 py-3 text-navy font-medium outline-none focus:ring-2 focus:ring-maroon/20 transition-all resize-none text-left"
+                  placeholder="Optional details about this donor"
                 />
               </div>
 
-              <div className="pt-4">
+              <div className="pt-4 text-left">
                 <Button
                   type="submit"
                   disabled={isSubmitting}

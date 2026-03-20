@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus, X, Loader2 } from "lucide-react";
 import api from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface AddDonationModalProps {
   onSuccess: () => void;
@@ -11,11 +12,13 @@ interface AddDonationModalProps {
     donorName: string;
     amount: string;
     currency: string;
+    category?: string;
   };
   triggerButton?: React.ReactNode;
 }
 
 export function AddDonationModal({ onSuccess, initialData, triggerButton }: AddDonationModalProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +27,7 @@ export function AddDonationModal({ onSuccess, initialData, triggerButton }: AddD
     donorName: initialData?.donorName || "",
     amount: initialData?.amount || "",
     currency: initialData?.currency || "MMK",
+    category: initialData?.category || "general",
     message: "",
   });
 
@@ -43,6 +47,7 @@ export function AddDonationModal({ onSuccess, initialData, triggerButton }: AddD
         donorName: formData.donorName,
         amount: Number(formData.amount),
         currency: formData.currency,
+        category: formData.category,
         message: formData.message,
       });
 
@@ -51,6 +56,7 @@ export function AddDonationModal({ onSuccess, initialData, triggerButton }: AddD
         donorName: initialData?.donorName || "",
         amount: initialData?.amount || "",
         currency: initialData?.currency || "MMK",
+        category: initialData?.category || "general",
         message: "",
       });
       onSuccess();
@@ -113,14 +119,14 @@ export function AddDonationModal({ onSuccess, initialData, triggerButton }: AddD
                   name="donorName"
                   value={formData.donorName}
                   onChange={handleChange}
-                  className="w-full bg-cream/30 border border-navy/10 rounded-xl px-4 py-3 text-navy font-bold outline-none focus:ring-2 focus:ring-maroon/20 transition-all"
+                  className="w-full bg-cream/30 border border-navy/10 rounded-xl px-4 py-3 text-navy font-bold outline-none focus:ring-2 focus:ring-maroon/20 transition-all text-left"
                   placeholder="e.g. U Khin Maung"
                 />
               </div>
 
               <div className="grid grid-cols-[2fr_1fr] gap-4">
                 <div>
-                  <label className="block text-xs font-black text-navy/60 uppercase tracking-widest mb-1.5 ml-1">
+                  <label className="block text-xs font-black text-navy/60 uppercase tracking-widest mb-1.5 ml-1 text-left">
                     Amount *
                   </label>
                   <input
@@ -130,19 +136,19 @@ export function AddDonationModal({ onSuccess, initialData, triggerButton }: AddD
                     name="amount"
                     value={formData.amount}
                     onChange={handleChange}
-                    className="w-full bg-cream/30 border border-navy/10 rounded-xl px-4 py-3 text-navy font-bold outline-none focus:ring-2 focus:ring-maroon/20 transition-all"
+                    className="w-full bg-cream/30 border border-navy/10 rounded-xl px-4 py-3 text-navy font-bold outline-none focus:ring-2 focus:ring-maroon/20 transition-all text-left"
                     placeholder="100000"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-black text-navy/60 uppercase tracking-widest mb-1.5 ml-1">
+                  <label className="block text-xs font-black text-navy/60 uppercase tracking-widest mb-1.5 ml-1 text-left">
                     Currency
                   </label>
                   <select
                     name="currency"
                     value={formData.currency}
                     onChange={handleChange}
-                    className="w-full bg-cream/30 border border-navy/10 rounded-xl px-4 py-3 text-navy font-bold outline-none focus:ring-2 focus:ring-maroon/20 transition-all cursor-pointer"
+                    className="w-full bg-cream/30 border border-navy/10 rounded-xl px-4 py-3 text-navy font-bold outline-none focus:ring-2 focus:ring-maroon/20 transition-all cursor-pointer text-left"
                   >
                     <option value="MMK">MMK</option>
                     <option value="USD">USD</option>
@@ -153,7 +159,26 @@ export function AddDonationModal({ onSuccess, initialData, triggerButton }: AddD
               </div>
 
               <div>
-                <label className="block text-xs font-black text-navy/60 uppercase tracking-widest mb-1.5 ml-1">
+                <label className="block text-xs font-black text-navy/60 uppercase tracking-widest mb-1.5 ml-1 text-left">
+                  {t("donors.monthly.categories.label")} *
+                </label>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  className="w-full bg-cream/30 border border-navy/10 rounded-xl px-4 py-3 text-navy font-bold outline-none focus:ring-2 focus:ring-maroon/20 transition-all cursor-pointer text-left"
+                >
+                  <option value="robes">{t("donors.monthly.categories.robes")}</option>
+                  <option value="alms">{t("donors.monthly.categories.alms")}</option>
+                  <option value="monastery">{t("donors.monthly.categories.monastery")}</option>
+                  <option value="medicine">{t("donors.monthly.categories.medicine")}</option>
+                  <option value="education">{t("donors.monthly.categories.education")}</option>
+                  <option value="general">{t("donors.monthly.categories.general")}</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-black text-navy/60 uppercase tracking-widest mb-1.5 ml-1 text-left">
                   Message / Remarks
                 </label>
                 <textarea
@@ -161,12 +186,12 @@ export function AddDonationModal({ onSuccess, initialData, triggerButton }: AddD
                   value={formData.message}
                   onChange={handleChange}
                   rows={2}
-                  className="w-full bg-cream/30 border border-navy/10 rounded-xl px-4 py-3 text-navy font-medium outline-none focus:ring-2 focus:ring-maroon/20 transition-all resize-none"
+                  className="w-full bg-cream/30 border border-navy/10 rounded-xl px-4 py-3 text-navy font-medium outline-none focus:ring-2 focus:ring-maroon/20 transition-all resize-none text-left"
                   placeholder="Optional details about this donation"
                 />
               </div>
 
-              <div className="pt-4">
+              <div className="pt-4 text-left">
                 <Button
                   type="submit"
                   disabled={isSubmitting}
