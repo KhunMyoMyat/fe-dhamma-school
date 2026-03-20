@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
 import { Loader2, Search, HandCoins, ArrowRight, ArrowLeft } from "lucide-react";
+import { AddDonationModal } from "@/components/admin/donations/AddDonationModal";
 
 type Donation = {
   id: string;
@@ -28,6 +29,7 @@ export default function AdminDonationsPage() {
   const [meta, setMeta] = useState<PaginatedResponse<Donation>["meta"] | null>(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [refreshKey, setRefreshKey] = useState(0);
   const limit = 20;
 
   const query = useMemo(() => search.trim(), [search]);
@@ -57,7 +59,7 @@ export default function AdminDonationsPage() {
     return () => {
       cancelled = true;
     };
-  }, [page, query]);
+  }, [page, query, refreshKey]);
 
   return (
     <div className="p-8 md:p-12 space-y-10">
@@ -72,11 +74,19 @@ export default function AdminDonationsPage() {
           </p>
         </div>
 
-        <Link href="/admin/donations/monthly">
-          <Button className="h-14 bg-maroon hover:bg-gold text-white hover:text-navy rounded-2xl px-8 font-black text-lg shadow-lg shadow-maroon/20">
-            <HandCoins className="mr-2 size-6" /> Monthly Donors
-          </Button>
-        </Link>
+        <div className="flex flex-wrap gap-4 items-center justify-end">
+          <AddDonationModal onSuccess={() => setRefreshKey(k => k + 1)} />
+          <Link href="/admin/monthly-donors">
+            <Button className="h-14 bg-gold hover:bg-gold/80 text-navy rounded-2xl px-6 font-black text-sm md:text-base shadow-lg shadow-gold/20">
+              <HandCoins className="mr-2 size-5" /> Subscriptions
+            </Button>
+          </Link>
+          <Link href="/admin/donations/monthly">
+            <Button variant="outline" className="h-14 bg-white hover:bg-cream border-maroon/20 text-maroon rounded-2xl px-6 font-black text-sm md:text-base shadow-lg shadow-maroon/5">
+              Monthly Reports
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}

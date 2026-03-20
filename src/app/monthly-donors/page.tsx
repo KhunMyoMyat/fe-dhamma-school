@@ -5,6 +5,7 @@ import api from "@/lib/api";
 import { useTranslation } from "@/providers/LanguageProvider";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Sparkles } from "lucide-react";
+import { RegisterMonthlyDonorModal } from "@/components/donors/RegisterMonthlyDonorModal";
 
 type MonthlyDonorRow = {
   donorName: string;
@@ -76,16 +77,17 @@ export default function MonthlyDonorsPage() {
       <div className="absolute bottom-1/4 -left-20 w-[400px] h-[400px] bg-maroon/10 rounded-full blur-[100px] -z-10" />
 
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto text-center mb-12">
+        <div className="max-w-4xl mx-auto text-center mb-12 flex flex-col items-center">
           <Badge className="bg-gold/20 text-gold mb-6 border-gold/30 px-4 py-1.5 rounded-full text-xs font-black tracking-widest uppercase">
             {t("donors.monthly.badge")}
           </Badge>
           <h1 className="text-4xl md:text-6xl font-black tracking-tight">
             {t("donors.monthly.title")}
           </h1>
-          <p className="mt-4 text-cream/60 font-myanmar text-lg">
+          <p className="mt-4 text-cream/60 font-myanmar text-lg mb-8 max-w-2xl mx-auto">
             {t("donors.monthly.subtitle")}
           </p>
+          <RegisterMonthlyDonorModal />
         </div>
 
         <div className="max-w-4xl mx-auto mb-10 bg-white/5 border border-white/10 rounded-[2.5rem] p-6 md:p-8 flex flex-col md:flex-row gap-4 items-center justify-between">

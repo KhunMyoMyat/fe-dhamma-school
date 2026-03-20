@@ -19,6 +19,9 @@
   },
   "donors": {
     "monthly": {
+      "register": "Become a Monthly Donor",
+      "registerTitle": "Monthly Donor Registration",
+      "registerSubtitle": "Join us in supporting the Dhamma School continuously.",
       "badge": "Dana",
       "title": "Monthly Donators List",
       "subtitle": "With gratitude to everyone supporting the Gift of Dhamma.",
