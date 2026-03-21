@@ -151,7 +151,26 @@
     "select": "Select",
     "otherWays": "Other Ways to Help",
     "otherWaysDesc": "We also accept donations via KBZPay, CB Bank, and specialized crypto wallets for global supporters.",
-    "contact": "Contact for Transfer Details"
+    "contact": "Contact for Transfer Details",
+    "bank": {
+      "title": "Bank Transfer",
+      "kbz": "KBZ Bank",
+      "kbzPay": "KBZPay",
+      "cb": "CB Bank",
+      "aya": "AYA Bank",
+      "name": "Account Name",
+      "no": "Account Number",
+      "scan": "Scan QR to Pay"
+    },
+    "impact": {
+      "title": "Your Impact",
+      "books": "Dhamma Books",
+      "booksDesc": "Providing study materials for 10 students.",
+      "meals": "Providing Meals",
+      "mealsDesc": "Supporting monks and students for a day.",
+      "tech": "Digital Dhamma",
+      "techDesc": "Maintaining the servers for global outreach."
+    }
   },
   "footer": {
     "quote": "\"The gift of Dhamma excels all gifts.\"",
