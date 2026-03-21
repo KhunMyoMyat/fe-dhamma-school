@@ -65,7 +65,7 @@ export default function CoursesPage() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center p-32">
             <Loader2 className="size-12 text-gold animate-spin mb-4" />
-            <p className="text-navy/50 font-bold uppercase tracking-widest text-xs">Loading Sacred Teachings...</p>
+            <p className="text-navy/50 font-bold uppercase tracking-widest text-xs">{t("common.loadingCourses")}</p>
           </div>
         ) : courses.length > 0 ? (
           <motion.div
@@ -159,7 +159,7 @@ export default function CoursesPage() {
             </div>
             <h2 className="text-3xl font-bold text-maroon mb-4">{t("courses.noCourses")}</h2>
             <p className="text-navy/50 text-center max-w-md">
-              {t("courses.subtitle")}
+              {t("courses.noCoursesDesc")}
             </p>
           </div>
         )}

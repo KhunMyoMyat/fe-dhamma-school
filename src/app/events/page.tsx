@@ -50,7 +50,7 @@ export default function EventsPage() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center p-32">
             <Loader2 className="size-12 text-gold animate-spin mb-4" />
-            <p className="text-cream/40 font-bold uppercase tracking-widest text-xs">Loading Events...</p>
+            <p className="text-cream/40 font-bold uppercase tracking-widest text-xs">{t("common.loadingEvents")}</p>
           </div>
         ) : events.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
@@ -95,7 +95,7 @@ export default function EventsPage() {
 
                   {(event.mainSponsor || event.mainSponsorMm) && (
                     <div className="bg-gold/10 rounded-xl p-4 border border-gold/20 mb-8">
-                      <p className="text-[10px] uppercase font-black tracking-widest text-gold/60 mb-1">Main Sponsor</p>
+                      <p className="text-[10px] uppercase font-black tracking-widest text-gold/60 mb-1">{t("events.mainSponsor")}</p>
                       <p className="text-sm font-bold text-gold font-myanmar">
                         {language === "mm" ? (event.mainSponsorMm || event.mainSponsor) : (event.mainSponsor || event.mainSponsorMm)}
                       </p>

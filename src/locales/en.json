@@ -7,7 +7,9 @@
     "language": "Language",
     "tba": "TBA",
     "scroll": "Scroll",
-    "dhammaSchool": "Dhamma School"
+    "dhammaSchool": "Dhamma School",
+    "loadingCourses": "Loading Sacred Teachings...",
+    "loadingEvents": "Loading Events..."
   },
   "nav": {
     "home": "Home",
@@ -19,11 +21,12 @@
   },
   "donors": {
     "monthly": {
+      "total_stats": "Total Monthly Donations",
       "register": "Become a Monthly Donor",
       "registerTitle": "Monthly Donor Registration",
       "registerSubtitle": "Join us in supporting the Dhamma School continuously.",
       "badge": "Dana",
-      "title": "Monthly Donators List",
+      "title": "Monthly Donors List",
       "subtitle": "With gratitude to everyone supporting the Gift of Dhamma.",
       "filter": "Select month",
       "categories": {
@@ -116,7 +119,9 @@
     "free": "Free Course",
     "dhammaDana": "Dhamma Dāna",
     "limitedSeats": "Limited Seats Available",
-    "confirmEnroll": "Confirm Enrollment"
+    "confirmEnroll": "Confirm Enrollment",
+    "noCourses": "No Courses Available",
+    "noCoursesDesc": "Stay tuned for upcoming Dhamma courses."
   },
   "events": {
     "title": "Upcoming Events",
@@ -128,7 +133,25 @@
       "offer": "You can become a sponsor for this auspicious event and earn great merits.",
       "cta": "Become a Sponsor",
       "donorsTitle": "Auspicious Donors"
-    }
+    },
+    "mainSponsor": "Main Sponsor"
+  },
+  "donate": {
+    "title": "Support our Mission",
+    "badge": "The Act of Dana",
+    "viewMonthly": "View Monthly Donors",
+    "tiers": {
+      "supporter": "Monthly Supporter",
+      "patron": "Dhamma Patron",
+      "guardian": "Wisdom Guardian",
+      "supporterText": "Help us keep the servers running",
+      "patronText": "Support one month of free education",
+      "guardianText": "Fuel our global outreach mission"
+    },
+    "select": "Select",
+    "otherWays": "Other Ways to Help",
+    "otherWaysDesc": "We also accept donations via KBZPay, CB Bank, and specialized crypto wallets for global supporters.",
+    "contact": "Contact for Transfer Details"
   },
   "footer": {
     "quote": "\"The gift of Dhamma excels all gifts.\"",
