@@ -50,7 +50,9 @@ export default function EventsPage() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center p-32">
             <Loader2 className="size-12 text-gold animate-spin mb-4" />
-            <p className="text-cream/40 font-bold uppercase tracking-widest text-xs">{t("common.loadingEvents")}</p>
+            <p className="text-cream/40 font-bold uppercase tracking-widest text-xs">
+              {t("common.loadingEvents")}
+            </p>
           </div>
         ) : events.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
@@ -63,9 +65,13 @@ export default function EventsPage() {
                 key={event.id}
                 className="bg-white/5 border border-white/10 p-2 flex flex-col md:flex-row group hover:bg-white/10 hover:border-gold/30 transition-all rounded-[2.5rem] overflow-hidden backdrop-blur-sm"
               >
+                {/* event card image */}
                 <div className="relative w-full md:w-2/5 aspect-4/3 md:aspect-auto">
                   <Image
-                    src={event.image || "https://images.unsplash.com/photo-1548013146-72479768bbaa?q=80&w=2070"}
+                    src={
+                      event.image ||
+                      "https://images.unsplash.com/photo-1548013146-72479768bbaa?q=80&w=2070"
+                    }
                     alt={event.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-1000"
@@ -75,10 +81,14 @@ export default function EventsPage() {
                       {new Date(event.date).getDate()}
                     </span>
                     <span className="block text-[10px] uppercase font-black tracking-widest mt-1">
-                      {new Date(event.date).toLocaleDateString("en-US", { month: "short" })}
+                      {new Date(event.date).toLocaleDateString("en-US", {
+                        month: "short",
+                      })}
                     </span>
                   </div>
                 </div>
+
+                {/* event card content */}
                 <div className="flex-1 p-10 flex flex-col justify-center">
                   <div className="flex items-center gap-2 mb-4">
                     <MapPin className="size-4 text-gold" />
@@ -90,24 +100,32 @@ export default function EventsPage() {
                     {event.title}
                   </h3>
                   <p className="text-lg font-myanmar text-cream/70 mb-4 line-clamp-2">
-                    {language === "mm" ? event.titleMm : (event.description || event.title)}
+                    {language === "mm"
+                      ? event.titleMm
+                      : event.description || event.title}
                   </p>
 
                   {(event.mainSponsor || event.mainSponsorMm) && (
                     <div className="bg-gold/10 rounded-xl p-4 border border-gold/20 mb-8">
-                      <p className="text-[10px] uppercase font-black tracking-widest text-gold/60 mb-1">{t("events.mainSponsor")}</p>
+                      <p className="text-[10px] uppercase font-black tracking-widest text-gold/60 mb-1">
+                        {t("events.mainSponsor")}
+                      </p>
                       <p className="text-sm font-bold text-gold font-myanmar">
-                        {language === "mm" ? (event.mainSponsorMm || event.mainSponsor) : (event.mainSponsor || event.mainSponsorMm)}
+                        {language === "mm"
+                          ? event.mainSponsorMm || event.mainSponsor
+                          : event.mainSponsor || event.mainSponsorMm}
                       </p>
                     </div>
                   )}
 
+                  {/* event card button */}
                   <Link href={`/events/${event.id}`}>
                     <Button
                       variant="outline"
-                      className="w-full md:w-fit border-white/20 hover:border-gold text-white hover:bg-gold hover:text-navy rounded-2xl px-8 h-14 font-black transition-all group"
+                      className="w-full md:w-fit border-gold/20 hover:border-gold text-gold hover:bg-gold hover:text-navy rounded-2xl px-8 h-14 font-black transition-all group"
                     >
-                      {t("events.details")} <ArrowRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform" />
+                      {t("events.details")}{" "}
+                      <ArrowRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                 </div>
@@ -119,14 +137,16 @@ export default function EventsPage() {
             <div className="size-24 bg-gold/10 rounded-full flex items-center justify-center mb-8 animate-pulse">
               <Calendar className="size-12 text-gold" />
             </div>
-            <h2 className="text-3xl font-bold text-cream mb-4">{t("common.comingSoon")}</h2>
+            <h2 className="text-3xl font-bold text-cream mb-4">
+              {t("common.comingSoon")}
+            </h2>
             <p className="text-cream/40 text-center max-w-md">
               {t("events.subtitle")}
             </p>
           </div>
         )}
       </section>
-      
+
       {/* Decorative Ornaments */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-gold/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-maroon/10 rounded-full blur-[100px] pointer-events-none" />
