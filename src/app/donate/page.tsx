@@ -2,11 +2,12 @@
 
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Star, Sparkles, BookOpen, Coffee, Globe, Building2, QrCode, Info, ChevronRight } from "lucide-react";
+import { Heart, BookOpen, Coffee, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslation } from "@/providers/LanguageProvider";
+import DonationMethods from "@/components/home/DonationMethods";
 
 const impactItems = [
   {
@@ -20,27 +21,6 @@ const impactItems = [
   {
     icon: Globe,
     id: "tech",
-  },
-];
-
-const bankAccounts = [
-  {
-    bank: "kbz",
-    name: "Dhamma School Foundation",
-    number: "123-456-789012",
-    type: "Savings",
-  },
-  {
-    bank: "cb",
-    name: "Dhamma School Foundation",
-    number: "987-654-321098",
-    type: "Current",
-  },
-  {
-    bank: "aya",
-    name: "Dhamma School Foundation",
-    number: "555-444-333222",
-    type: "Savings",
   },
 ];
 
@@ -121,71 +101,7 @@ export default function DonatePage() {
           </div>
         </div>
 
-        {/* Bank Transfer Section */}
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-maroon rounded-[4rem] p-10 md:p-20 text-white relative overflow-hidden shadow-2xl shadow-maroon/30">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-gold/10 rounded-full blur-[100px]" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-black/10 rounded-full blur-[100px]" />
-            
-            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-              <div className="text-left">
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="size-12 rounded-2xl bg-gold/20 flex items-center justify-center border border-gold/30">
-                    <Building2 className="size-6 text-gold" />
-                  </div>
-                  <h2 className="text-4xl font-black text-white leading-tight">{t("donate.bank.title")}</h2>
-                </div>
-                
-                <div className="space-y-6">
-                  {bankAccounts.map((acc, i) => (
-                    <motion.div 
-                      key={i}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.1 }}
-                      className="p-6 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group"
-                    >
-                      <p className="text-xs font-black text-gold/60 uppercase tracking-[0.2em] mb-2">{t(`donate.bank.${acc.bank}`)}</p>
-                      <div className="flex justify-between items-end">
-                        <div>
-                          <p className="text-lg font-bold text-white mb-1">{acc.name}</p>
-                          <p className="text-2xl font-black text-gold font-mono">{acc.number}</p>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col items-center">
-                <div className="p-8 rounded-[3rem] bg-white text-maroon shadow-2xl relative w-full max-w-sm">
-                  <div className="absolute -top-4 -right-4 size-16 bg-gold rounded-2xl flex items-center justify-center rotate-12 shadow-xl border-4 border-white">
-                    <QrCode className="size-8 text-maroon" />
-                  </div>
-                  <p className="text-xs font-black text-navy/40 uppercase tracking-widest text-center mb-6">{t("donate.bank.scan")} (KBZPay)</p>
-                  <div className="aspect-square relative mb-8 rounded-2xl overflow-hidden border-2 border-cream">
-                    <Image
-                      src="/images/donation/kbzpay_qr.png"
-                      alt="KBZPay QR Code"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <Button className="w-full bg-maroon text-white h-14 rounded-2xl font-black hover:bg-navy transition-all">
-                    {t("donate.contact")}
-                  </Button>
-                </div>
-                
-                <div className="mt-8 flex items-start gap-3 text-cream/60 max-w-xs text-left">
-                  <Info className="size-5 shrink-0 mt-0.5 text-gold" />
-                  <p className="text-xs leading-relaxed font-medium">
-                    {t("donate.otherWaysDesc")}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <DonationMethods />
       </section>
     </div>
   );
