@@ -99,20 +99,49 @@ const DonationMethods = () => {
               </div>
             </div>
 
-            <p className="text-sm font-bold text-maroon/60 mb-4 px-1">{account.accountName}</p>
-            
-            <div className="flex items-center gap-3 bg-cream/30 p-4 rounded-2xl border border-gold/5 mb-6">
-              <div className="flex-1 font-mono font-bold text-navy/70 tracking-wider">
-                {maskNumber(account.accountNumber)}
+            <div className="space-y-4 mb-6">
+              {/* Account Name */}
+              <div className="flex items-center justify-between gap-3 bg-maroon/5 p-4 rounded-2xl border border-maroon/10">
+                <div className="flex-1">
+                  <p className="text-[10px] font-black text-maroon/40 uppercase tracking-widest mb-1">
+                    {language === "mm" ? "အကောင့်အမည်" : "Account Name"}
+                  </p>
+                  <p className="text-sm font-bold text-maroon font-myanmar">
+                    {account.accountName}
+                  </p>
+                </div>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    navigator.clipboard.writeText(account.accountName);
+                    toast.success(language === "mm" ? "အမည်ကို ကူးယူပြီးပါပြီ" : "Account name copied!");
+                  }}
+                  className="hover:bg-maroon/10 hover:text-maroon text-maroon/20 transition-all"
+                >
+                  <Copy className="size-3.5" />
+                </Button>
               </div>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => copyToClipboard(account.accountNumber, account.id)}
-                className="hover:bg-gold/10 hover:text-gold text-navy/20 transition-all hover:scale-110"
-              >
-                {copiedId === account.id ? <Check className="size-4" /> : <Copy className="size-4" />}
-              </Button>
+
+              {/* Account Number */}
+              <div className="flex items-center justify-between gap-3 bg-navy/5 p-4 rounded-2xl border border-navy/10">
+                <div className="flex-1 font-mono font-bold text-navy/70 tracking-wider">
+                  <p className="text-[10px] font-black text-navy/40 uppercase tracking-widest mb-1">
+                    {language === "mm" ? "အကောင့်နံပါတ်" : "Account Number"}
+                  </p>
+                  <p className="text-lg">
+                    {maskNumber(account.accountNumber)}
+                  </p>
+                </div>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => copyToClipboard(account.accountNumber, account.id)}
+                  className="hover:bg-navy/10 hover:text-navy text-navy/20 transition-all"
+                >
+                  {copiedId === account.id ? <Check className="size-4" /> : <Copy className="size-4" />}
+                </Button>
+              </div>
             </div>
 
             <Dialog>
