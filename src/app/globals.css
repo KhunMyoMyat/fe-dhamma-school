@@ -147,8 +147,8 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     /* Prevent clipping of long descenders in Myanmar/Thai fonts */
-    padding-bottom: 0.30em;
-    padding-top: 0.1em;
+    padding-bottom: 0.3em;
+    padding-top: 0.3em;
   }
   .border-ornament {
     border-image: linear-gradient(135deg, #D4A017 0%, #B8860B 50%, #D4A017 100%) 1;
