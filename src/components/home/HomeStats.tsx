@@ -24,7 +24,7 @@ const stats = [
   },
   {
     icon: Heart,
-    id: "id",
+    id: "dana",
     color: "saffron",
   },
 ];
