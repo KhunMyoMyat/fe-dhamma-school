@@ -157,7 +157,7 @@ export default function AdminMonthlyReportPage() {
           const expected = meta?.totalsByCurrency?.find((t: any) => t.currency === curr)?.total || 0;
           const paid = meta?.report?.paid?.find((t: any) => t.currency === curr)?.total || 0;
           const paidCount = meta?.report?.paid?.find((t: any) => t.currency === curr)?.count || 0;
-          const percent = expected > 0 ? Math.min(100, Math.round((paid / expected) * 100)) : 0;
+          const percent = expected > 0 ? Math.min(100, Math.round((paid / expected) * 100)) : (paid > 0 ? 100 : 0);
 
           return (
             <div key={curr} className="bg-white p-6 rounded-[2.5rem] border border-navy/5 shadow-xl shadow-navy/5">

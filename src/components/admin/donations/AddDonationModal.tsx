@@ -29,6 +29,7 @@ export function AddDonationModal({ onSuccess, initialData, triggerButton }: AddD
     currency: initialData?.currency || "MMK",
     category: initialData?.category || "general",
     message: "",
+    date: new Date().toISOString().split("T")[0],
   });
 
   const handleChange = (
@@ -49,6 +50,7 @@ export function AddDonationModal({ onSuccess, initialData, triggerButton }: AddD
         currency: formData.currency,
         category: formData.category,
         message: formData.message,
+        date: formData.date,
       });
 
       setIsOpen(false);
@@ -58,6 +60,7 @@ export function AddDonationModal({ onSuccess, initialData, triggerButton }: AddD
         currency: initialData?.currency || "MMK",
         category: initialData?.category || "general",
         message: "",
+        date: new Date().toISOString().split("T")[0],
       });
       onSuccess();
     } catch (err: any) {
@@ -156,6 +159,20 @@ export function AddDonationModal({ onSuccess, initialData, triggerButton }: AddD
                     <option value="SGD">SGD</option>
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-black text-navy/60 uppercase tracking-widest mb-1.5 ml-1 text-left">
+                  Donation Date (For which month/day) *
+                </label>
+                <input
+                  required
+                  type="date"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleChange}
+                  className="w-full bg-cream/30 border border-navy/10 rounded-xl px-4 py-3 text-navy font-bold outline-none focus:ring-2 focus:ring-maroon/20 transition-all text-left cursor-pointer"
+                />
               </div>
 
               <div>
