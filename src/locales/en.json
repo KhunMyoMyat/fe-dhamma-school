@@ -13,9 +13,12 @@
   },
   "nav": {
     "home": "Home",
+    "about": "About Us",
     "courses": "Courses",
     "events": "Events",
     "teachings": "Teachings",
+    "contact": "Contact",
+    "info": "Information",
     "monthlyDonors": "Monthly Donors",
     "donate": "Donate Now"
   },
@@ -175,5 +178,43 @@
   "footer": {
     "quote": "\"The gift of Dhamma excels all gifts.\"",
     "copyright": "All Rights Reserved."
+  },
+  "about": {
+    "badge": "Our Journey",
+    "title": "Wisdom &",
+    "titleGold": "Compassion",
+    "description": "Dedicated to spreading the authentic teachings of Buddha in the modern world through accessible education and community support.",
+    "history": {
+      "title": "Our History",
+      "text": "The Dhamma School was founded with the vision of preserving the sacred teachings of Buddha and making them accessible to seekers of wisdom everywhere. Over the years, we have grown from a small local gathering into a global community of practitioners and scholars."
+    },
+    "mission": {
+      "title": "Mission & Vision",
+      "missionTitle": "Our Mission",
+      "missionText": "To provide high-quality Dhamma education that transforms hearts and minds, fostering peace, wisdom, and moral excellence.",
+      "visionTitle": "Our Vision",
+      "visionText": "A world where the light of Dhamma shines in every heart, leading to a more compassionate and enlightened society."
+    }
+  },
+  "contact": {
+    "badge": "Get in Touch",
+    "title": "Connect",
+    "titleGold": "With Us",
+    "subtitle": "Have questions? We're here to help you on your Dhamma journey.",
+    "form": {
+      "name": "Full Name",
+      "email": "Email Address",
+      "subject": "Subject",
+      "message": "Your Message",
+      "send": "Send Message",
+      "sending": "Sending...",
+      "success": "Message sent successfully!",
+      "error": "Failed to send message. Please try again."
+    },
+    "info": {
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email"
+    }
   }
 }
