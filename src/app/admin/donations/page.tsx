@@ -1,36 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "@/providers/LanguageProvider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
-import { Loader2, Search, HandCoins, ArrowRight, ArrowLeft } from "lucide-react";
+import { HandCoins } from "lucide-react";
 import { AddDonationModal } from "@/components/admin/donations/AddDonationModal";
-
-type Donation = {
-  id: string;
-  donorName: string;
-  amount: number;
-  currency: string;
-  category?: string;
-  message?: string | null;
-  date?: string;
-  createdAt?: string;
-};
-
-type PaginatedResponse<T> = {
-  data: T[];
-  meta: { total: number; page: number; limit: number; totalPages: number };
-};
+import { DataTable, Column } from "@/components/admin/DataTable";
 
 export default function AdminDonationsPage() {
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
-  const [rows, setRows] = useState<Donation[]>([]);
-  type DonationMeta = PaginatedResponse<Donation>["meta"] & { totalsByCurrency?: { currency: string; total: number }[] };
-  const [meta, setMeta] = useState<DonationMeta | null>(null);
+  const [rows, setRows] = useState<any[]>([]);
+  const [meta, setMeta] = useState<any | null>(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("createdAt");
@@ -39,18 +23,16 @@ export default function AdminDonationsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const limit = 20;
 
-  const query = useMemo(() => search.trim(), [search]);
-
   useEffect(() => {
     let cancelled = false;
     const fetchDonations = async () => {
       setIsLoading(true);
       try {
-        const res = await api.get<PaginatedResponse<Donation> & { meta: { totalsByCurrency: any[] } }>("/donations", {
+        const res = await api.get("/donations", {
           params: { 
             page, 
             limit, 
-            ...(query ? { search: query } : {}),
+            search: search.trim(),
             sortBy,
             sortOrder,
             ...(categoryFilter ? { category: categoryFilter } : {})
@@ -69,211 +51,124 @@ export default function AdminDonationsPage() {
       }
     };
 
-    fetchDonations();
-    return () => {
-      cancelled = true;
-    };
-  }, [page, query, refreshKey, sortBy, sortOrder, categoryFilter]);
+    const timeout = setTimeout(fetchDonations, 300);
+    return () => { cancelled = true; clearTimeout(timeout); };
+  }, [page, search, refreshKey, sortBy, sortOrder, categoryFilter]);
+
+  const columns: Column<any>[] = [
+    {
+      id: "donorName",
+      header: "Donor",
+      sortable: true,
+      accessorKey: "donorName",
+      cell: (d) => <p className="font-black text-navy tracking-tight">{d.donorName}</p>
+    },
+    {
+      id: "amount",
+      header: "Amount",
+      sortable: true,
+      cell: (d) => (
+        <div className="flex items-baseline gap-2">
+          <p className="font-black text-maroon text-lg">
+            {Number(d.amount || 0).toLocaleString("en-US", { maximumFractionDigits: 2 })}
+          </p>
+          <p className="text-xs font-black text-navy/40 uppercase tracking-widest">{d.currency}</p>
+        </div>
+      )
+    },
+    {
+      id: "category",
+      header: "Category",
+      sortable: true,
+      cell: (d) => (
+        <Badge variant="outline" className="bg-navy/5 text-navy/70 border-navy/10 capitalize">
+          {t(`donors.monthly.categories.${d.category || 'general'}`)}
+        </Badge>
+      )
+    },
+    {
+      id: "message",
+      header: "Message",
+      className: "max-w-xl",
+      cell: (d) => <p className="text-sm text-navy/60 line-clamp-2">{d.message || "-"}</p>
+    },
+    {
+      id: "date",
+      header: "Date",
+      sortable: true,
+      cell: (d) => {
+        const date = d.date || d.createdAt;
+        return (
+          <p className="text-sm font-bold text-navy/60">
+            {date ? new Date(date).toLocaleString() : "-"}
+          </p>
+        );
+      }
+    }
+  ];
 
   return (
     <div className="p-8 md:p-12 space-y-10">
-      {/* Page Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
           <h1 className="text-4xl font-black text-maroon tracking-tight mb-2 uppercase">
             Donations <span className="text-gold">Management</span>
           </h1>
           <p className="text-navy/50 font-myanmar font-medium">
-            View all donations submitted through the site.
+            View all donations submitted (Total: {meta?.total ?? 0})
           </p>
         </div>
 
         <div className="flex flex-wrap gap-4 items-center justify-end">
           <AddDonationModal onSuccess={() => setRefreshKey(k => k + 1)} />
           <Link href="/admin/monthly-donors">
-            <Button className="h-14 bg-gold hover:bg-gold/80 text-navy rounded-2xl px-6 font-black text-sm md:text-base shadow-lg shadow-gold/20">
+            <Button className="h-14 bg-gold hover:bg-gold/80 text-navy rounded-2xl px-6 font-black text-base shadow-lg shadow-gold/20">
               <HandCoins className="mr-2 size-5" /> Subscriptions
             </Button>
           </Link>
-          <Link href="/admin/donations/monthly">
-            <Button variant="outline" className="h-14 bg-white hover:bg-cream border-maroon/20 text-maroon rounded-2xl px-6 font-black text-sm md:text-base shadow-lg shadow-maroon/5">
-              Monthly Reports
-            </Button>
-          </Link>
         </div>
       </div>
 
-      {/* Filters & Stats */}
-      <div className="flex flex-col gap-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-6 rounded-[2rem] border border-gold/10 shadow-xl shadow-maroon/5">
-          <div className="relative md:col-span-2 group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-navy/20 group-focus-within:text-maroon transition-colors" />
-            <input
-              type="text"
-              placeholder="Search donor, message..."
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
-              className="w-full h-12 bg-cream/30 border-none rounded-xl pl-12 pr-4 focus:ring-2 focus:ring-maroon/20 outline-none font-myanmar font-medium"
-            />
-          </div>
-
-          <select
-            value={categoryFilter}
-            onChange={(e) => {
-              setCategoryFilter(e.target.value);
-              setPage(1);
-            }}
-            className="h-12 bg-cream/30 border-none rounded-xl px-4 focus:ring-2 focus:ring-maroon/20 outline-none font-bold text-navy/70 text-sm cursor-pointer"
-          >
-            <option value="">All Categories</option>
-            <option value="robes">{t("donors.monthly.categories.robes")}</option>
-            <option value="alms">{t("donors.monthly.categories.alms")}</option>
-            <option value="monastery">{t("donors.monthly.categories.monastery")}</option>
-            <option value="medicine">{t("donors.monthly.categories.medicine")}</option>
-            <option value="education">{t("donors.monthly.categories.education")}</option>
-            <option value="general">{t("donors.monthly.categories.general")}</option>
-          </select>
-
-          <select
-            value={`${sortBy}:${sortOrder}`}
-            onChange={(e) => {
-              const [field, order] = e.target.value.split(":");
-              setSortBy(field);
-              setSortOrder(order as any);
-              setPage(1);
-            }}
-            className="h-12 bg-cream/30 border-none rounded-xl px-4 focus:ring-2 focus:ring-maroon/20 outline-none font-bold text-navy/70 text-sm cursor-pointer"
-          >
-            <option value="createdAt:desc">Newest First</option>
-            <option value="createdAt:asc">Oldest First</option>
-            <option value="amount:desc">Highest Amount</option>
-            <option value="amount:asc">Lowest Amount</option>
-            <option value="donorName:asc">Name A-Z</option>
-          </select>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div className="bg-maroon/5 border border-maroon/10 p-6 rounded-[2rem] flex flex-col justify-center">
-            <p className="text-xs font-black text-maroon/40 uppercase tracking-widest mb-1">Total Records</p>
-            <p className="text-3xl font-black text-navy">{meta?.total ?? 0}</p>
-          </div>
-          <div className="bg-gold/5 border border-gold/10 p-6 rounded-[2rem] flex flex-col justify-center col-span-1 md:col-span-2">
-            <p className="text-xs font-black text-gold/60 uppercase tracking-widest mb-3">Total Amount (Filtered by Currency)</p>
-            <div className="flex flex-wrap gap-x-10 gap-y-4">
-              {["MMK", "USD", "THB", "SGD"].map((curr) => {
-                const amount = meta?.totalsByCurrency?.find(t => t.currency === curr)?.total || 0;
-                return (
-                  <div key={curr} className="flex items-baseline gap-2">
-                    <p className="text-3xl font-black text-navy">{amount.toLocaleString()}</p>
-                    <p className="text-sm font-black text-navy/40 uppercase tracking-widest">{curr}</p>
-                  </div>
-                );
-              })}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {["MMK", "USD", "THB", "SGD"].map((curr) => {
+          const amount = meta?.totalsByCurrency?.find((t: any) => t.currency === curr)?.total || 0;
+          return (
+            <div key={curr} className="bg-cream/20 p-6 rounded-[2rem] border border-gold/10">
+              <p className="text-[10px] font-black text-navy/30 uppercase tracking-[0.2em] mb-1">{curr}</p>
+              <p className="text-2xl font-black text-maroon">{amount.toLocaleString()}</p>
             </div>
-          </div>
-        </div>
+          );
+        })}
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-[2.5rem] border border-gold/10 shadow-xl shadow-maroon/5 overflow-hidden">
-        {isLoading ? (
-          <div className="h-64 flex flex-col items-center justify-center gap-4 text-maroon/30">
-            <Loader2 className="size-10 animate-spin" />
-            <span className="font-bold uppercase tracking-widest text-xs">Loading Donations...</span>
-          </div>
-        ) : rows.length === 0 ? (
-          <div className="h-64 flex flex-col items-center justify-center gap-3 text-navy/30">
-            <HandCoins className="size-12" />
-            <p className="font-bold">No donations found.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-cream/50 border-b border-gold/10">
-                  <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em]">
-                    Donor
-                  </th>
-                  <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em]">
-                    Amount
-                  </th>
-                  <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em]">
-                    Category
-                  </th>
-                  <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em]">
-                    Message
-                  </th>
-                  <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em]">
-                    Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((d) => {
-                  const date = d.date || d.createdAt;
-                  return (
-                    <tr key={d.id} className="border-b border-gold/5 hover:bg-cream/20 transition-colors">
-                      <td className="p-6">
-                        <p className="font-black text-navy tracking-tight">{d.donorName}</p>
-                      </td>
-                      <td className="p-6">
-                        <div className="flex items-baseline gap-2">
-                          <p className="font-black text-maroon text-lg">
-                            {Number(d.amount || 0).toLocaleString("en-US", { maximumFractionDigits: 2 })}
-                          </p>
-                          <p className="text-xs font-black text-navy/40 uppercase tracking-widest">{d.currency}</p>
-                        </div>
-                      </td>
-                      <td className="p-6">
-                        <Badge variant="outline" className="bg-navy/5 text-navy/70 border-navy/10 capitalize">
-                          {t(`donors.monthly.categories.${d.category || 'general'}`)}
-                        </Badge>
-                      </td>
-                      <td className="p-6 max-w-xl">
-                        <p className="text-sm text-navy/60 line-clamp-2">{d.message || "-"}</p>
-                      </td>
-                      <td className="p-6">
-                        <p className="text-sm font-bold text-navy/60">
-                          {date ? new Date(date).toLocaleString() : "-"}
-                        </p>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-black text-navy/30 uppercase tracking-widest">
-          Page {meta?.page ?? page} of {meta?.totalPages ?? 1}
-        </p>
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            className="h-12 rounded-xl border-gold/20 font-bold text-navy/60"
-            disabled={(meta?.page ?? page) <= 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-          >
-            <ArrowLeft className="size-4 mr-2" /> Prev
-          </Button>
-          <Button
-            variant="outline"
-            className="h-12 rounded-xl border-gold/20 font-bold text-navy/60"
-            disabled={(meta?.page ?? page) >= (meta?.totalPages ?? 1)}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next <ArrowRight className="size-4 ml-2" />
-          </Button>
-        </div>
-      </div>
+      <DataTable
+        columns={columns}
+        data={rows}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={(v) => { setSearch(v); setPage(1); }}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={(f, o) => { setSortBy(f); setSortOrder(o); }}
+        page={page}
+        totalPages={meta?.totalPages || 1}
+        total={meta?.total}
+        onPageChange={setPage}
+      >
+        <select
+          value={categoryFilter}
+          onChange={(e) => {
+            setCategoryFilter(e.target.value);
+            setPage(1);
+          }}
+          className="h-12 bg-cream/30 border-none rounded-xl px-4 focus:ring-2 focus:ring-maroon/20 outline-none font-bold text-navy/70 text-sm cursor-pointer"
+        >
+          <option value="">All Categories</option>
+          {["robes", "alms", "monastery", "medicine", "education", "general"].map(cat => (
+            <option key={cat} value={cat}>{t(`donors.monthly.categories.${cat}`)}</option>
+          ))}
+        </select>
+      </DataTable>
     </div>
   );
 }
-

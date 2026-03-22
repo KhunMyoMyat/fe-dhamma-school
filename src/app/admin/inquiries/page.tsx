@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { 
-  Search, 
   Trash2, 
   Eye,
-  Loader2,
   Mail,
   MailOpen,
   User,
@@ -26,38 +24,56 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { DataTable, Column } from "@/components/admin/DataTable";
 
 export default function AdminInquiriesPage() {
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const limit = 10;
+
   const [selectedInquiry, setSelectedInquiry] = useState<any>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   const fetchInquiries = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get("/contact");
-      // Backend returns paginated response: { data: [...], meta: {...} }
-      setInquiries(response.data.data || response.data);
+      const response = await api.get("/contact", {
+        params: {
+          page,
+          limit,
+          search: search.trim(),
+          sortBy,
+          sortOrder
+        }
+      });
+      setInquiries(response.data.data || []);
+      setTotalPages(response.data.meta?.totalPages || 1);
+      setTotal(response.data.meta?.total || 0);
     } catch (error) {
       console.error("Error fetching inquiries:", error);
-      toast.error("Failed to load inquiries. \nအချက်အလက်များ မဖော်ပြနိုင်ပါ။");
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchInquiries();
-  }, []);
+    const delayDebounceFn = setTimeout(() => {
+      fetchInquiries();
+    }, 300);
+    return () => clearTimeout(delayDebounceFn);
+  }, [page, search, sortBy, sortOrder]);
 
   const handleMarkAsRead = async (id: string) => {
     try {
       await api.patch(`/contact/${id}/read`);
-      toast.success("Marked as read! \nဖတ်ပြီးကြောင်း မှတ်သားလိုက်ပါပြီ။");
+      toast.success("Marked as read!");
       fetchInquiries();
-      // Update selected inquiry if it's the one we just marked
       if (selectedInquiry && selectedInquiry.id === id) {
         setSelectedInquiry({ ...selectedInquiry, isRead: true });
       }
@@ -67,172 +83,140 @@ export default function AdminInquiriesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this message? \nဒီစာကို ဖျက်ရန် သေချာပါသလား?")) return;
-    
+    if (!confirm("Are you sure?")) return;
     try {
       await api.delete(`/contact/${id}`);
-      toast.success("Message deleted successfully!");
+      toast.success("Message deleted!");
       fetchInquiries();
       setIsDetailsOpen(false);
     } catch (error) {
-      toast.error("Failed to delete message.");
+      toast.error("Failed to delete.");
     }
   };
 
-  const filteredInquiries = inquiries.filter((i) => 
-    i.name.toLowerCase().includes(search.toLowerCase()) ||
-    i.email.toLowerCase().includes(search.toLowerCase()) ||
-    i.subject.toLowerCase().includes(search.toLowerCase())
-  );
+  const columns: Column<any>[] = [
+    {
+      id: "isRead",
+      header: "Status",
+      sortable: true,
+      className: "w-20",
+      cell: (inquiry) => (
+        <div className="flex items-center justify-center">
+          {inquiry.isRead ? (
+            <MailOpen className="size-5 text-navy/20" />
+          ) : (
+            <div className="relative">
+              <Mail className="size-5 text-gold-dark" />
+              <span className="absolute -top-1 -right-1 size-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse" />
+            </div>
+          )}
+        </div>
+      )
+    },
+    {
+      id: "name",
+      header: "Sender",
+      sortable: true,
+      cell: (inquiry) => (
+        <div>
+          <p className={cn(
+            "font-black text-lg leading-none mb-1",
+            inquiry.isRead ? "text-navy/60" : "text-maroon"
+          )}>
+            {inquiry.name}
+          </p>
+          <p className="text-xs text-navy/40 font-bold">{inquiry.email}</p>
+        </div>
+      )
+    },
+    {
+      id: "subject",
+      header: "Subject",
+      sortable: true,
+      cell: (inquiry) => (
+        <p className={cn(
+          "font-bold truncate max-w-[200px] text-sm",
+          inquiry.isRead ? "text-navy/50" : "text-navy"
+        )}>
+          {inquiry.subject}
+        </p>
+      )
+    },
+    {
+      id: "createdAt",
+      header: "Received",
+      sortable: true,
+      cell: (inquiry) => (
+        <p className="text-xs font-black text-navy/30 uppercase tracking-widest whitespace-nowrap">
+          {new Date(inquiry.createdAt).toLocaleString()}
+        </p>
+      )
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      className: "text-right",
+      hideable: false,
+      cell: (inquiry) => (
+        <div className="flex items-center justify-end gap-2">
+          {!inquiry.isRead && (
+            <button 
+              onClick={() => handleMarkAsRead(inquiry.id)}
+              className="p-2 hover:bg-gold/10 rounded-lg text-gold hover:text-gold-dark transition-colors"
+              title="Mark as Read"
+            >
+              <CheckCircle2 className="size-5" />
+            </button>
+          )}
+          <button 
+            onClick={() => {
+              setSelectedInquiry(inquiry);
+              setIsDetailsOpen(true);
+            }}
+            className="p-2 hover:bg-maroon/5 rounded-lg text-navy/30 hover:text-maroon transition-colors"
+          >
+            <Eye className="size-5" />
+          </button>
+          <button 
+            onClick={() => handleDelete(inquiry.id)}
+            className="p-2 hover:bg-red-50 rounded-lg text-navy/30 hover:text-red-500 transition-colors"
+          >
+            <Trash2 className="size-5" />
+          </button>
+        </div>
+      )
+    }
+  ];
 
   return (
     <div className="p-8 md:p-12 space-y-10">
-      {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h1 className="text-4xl font-black text-maroon tracking-tight mb-2 uppercase">
             Contact <span className="text-gold">Inquiries</span>
           </h1>
           <p className="text-navy/50 font-myanmar font-medium">
-            ပေးပို့လာသော ဆက်သွယ်မေးမြန်းမှုများကို စီမံရန် (စုစုပေါင်း - {inquiries.length} စောင်)
+            Contact messages management (Total - {total})
           </p>
         </div>
       </div>
 
-      {/* Filters & Summary */}
-      <div className="flex flex-col md:flex-row items-center gap-4 bg-white p-4 rounded-[1.5rem] border border-gold/10 shadow-sm">
-        <div className="relative flex-1 group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-navy/20 group-focus-within:text-maroon transition-colors" />
-          <input 
-            type="text"
-            placeholder="အမည်၊ အီးမေးလ် သို့မဟုတ် ခေါင်းစဉ်ဖြင့် ရှာဖွေပါ..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-12 bg-cream/30 border-none rounded-xl pl-12 pr-4 focus:ring-2 focus:ring-maroon/20 outline-none font-myanmar font-medium"
-          />
-        </div>
-        <div className="flex items-center gap-4 px-4 text-xs font-black uppercase tracking-widest text-navy/40">
-           <div className="flex items-center gap-2">
-             <div className="size-3 rounded-full bg-gold" />
-             {inquiries.filter(i => !i.isRead).length} Unread
-           </div>
-           <div className="flex items-center gap-2">
-             <div className="size-3 rounded-full bg-green-500" />
-             {inquiries.filter(i => i.isRead).length} Read
-           </div>
-        </div>
-      </div>
+      <DataTable
+        columns={columns}
+        data={inquiries}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={(val) => { setSearch(val); setPage(1); }}
+        searchPlaceholder="အမည်၊ အီးမေးလ် သို့မဟုတ် ခေါင်းစဉ်ဖြင့် ရှာဖွေပါ..."
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={(f, o) => { setSortBy(f); setSortOrder(o); }}
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        onPageChange={setPage}
+      />
 
-      {/* List Section */}
-      <div className="bg-white rounded-[2.5rem] border border-gold/10 shadow-xl shadow-maroon/5 overflow-hidden">
-        {isLoading ? (
-          <div className="h-64 flex flex-col items-center justify-center gap-4 text-maroon/30">
-            <Loader2 className="size-10 animate-spin" />
-            <span className="font-bold uppercase tracking-widest text-xs">Loading Inquiries...</span>
-          </div>
-        ) : filteredInquiries.length === 0 ? (
-          <div className="h-64 flex flex-col items-center justify-center gap-2 text-navy/20">
-            <MessageSquare className="size-12" />
-            <p className="font-bold font-myanmar">ရှာဖွေမှု မတွေ့ရှိပါ</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-cream/50 border-b border-gold/10">
-                  <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em]">Status</th>
-                  <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em]">Sender</th>
-                  <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em]">Subject</th>
-                  <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em]">Received</th>
-                  <th className="p-6 text-xs font-black text-navy/40 uppercase tracking-[0.2em] text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gold/5">
-                {filteredInquiries.map((inquiry) => (
-                  <tr 
-                    key={inquiry.id} 
-                    className={cn(
-                      "group hover:bg-cream/20 transition-colors cursor-pointer",
-                      !inquiry.isRead && "bg-gold/5"
-                    )}
-                    onClick={() => {
-                      setSelectedInquiry(inquiry);
-                      setIsDetailsOpen(true);
-                    }}
-                  >
-                    <td className="p-6">
-                      <div className="flex items-center justify-center">
-                        {inquiry.isRead ? (
-                          <MailOpen className="size-5 text-navy/20" />
-                        ) : (
-                          <div className="relative">
-                            <Mail className="size-5 text-gold-dark" />
-                            <span className="absolute -top-1 -right-1 size-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse" />
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-6">
-                      <div>
-                        <p className={cn(
-                          "font-black text-lg leading-none mb-1",
-                          inquiry.isRead ? "text-navy/60" : "text-maroon"
-                        )}>
-                          {inquiry.name}
-                        </p>
-                        <p className="text-xs text-navy/40 font-bold">{inquiry.email}</p>
-                      </div>
-                    </td>
-                    <td className="p-6">
-                      <p className={cn(
-                        "font-bold truncate max-w-[200px] text-sm",
-                        inquiry.isRead ? "text-navy/50" : "text-navy"
-                      )}>
-                        {inquiry.subject}
-                      </p>
-                    </td>
-                    <td className="p-6">
-                       <p className="text-xs font-black text-navy/30 uppercase tracking-widest whitespace-nowrap">
-                         {new Date(inquiry.createdAt).toLocaleString()}
-                       </p>
-                    </td>
-                    <td className="p-6">
-                      <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                        {!inquiry.isRead && (
-                          <button 
-                            onClick={() => handleMarkAsRead(inquiry.id)}
-                            className="p-2 hover:bg-gold/10 rounded-lg text-gold hover:text-gold-dark transition-colors"
-                            title="Mark as Read"
-                          >
-                            <CheckCircle2 className="size-5" />
-                          </button>
-                        )}
-                        <button 
-                          onClick={() => {
-                            setSelectedInquiry(inquiry);
-                            setIsDetailsOpen(true);
-                          }}
-                          className="p-2 hover:bg-maroon/5 rounded-lg text-navy/30 hover:text-maroon transition-colors"
-                        >
-                          <Eye className="size-5" />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(inquiry.id)}
-                          className="p-2 hover:bg-red-50 rounded-lg text-navy/30 hover:text-red-500 transition-colors"
-                        >
-                          <Trash2 className="size-5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Details Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="max-w-2xl bg-cream border-gold/20 rounded-[2rem] p-0 overflow-hidden outline-none">
           {selectedInquiry && (
