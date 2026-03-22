@@ -141,6 +141,22 @@ export default function AdminMonthlyDonorsPage() {
       )
     },
     {
+      id: "paidCurrentMonth",
+      header: "Payment (Current Month)",
+      sortable: false,
+      cell: (donor) => (
+        donor.paidCurrentMonth ? (
+          <Badge className="bg-green-500 text-white border-none font-black px-3 py-1">
+            PAID
+          </Badge>
+        ) : (
+          <Badge className="bg-red-500/10 text-red-600 border border-red-500/20 font-black px-3 py-1">
+            UNPAID
+          </Badge>
+        )
+      )
+    },
+    {
       id: "status",
       header: "Status",
       sortable: true,
