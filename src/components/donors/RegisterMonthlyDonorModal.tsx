@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useTranslation } from "@/providers/LanguageProvider";
 import api from "@/lib/api";
 import { Loader2, Plus, X } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 export function RegisterMonthlyDonorModal() {
   const { t } = useTranslation();
@@ -75,7 +74,7 @@ export function RegisterMonthlyDonorModal() {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
           <div
             className="absolute inset-0 bg-navy/80 backdrop-blur-sm"
             onClick={() => !isSubmitting && setIsOpen(false)}
@@ -138,7 +137,7 @@ export function RegisterMonthlyDonorModal() {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-cream/70 uppercase tracking-widest mb-1.5 ml-1">
-                      Start Month
+                      {t("donors.monthly.startMonth")} *
                     </label>
                     <input
                       required
@@ -177,10 +176,10 @@ export function RegisterMonthlyDonorModal() {
                       onChange={handleChange}
                       className="w-full bg-navy border border-white/20 rounded-2xl px-4 py-3 text-white outline-none focus:border-gold/50 transition-all font-medium"
                     >
-                      <option className="bg-navy text-white text-base py-2" value="MMK">MMK (Myanmar Kyat)</option>
-                      <option className="bg-navy text-white text-base py-2" value="USD">USD (US Dollar)</option>
-                      <option className="bg-navy text-white text-base py-2" value="THB">THB (Thai Baht)</option>
-                      <option className="bg-navy text-white text-base py-2" value="SGD">SGD (Singapore Dollar)</option>
+                      <option className="bg-navy text-white text-base py-2" value="MMK">MMK</option>
+                      <option className="bg-navy text-white text-base py-2" value="USD">USD</option>
+                      <option className="bg-navy text-white text-base py-2" value="THB">THB</option>
+                      <option className="bg-navy text-white text-base py-2" value="SGD">SGD</option>
                     </select>
                   </div>
                 </div>

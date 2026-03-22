@@ -24,6 +24,7 @@ export function EditMonthlyDonorModal({ donor, onSuccess }: EditMonthlyDonorModa
     currency: donor.currency || "MMK",
     category: donor.category || "general",
     startDate: donor.startDate ? new Date(donor.startDate).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
+    endDate: donor.endDate ? new Date(donor.endDate).toISOString().slice(0, 10) : "",
     remarks: donor.remarks || "",
   });
 
@@ -46,6 +47,7 @@ export function EditMonthlyDonorModal({ donor, onSuccess }: EditMonthlyDonorModa
         currency: formData.currency,
         category: formData.category,
         startDate: new Date(formData.startDate).toISOString(),
+        endDate: formData.endDate ? new Date(formData.endDate).toISOString() : null,
         remarks: formData.remarks,
       });
 
@@ -109,27 +111,40 @@ export function EditMonthlyDonorModal({ donor, onSuccess }: EditMonthlyDonorModa
                 />
               </div>
 
+              <div>
+                <label className="block text-xs font-black text-navy/60 uppercase tracking-widest mb-1.5 ml-1 text-left">
+                  Phone
+                </label>
+                <input
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full bg-cream/30 border border-navy/10 rounded-xl px-4 py-3 text-navy font-bold outline-none focus:ring-2 focus:ring-maroon/20 transition-all text-left"
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-black text-navy/60 uppercase tracking-widest mb-1.5 ml-1 text-left">
-                    Phone
-                  </label>
-                  <input
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full bg-cream/30 border border-navy/10 rounded-xl px-4 py-3 text-navy font-bold outline-none focus:ring-2 focus:ring-maroon/20 transition-all text-left"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-black text-navy/60 uppercase tracking-widest mb-1.5 ml-1 text-left">
-                    Start Month
+                    {t("donors.monthly.startMonth")} *
                   </label>
                   <input
                     required
                     type="date"
                     name="startDate"
                     value={formData.startDate}
+                    onChange={handleChange}
+                    className="w-full bg-cream/30 border border-navy/10 rounded-xl px-4 py-3 text-navy font-bold outline-none focus:ring-2 focus:ring-maroon/20 transition-all text-left"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-navy/60 uppercase tracking-widest mb-1.5 ml-1 text-left">
+                    {t("donors.monthly.endMonth")}
+                  </label>
+                  <input
+                    type="date"
+                    name="endDate"
+                    value={formData.endDate}
                     onChange={handleChange}
                     className="w-full bg-cream/30 border border-navy/10 rounded-xl px-4 py-3 text-navy font-bold outline-none focus:ring-2 focus:ring-maroon/20 transition-all text-left"
                   />

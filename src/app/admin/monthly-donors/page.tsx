@@ -19,6 +19,7 @@ type MonthlyDonorSubscription = {
   currency: string;
   category: string;
   startDate: string;
+  endDate: string | null;
   status: string;
   remarks: string | null;
   createdAt: string;
@@ -206,6 +207,7 @@ export default function AdminMonthlyDonorsPage() {
                 <th className="p-6 py-4">Commitment</th>
                 <th className="p-6 py-4">Category</th>
                 <th className="p-6 py-4">Start Date</th>
+                <th className="p-6 py-4">End Date</th>
                 <th className="p-6 py-4">Status</th>
                 <th className="p-6 py-4 text-center">Actions</th>
               </tr>
@@ -213,7 +215,7 @@ export default function AdminMonthlyDonorsPage() {
             <tbody className="text-navy/80 text-sm font-medium divide-y divide-navy/5">
               {isLoading && donors.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-12 text-center">
+                  <td colSpan={8} className="p-12 text-center">
                     <Loader2 className="size-8 animate-spin mx-auto text-gold mb-4" />
                     <p className="text-navy/50 font-bold uppercase tracking-widest text-xs">
                       Loading data...
@@ -222,7 +224,7 @@ export default function AdminMonthlyDonorsPage() {
                 </tr>
               ) : donors.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-12 text-center text-navy/50 font-bold">
+                  <td colSpan={8} className="p-12 text-center text-navy/50 font-bold">
                     No matching records found.
                   </td>
                 </tr>
@@ -259,6 +261,18 @@ export default function AdminMonthlyDonorsPage() {
                         month: "short",
                       })}
                     </td>
+                    <td className="p-6 whitespace-nowrap">
+                      {donor.endDate ? (
+                        <span className="font-bold text-navy/70">
+                          {new Date(donor.endDate).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                          })}
+                        </span>
+                      ) : (
+                        <span className="text-navy/30 italic font-myanmar">မရှိသေးပါ</span>
+                      )}
+                    </td>
                     <td className="p-6">
                       <Badge
                         className={
@@ -275,14 +289,24 @@ export default function AdminMonthlyDonorsPage() {
                     <td className="p-6">
                       <div className="flex items-center justify-center gap-2">
                         {donor.status === "pending" && (
-                          <button
-                            disabled={savingId === donor.id}
-                            onClick={() => updateStatus(donor.id, "active")}
-                            title="Approve"
-                            className="size-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center hover:bg-green-100 transition-colors border border-green-200"
-                          >
-                            <Check className="size-4" />
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              disabled={savingId === donor.id}
+                              onClick={() => updateStatus(donor.id, "active")}
+                              title="Approve"
+                              className="size-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center hover:bg-green-100 transition-colors border border-green-200"
+                            >
+                              <Check className="size-4" />
+                            </button>
+                            <button
+                              disabled={savingId === donor.id}
+                              onClick={() => updateStatus(donor.id, "inactive")}
+                              title="Reject / Deactivate"
+                              className="size-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-100 transition-colors border border-red-200"
+                            >
+                              <X className="size-4" />
+                            </button>
+                          </div>
                         )}
                         {donor.status === "active" && (
                           <button

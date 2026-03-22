@@ -42,6 +42,8 @@
         "general": "General Donation"
       },
       "empty": "No donors recorded for this month yet.",
+      "startMonth": "Start Month",
+      "endMonth": "End Month (Optional)",
       "showing": "Showing",
       "donations": "Donations",
       "last": "Last"
