@@ -6,7 +6,7 @@ import { useTranslation } from "@/providers/LanguageProvider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
-import { HandCoins } from "lucide-react";
+import { HandCoins, History } from "lucide-react";
 import { AddDonationModal } from "@/components/admin/donations/AddDonationModal";
 import { DataTable, Column } from "@/components/admin/DataTable";
 
@@ -121,6 +121,11 @@ export default function AdminDonationsPage() {
 
         <div className="flex flex-wrap gap-4 items-center justify-end">
           <AddDonationModal onSuccess={() => setRefreshKey(k => k + 1)} />
+          <Link href="/admin/monthly-donors/report">
+            <Button className="h-14 bg-navy hover:bg-navy/80 text-white rounded-2xl px-6 font-black text-base shadow-lg shadow-navy/20">
+              <History className="mr-2 size-5" /> Reports
+            </Button>
+          </Link>
           <Link href="/admin/monthly-donors">
             <Button className="h-14 bg-gold hover:bg-gold/80 text-navy rounded-2xl px-6 font-black text-base shadow-lg shadow-gold/20">
               <HandCoins className="mr-2 size-5" /> Subscriptions
