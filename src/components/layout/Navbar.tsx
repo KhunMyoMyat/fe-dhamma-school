@@ -32,7 +32,7 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 bg-cream/90 backdrop-blur-xl border-b border-gold/20 shadow-sm">
-      <div className="container mx-auto px-4 h-20 flex items-center justify-between gap-4">
+      <div className="container mx-auto h-20 flex items-center justify-between gap-4">
         <Link
           href="/"
           className="flex items-center gap-3 group transition-transform hover:scale-105 active:scale-95 shrink-0"
@@ -73,7 +73,7 @@ export default function Navbar() {
           ))}
 
           {/* Info Dropdown */}
-          <div 
+          <div
             className="relative"
             onMouseEnter={() => setIsInfoOpen(true)}
             onMouseLeave={() => setIsInfoOpen(false)}
@@ -81,13 +81,18 @@ export default function Navbar() {
             <button
               className={cn(
                 "text-sm font-bold tracking-widest uppercase transition-all flex items-center gap-1 py-4",
-                infoLinks.some(l => pathname === l.href)
+                infoLinks.some((l) => pathname === l.href)
                   ? "text-maroon"
                   : "text-navy/50 hover:text-maroon",
               )}
             >
               {t("nav.info")}
-              <ChevronDown className={cn("size-4 transition-transform duration-300", isInfoOpen && "rotate-180")} />
+              <ChevronDown
+                className={cn(
+                  "size-4 transition-transform duration-300",
+                  isInfoOpen && "rotate-180",
+                )}
+              />
             </button>
 
             <AnimatePresence>
