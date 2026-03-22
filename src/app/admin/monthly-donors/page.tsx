@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { EditMonthlyDonorModal } from "@/components/admin/donations/EditMonthlyDonorModal";
 import { AddDonationModal } from "@/components/admin/donations/AddDonationModal";
 import { DataTable, Column } from "@/components/admin/DataTable";
+import { cn } from "@/lib/utils";
 
 export default function AdminMonthlyDonorsPage() {
   const { t } = useTranslation();
@@ -220,7 +221,7 @@ export default function AdminMonthlyDonorsPage() {
 
           {donor.status === "active" && (
             <AddDonationModal
-              onSuccess={() => alert("Donation recorded!")}
+              onSuccess={() => fetchDonors()}
               initialData={{
                 donorName: donor.name,
                 amount: donor.amount.toString(),
@@ -228,7 +229,15 @@ export default function AdminMonthlyDonorsPage() {
                 category: donor.category,
               }}
               triggerButton={
-                <button className="size-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center hover:bg-purple-100 border border-purple-200">
+                <button 
+                  title={donor.paidCurrentMonth ? "Recorded for this month" : "Record Donation"}
+                  className={cn(
+                    "size-8 rounded-full flex items-center justify-center transition-colors border",
+                    donor.paidCurrentMonth 
+                      ? "bg-green-50 text-green-600 border-green-200" 
+                      : "bg-purple-50 text-purple-600 border-purple-200 animate-pulse shadow-sm shadow-purple-500/20"
+                  )}
+                >
                   <Banknote className="size-4" />
                 </button>
               }
