@@ -13,7 +13,8 @@ import {
   Bell,
   Search,
   Plus,
-  ArrowRight
+  ArrowRight,
+  MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
@@ -30,7 +31,14 @@ const stats = [
 export default function AdminDashboard() {
   const router = useRouter();
   const [adminUser, setAdminUser] = useState<any>(null);
-  const [counts, setCounts] = useState({ courses: 0, events: 0, teachings: 0 });
+  const [counts, setCounts] = useState({ 
+    courses: 0, 
+    events: 0, 
+    teachings: 0, 
+    inquiries: 0, 
+    unreadInquiries: 0,
+    pendingDonors: 0 
+  });
   const [recentCourses, setRecentCourses] = useState<any[]>([]);
 
   useEffect(() => {
@@ -44,15 +52,27 @@ export default function AdminDashboard() {
 
     const fetchStats = async () => {
       try {
-        const [coursesRes, eventsRes, teachingsRes] = await Promise.all([
+        const [coursesRes, eventsRes, teachingsRes, contactRes, donorsRes] = await Promise.all([
           api.get("/courses"),
           api.get("/events"),
-          api.get("/teachings")
+          api.get("/teachings"),
+          api.get("/contact"),
+          api.get("/donations/monthly-donor-subscriptions")
         ]);
+
+        const contactData = contactRes.data.data || contactRes.data || [];
+        const unreadInquiries = contactData.filter((i: any) => !i.isRead).length;
+
+        const donorsData = donorsRes.data.data || donorsRes.data || [];
+        const pendingDonors = donorsData.filter((d: any) => d.status === "pending").length;
+
         setCounts({
           courses: coursesRes.data.meta?.total || coursesRes.data.length || 0,
           events: eventsRes.data.meta?.total || eventsRes.data.length || 0,
-          teachings: teachingsRes.data.meta?.total || teachingsRes.data.length || 0
+          teachings: teachingsRes.data.meta?.total || teachingsRes.data.length || 0,
+          inquiries: contactData.length || 0,
+          unreadInquiries,
+          pendingDonors
         });
         setRecentCourses((coursesRes.data.data || coursesRes.data || []).slice(0, 3));
       } catch (err) {
@@ -63,11 +83,13 @@ export default function AdminDashboard() {
     fetchStats();
   }, [router]);
 
+  const totalNotifications = counts.unreadInquiries + counts.pendingDonors;
+
   const dashboardStats = [
-    { label: "Active Students", value: "1,280", icon: Users, color: "blue" },
     { label: "Online Courses", value: counts.courses, icon: BookOpen, color: "maroon" },
     { label: "Future Events", value: counts.events, icon: Calendar, color: "gold" },
-    { label: "Dhamma Teachings", value: counts.teachings, icon: Sprout, color: "bodhi" },
+    { label: "New Messages", value: counts.unreadInquiries, icon: Bell, color: "navy" },
+    { label: "Pending Donors", value: counts.pendingDonors, icon: Users, color: "bodhi" },
   ];
 
   const handleLogout = () => {
@@ -93,13 +115,52 @@ export default function AdminDashboard() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="size-12 rounded-2xl bg-white border border-gold/20 flex items-center justify-center text-navy/40 hover:text-maroon transition-colors shadow-sm">
-              <Bell className="size-6" />
-            </button>
+            <div className="relative group">
+              <button className="relative size-12 rounded-2xl bg-white border border-gold/20 flex items-center justify-center text-navy/40 hover:text-maroon transition-colors shadow-sm cursor-pointer">
+                <Bell className="size-6 group-hover:rotate-12 transition-transform" />
+                {totalNotifications > 0 && (
+                  <span className="absolute -top-1 -right-1 size-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white animate-bounce-slow">
+                    {totalNotifications}
+                  </span>
+                )}
+              </button>
+              
+              {/* Notification Popover on Hover */}
+              <div className="absolute top-full right-0 mt-2 w-64 bg-white border border-gold/20 rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all z-50 overflow-hidden">
+                <div className="p-4 border-b border-gold/5 bg-cream/30">
+                  <p className="text-xs font-black text-maroon uppercase tracking-widest">Notifications</p>
+                </div>
+                <div className="p-2">
+                  <Link href="/admin/inquiries" className="flex items-center justify-between p-3 rounded-xl hover:bg-cream/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="size-8 rounded-lg bg-gold/10 flex items-center justify-center">
+                        <MessageSquare className="size-4 text-gold-dark" />
+                      </div>
+                      <span className="text-sm font-bold text-navy/70">Messages</span>
+                    </div>
+                    {counts.unreadInquiries > 0 && (
+                      <Badge className="bg-gold text-white text-[10px]">{counts.unreadInquiries}</Badge>
+                    )}
+                  </Link>
+                  <Link href="/admin/monthly-donors" className="flex items-center justify-between p-3 rounded-xl hover:bg-cream/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="size-8 rounded-lg bg-bodhi/10 flex items-center justify-center">
+                        <Users className="size-4 text-bodhi" />
+                      </div>
+                      <span className="text-sm font-bold text-navy/70">Pending Donors</span>
+                    </div>
+                    {counts.pendingDonors > 0 && (
+                      <Badge className="bg-bodhi text-white text-[10px]">{counts.pendingDonors}</Badge>
+                    )}
+                  </Link>
+                </div>
+              </div>
+            </div>
+
             <Button
               onClick={handleLogout}
               variant="outline"
-              className="h-12 border-maroon/20 text-maroon hover:bg-maroon hover:text-white rounded-xl font-bold px-6"
+              className="h-12 border-maroon/20 text-maroon hover:bg-maroon hover:text-white rounded-xl font-bold px-6 shadow-sm"
             >
               <LogOut className="size-4 mr-2" /> Logout
             </Button>

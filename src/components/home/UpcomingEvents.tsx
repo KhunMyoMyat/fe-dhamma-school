@@ -78,7 +78,7 @@ export function UpcomingEvents({ events }: { events: any[] }) {
                 <Link href={`/events/${event.id}`}>
                   <Button
                     variant="outline"
-                    className="w-fit border-white/20 hover:border-gold text-white hover:bg-gold hover:text-navy rounded-full transition-all"
+                    className="w-fit border-white/20 hover:border-gold text-gold hover:bg-gold hover:text-navy rounded-full transition-all"
                   >
                     {t("events.details")}
                   </Button>
