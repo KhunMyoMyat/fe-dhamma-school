@@ -20,8 +20,31 @@ export default function AdminDonationsPage() {
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const limit = 20;
+
+  const updateStatus = async (id: string, newStatus: string) => {
+    try {
+      await api.put(`/donations/${id}`, { status: newStatus });
+      setRefreshKey(k => k + 1);
+    } catch (e) {
+      console.error(e);
+      alert("Failed to update status.");
+    }
+  };
+
+  const deleteDonation = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this donation?")) return;
+    try {
+      await api.delete(`/donations/${id}`);
+      setRefreshKey(k => k + 1);
+    } catch (e) {
+      console.error(e);
+      alert("Failed to delete donation.");
+    }
+  };
+
 
   useEffect(() => {
     let cancelled = false;
@@ -35,7 +58,8 @@ export default function AdminDonationsPage() {
             search: search.trim(),
             sortBy,
             sortOrder,
-            ...(categoryFilter ? { category: categoryFilter } : {})
+            ...(categoryFilter ? { category: categoryFilter } : {}),
+            ...(statusFilter ? { status: statusFilter } : {})
           },
         });
         if (cancelled) return;
@@ -53,7 +77,7 @@ export default function AdminDonationsPage() {
 
     const timeout = setTimeout(fetchDonations, 300);
     return () => { cancelled = true; clearTimeout(timeout); };
-  }, [page, search, refreshKey, sortBy, sortOrder, categoryFilter]);
+  }, [page, search, refreshKey, sortBy, sortOrder, categoryFilter, statusFilter]);
 
   const columns: Column<any>[] = [
     {
@@ -104,6 +128,52 @@ export default function AdminDonationsPage() {
           </p>
         );
       }
+    },
+    {
+      id: "status",
+      header: "Status / Slip",
+      cell: (d) => (
+        <div className="flex flex-col gap-2 items-start">
+          <Badge 
+            variant="outline" 
+            className={`capitalize ${d.status === 'pending' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : 'bg-green-100 text-green-800 border-green-200'}`}
+          >
+            {d.status || "approved"}
+          </Badge>
+          {d.slipUrl && (
+            <a href={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api${d.slipUrl}`} target="_blank" rel="noreferrer" className="text-[10px] text-maroon font-bold uppercase tracking-widest hover:underline whitespace-nowrap">
+               View Slip
+            </a>
+          )}
+        </div>
+      )
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      className: "text-right",
+      cell: (d) => (
+        <div className="flex items-center justify-end gap-2 text-right">
+          {(!d.status || d.status === "pending") && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-green-700 bg-green-50 hover:bg-green-100 border-green-200"
+              onClick={() => updateStatus(d.id, "approved")}
+            >
+              Approve
+            </Button>
+          )}
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-red-700 bg-red-50 hover:bg-red-100 border-red-200"
+            onClick={() => deleteDonation(d.id)}
+          >
+            Delete
+          </Button>
+        </div>
+      )
     }
   ];
 
@@ -172,6 +242,19 @@ export default function AdminDonationsPage() {
           {["robes", "alms", "monastery", "medicine", "education", "general"].map(cat => (
             <option key={cat} value={cat}>{t(`donors.monthly.categories.${cat}`)}</option>
           ))}
+        </select>
+        
+        <select
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setPage(1);
+          }}
+          className="h-12 bg-cream/30 border-none rounded-xl px-4 focus:ring-2 focus:ring-maroon/20 outline-none font-bold text-navy/70 text-sm cursor-pointer"
+        >
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
         </select>
       </DataTable>
     </div>

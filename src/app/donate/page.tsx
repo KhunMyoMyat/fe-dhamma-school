@@ -8,6 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useTranslation } from "@/providers/LanguageProvider";
 import DonationMethods from "@/components/home/DonationMethods";
+import SubmitDonationForm from "@/components/donate/SubmitDonationForm";
 
 const impactItems = [
   {
@@ -30,10 +31,10 @@ export default function DonatePage() {
   return (
     <div className="min-h-screen bg-cream/10 pt-20 pb-32">
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 text-center relative overflow-hidden">
+      <section className="container mx-auto px-4 py-5 text-center relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gold/5 rounded-full blur-[120px] -z-10" />
 
-        <div className="max-w-4xl mx-auto mb-20">
+        <div className="max-w-4xl mx-auto mb-10">
           <Badge className="bg-gold/10 text-gold hover:bg-gold/20 mb-6 px-6 py-1.5 rounded-full border border-gold/20 tracking-widest uppercase text-xs font-bold">
             {t("donate.badge")}
           </Badge>
@@ -57,6 +58,39 @@ export default function DonatePage() {
                 {t("donate.viewMonthly")}
               </Button>
             </Link>
+          </div>
+        </div>
+        <DonationMethods />
+        <SubmitDonationForm />
+
+        {/* Impact Section */}
+        <div className="max-w-6xl mx-auto mb-10 mt-10">
+          <div className="flex flex-col items-center mb-16 px-4">
+            <Badge className="bg-maroon/5 text-maroon border-maroon/10 mb-4 px-4 py-1">
+              Impact
+            </Badge>
+            <h2 className="text-4xl font-black text-maroon text-center">
+              {t("donate.impact.title")}
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {impactItems.map((item, i) => (
+              <div
+                key={i}
+                className="p-10 rounded-[2.5rem] bg-linear-to-b from-white to-cream/30 border border-gold/10 text-center flex flex-col items-center"
+              >
+                <div className="size-14 rounded-full bg-gold/10 flex items-center justify-center mb-6">
+                  <item.icon className="size-7 text-gold" />
+                </div>
+                <h4 className="text-xl font-bold text-maroon mb-3">
+                  {t(`donate.impact.${item.id}`)}
+                </h4>
+                <p className="text-sm text-navy/60 leading-relaxed">
+                  {t(`donate.impact.${item.id}Desc`)}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -100,39 +134,6 @@ export default function DonatePage() {
             </motion.div>
           ))}
         </div>
-
-        {/* Impact Section */}
-        <div className="max-w-6xl mx-auto mb-32">
-          <div className="flex flex-col items-center mb-16 px-4">
-            <Badge className="bg-maroon/5 text-maroon border-maroon/10 mb-4 px-4 py-1">
-              Impact
-            </Badge>
-            <h2 className="text-4xl font-black text-maroon text-center">
-              {t("donate.impact.title")}
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {impactItems.map((item, i) => (
-              <div
-                key={i}
-                className="p-10 rounded-[2.5rem] bg-linear-to-b from-white to-cream/30 border border-gold/10 text-center flex flex-col items-center"
-              >
-                <div className="size-14 rounded-full bg-gold/10 flex items-center justify-center mb-6">
-                  <item.icon className="size-7 text-gold" />
-                </div>
-                <h4 className="text-xl font-bold text-maroon mb-3">
-                  {t(`donate.impact.${item.id}`)}
-                </h4>
-                <p className="text-sm text-navy/60 leading-relaxed">
-                  {t(`donate.impact.${item.id}Desc`)}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <DonationMethods />
       </section>
     </div>
   );
