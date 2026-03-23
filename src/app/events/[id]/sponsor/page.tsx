@@ -13,7 +13,8 @@ import {
   User,
   Phone,
   Mail,
-  MessageSquare
+  MessageSquare,
+  Medal
 } from "lucide-react";
 import Link from "next/link";
 import api from "@/lib/api";
@@ -26,6 +27,14 @@ export default function EventSponsorshipPage({ params }: { params: Promise<{ id:
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    message: "",
+    sponsorType: "co_sponsor"
+  });
   const { t, language } = useTranslation();
 
   useEffect(() => {
@@ -45,11 +54,23 @@ export default function EventSponsorshipPage({ params }: { params: Promise<{ id:
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulate API call for inquiry
-    setTimeout(() => {
-      setIsSubmitting(false);
+    setError(null);
+    try {
+      await api.post("/contact", {
+        name: formData.name,
+        email: formData.email || undefined,
+        subject: `Sponsorship Interest: ${event?.title || "Unknown Event"}`,
+        message: `Phone: ${formData.phone}\n\nInquiry: ${formData.message}`,
+        eventId: id,
+        sponsorType: formData.sponsorType
+      });
       setIsSuccess(true);
-    }, 2000);
+    } catch (err: any) {
+      console.error("Failed to submit sponsorship inquiry:", err);
+      setError("Something went wrong. Please try again later.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isLoading) {
@@ -100,6 +121,46 @@ export default function EventSponsorshipPage({ params }: { params: Promise<{ id:
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
+                  {error && (
+                    <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-center font-bold text-sm">
+                      {error}
+                    </div>
+                  )}
+
+                  <div className="space-y-4">
+                     <label className="text-[10px] font-black uppercase tracking-widest text-gold/60 ml-4">Sponsorship Level</label>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, sponsorType: "main" })}
+                          className={`h-20 rounded-3xl border-2 flex items-center justify-center gap-4 font-black transition-all ${
+                            formData.sponsorType === "main" 
+                            ? "bg-gold text-navy border-gold shadow-lg shadow-gold/20" 
+                            : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10 hover:border-white/20"
+                          }`}
+                        >
+                          <div className={`size-10 rounded-xl flex items-center justify-center ${formData.sponsorType === "main" ? "bg-navy/10 text-navy" : "bg-white/5 text-gold/40"}`}>
+                            <Medal className="size-6" />
+                          </div>
+                          <span>Main Sponsor</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, sponsorType: "co_sponsor" })}
+                          className={`h-20 rounded-3xl border-2 flex items-center justify-center gap-4 font-black transition-all ${
+                            formData.sponsorType === "co_sponsor" 
+                            ? "bg-gold text-navy border-gold shadow-lg shadow-gold/20" 
+                            : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10 hover:border-white/20"
+                          }`}
+                        >
+                          <div className={`size-10 rounded-xl flex items-center justify-center ${formData.sponsorType === "co_sponsor" ? "bg-navy/10 text-navy" : "bg-white/5 text-gold/40"}`}>
+                            <Heart className="size-6" />
+                          </div>
+                          <span>Co-Sponsor</span>
+                        </button>
+                     </div>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-2">
                        <label className="text-[10px] font-black uppercase tracking-widest text-gold/60 ml-4">Full Name / Organization</label>
@@ -107,6 +168,9 @@ export default function EventSponsorshipPage({ params }: { params: Promise<{ id:
                           <User className="absolute left-6 top-1/2 -translate-y-1/2 size-5 text-white/20 group-focus-within:text-gold transition-colors" />
                           <input 
                             required
+                            name="name"
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             placeholder="Ex: U Ba & Family"
                             className="w-full h-16 bg-white/5 border-2 border-white/10 rounded-2xl pl-16 pr-6 focus:border-gold focus:bg-white/10 outline-none transition-all font-bold"
                           />
@@ -118,6 +182,9 @@ export default function EventSponsorshipPage({ params }: { params: Promise<{ id:
                           <Phone className="absolute left-6 top-1/2 -translate-y-1/2 size-5 text-white/20 group-focus-within:text-gold transition-colors" />
                           <input 
                             required
+                            name="phone"
+                            value={formData.phone}
+                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             placeholder="+95 9..."
                             className="w-full h-16 bg-white/5 border-2 border-white/10 rounded-2xl pl-16 pr-6 focus:border-gold focus:bg-white/10 outline-none transition-all font-bold"
                           />
@@ -131,6 +198,9 @@ export default function EventSponsorshipPage({ params }: { params: Promise<{ id:
                         <Mail className="absolute left-6 top-1/2 -translate-y-1/2 size-5 text-white/20 group-focus-within:text-gold transition-colors" />
                         <input 
                           type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                           placeholder="yourname@email.com"
                           className="w-full h-16 bg-white/5 border-2 border-white/10 rounded-2xl pl-16 pr-6 focus:border-gold focus:bg-white/10 outline-none transition-all font-bold"
                         />
@@ -143,6 +213,9 @@ export default function EventSponsorshipPage({ params }: { params: Promise<{ id:
                         <MessageSquare className="absolute left-6 top-10 -translate-y-1/2 size-5 text-white/20 group-focus-within:text-gold transition-colors" />
                         <textarea 
                           rows={4}
+                          name="message"
+                          value={formData.message}
+                          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                           placeholder="Tell us about how you'd like to contribute..."
                           className="w-full bg-white/5 border-2 border-white/10 rounded-2xl pl-16 pr-6 pt-6 focus:border-gold focus:bg-white/10 outline-none transition-all font-medium resize-none"
                         />
@@ -150,10 +223,16 @@ export default function EventSponsorshipPage({ params }: { params: Promise<{ id:
                   </div>
 
                   <Button 
+                    type="submit"
                     disabled={isSubmitting}
                     className="w-full py-10 rounded-2xl bg-gold text-navy font-black text-2xl hover:bg-white shadow-xl shadow-gold/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                   >
-                    {isSubmitting ? <Loader2 className="animate-spin size-8" /> : (
+                    {isSubmitting ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="animate-spin size-8" />
+                        <span>Submitting...</span>
+                      </div>
+                    ) : (
                       <>
                         <Heart className="mr-3 size-6 fill-navy" /> Submit Sponsorship Interest
                       </>

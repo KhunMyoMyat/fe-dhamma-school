@@ -11,6 +11,8 @@ import { EditMonthlyDonorModal } from "@/components/admin/donations/EditMonthlyD
 import { AddDonationModal } from "@/components/admin/donations/AddDonationModal";
 import { DataTable, Column } from "@/components/admin/DataTable";
 import { cn } from "@/lib/utils";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import toast from "react-hot-toast";
 
 export default function AdminMonthlyDonorsPage() {
   const { t } = useTranslation();
@@ -24,6 +26,10 @@ export default function AdminMonthlyDonorsPage() {
   const [meta, setMeta] = useState<any | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const limit = 20;
+ 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [donorToDelete, setDonorToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchDonors = async () => {
     setIsLoading(true);
@@ -66,13 +72,26 @@ export default function AdminMonthlyDonorsPage() {
     }
   };
 
-  const deleteDonor = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
+  const deleteDonor = async (id: string | null) => {
+    if (typeof id === "string") {
+      setDonorToDelete(id);
+      setIsDeleteModalOpen(true);
+      return;
+    }
+
+    if (!donorToDelete) return;
+
+    setIsDeleting(true);
     try {
-      await api.delete(`/donations/monthly-donor-subscriptions/${id}`);
+      await api.delete(`/donations/monthly-donor-subscriptions/${donorToDelete}`);
+      toast.success("Subscription deleted successfully!");
       fetchDonors();
+      setIsDeleteModalOpen(false);
+      setDonorToDelete(null);
     } catch (err) {
-      alert("Failed to delete");
+      toast.error("Failed to delete subscription.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -253,6 +272,17 @@ export default function AdminMonthlyDonorsPage() {
           ))}
         </select>
       </DataTable>
+
+      <ConfirmModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => deleteDonor(null)}
+        title="Delete Subscription"
+        description="Are you sure you want to delete this donor subscription? This will stop all tracking for this commitment."
+        variant="danger"
+        confirmText="Yes, Delete"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

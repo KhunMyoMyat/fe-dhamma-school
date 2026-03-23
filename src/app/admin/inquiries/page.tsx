@@ -25,6 +25,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { DataTable, Column } from "@/components/admin/DataTable";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 export default function AdminInquiriesPage() {
   const [inquiries, setInquiries] = useState<any[]>([]);
@@ -39,6 +40,9 @@ export default function AdminInquiriesPage() {
 
   const [selectedInquiry, setSelectedInquiry] = useState<any>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [inquiryToDelete, setInquiryToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchInquiries = async () => {
     setIsLoading(true);
@@ -82,15 +86,38 @@ export default function AdminInquiriesPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
+  const handleDelete = async (id: string | null) => {
+    if (typeof id === "string") {
+      setInquiryToDelete(id);
+      setIsDeleteModalOpen(true);
+      return;
+    }
+
+    if (!inquiryToDelete) return;
+
+    setIsDeleting(true);
     try {
-      await api.delete(`/contact/${id}`);
+      await api.delete(`/contact/${inquiryToDelete}`);
       toast.success("Message deleted!");
       fetchInquiries();
       setIsDetailsOpen(false);
+      setIsDeleteModalOpen(false);
+      setInquiryToDelete(null);
     } catch (error) {
       toast.error("Failed to delete.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleApproveSponsorship = async (id: string) => {
+    try {
+      await api.patch(`/contact/${id}/approve`);
+      toast.success("Sponsorship approved and added to event!");
+      fetchInquiries();
+      setIsDetailsOpen(false);
+    } catch (error) {
+      toast.error("Failed to approve sponsorship.");
     }
   };
 
@@ -140,6 +167,28 @@ export default function AdminInquiriesPage() {
         )}>
           {inquiry.subject}
         </p>
+      )
+    },
+    {
+      id: "status",
+      header: "Type",
+      cell: (inquiry) => (
+        <div className="flex flex-col gap-1">
+          {inquiry.eventId ? (
+            <>
+              <Badge className="bg-maroon/10 text-maroon border-maroon/20 text-[10px] w-fit">
+                {inquiry.sponsorType === "main" ? "MAIN SPONSOR" : "CO-SPONSOR"}
+              </Badge>
+              {inquiry.status === "approved" ? (
+                <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-[10px] w-fit">APPROVED</Badge>
+              ) : (
+                <Badge className="bg-gold/10 text-gold-dark border-gold/20 text-[10px] w-fit">PENDING</Badge>
+              )}
+            </>
+          ) : (
+            <Badge variant="outline" className="text-navy/30 border-navy/10 text-[10px] w-fit uppercase">General</Badge>
+          )}
+        </div>
       )
     },
     {
@@ -278,7 +327,15 @@ export default function AdminInquiriesPage() {
                   >
                     Delete Message
                   </Button>
-                  {!selectedInquiry.isRead && (
+                  {selectedInquiry.eventId && selectedInquiry.status === "pending" && (
+                    <Button 
+                      className="bg-green-600 hover:bg-green-700 text-white rounded-xl px-6 font-black tracking-wide"
+                      onClick={() => handleApproveSponsorship(selectedInquiry.id)}
+                    >
+                      <CheckCircle2 className="mr-2 size-5" /> Approve as Sponsor
+                    </Button>
+                  )}
+                  {!selectedInquiry.isRead && selectedInquiry.status !== "approved" && (
                     <Button 
                       className="bg-gold hover:bg-gold-dark text-white rounded-xl px-6 font-black tracking-wide"
                       onClick={() => handleMarkAsRead(selectedInquiry.id)}
@@ -298,6 +355,17 @@ export default function AdminInquiriesPage() {
           )}
         </DialogContent>
       </Dialog>
+ 
+      <ConfirmModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => handleDelete(null)}
+        title="Confirm Deletion"
+        description="Are you sure you want to delete this message? This action cannot be undone."
+        variant="danger"
+        confirmText="Yes, Delete"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

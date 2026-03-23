@@ -18,6 +18,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { DataTable, Column } from "@/components/admin/DataTable";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 export default function AdminCoursesPage() {
   const [courses, setCourses] = useState<any[]>([]);
@@ -29,6 +30,10 @@ export default function AdminCoursesPage() {
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const limit = 10;
+ 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [courseToDelete, setCourseToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchCourses = async () => {
     setIsLoading(true);
@@ -49,6 +54,29 @@ export default function AdminCoursesPage() {
       console.error("Error fetching courses:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string | null) => {
+    if (typeof id === "string") {
+      setCourseToDelete(id);
+      setIsDeleteModalOpen(true);
+      return;
+    }
+
+    if (!courseToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await api.delete(`/courses/${courseToDelete}`);
+      toast.success("Course deleted successfully!");
+      fetchCourses();
+      setIsDeleteModalOpen(false);
+      setCourseToDelete(null);
+    } catch (error) {
+      toast.error("Failed to delete course.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -172,11 +200,7 @@ export default function AdminCoursesPage() {
             </button>
           </Link>
           <button 
-            onClick={() => {
-              if(confirm("Are you sure?")) {
-                api.delete(`/courses/${course.id}`).then(() => fetchCourses());
-              }
-            }}
+            onClick={() => handleDelete(course.id)}
             className="p-2 hover:bg-red-50 rounded-lg text-navy/30 hover:text-red-500 transition-colors" 
           >
             <Trash2 className="size-5" />
@@ -218,6 +242,17 @@ export default function AdminCoursesPage() {
         totalPages={totalPages}
         total={total}
         onPageChange={setPage}
+      />
+ 
+      <ConfirmModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => handleDelete(null)}
+        title="Delete Course"
+        description="Are you sure you want to delete this course? This will permanently remove all related materials and student progress."
+        variant="danger"
+        confirmText="Yes, Delete"
+        isLoading={isDeleting}
       />
     </div>
   );

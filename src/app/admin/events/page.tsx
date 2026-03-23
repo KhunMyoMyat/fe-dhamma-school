@@ -17,6 +17,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { DataTable, Column } from "@/components/admin/DataTable";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 export default function AdminEventsPage() {
   const [events, setEvents] = useState<any[]>([]);
@@ -28,6 +29,10 @@ export default function AdminEventsPage() {
   const [sortBy, setSortBy] = useState("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const limit = 10;
+ 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchEvents = async () => {
     setIsLoading(true);
@@ -48,6 +53,29 @@ export default function AdminEventsPage() {
       console.error("Error fetching events:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string | null) => {
+    if (typeof id === "string") {
+      setEventToDelete(id);
+      setIsDeleteModalOpen(true);
+      return;
+    }
+
+    if (!eventToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await api.delete(`/events/${eventToDelete}`);
+      toast.success("Event deleted successfully!");
+      fetchEvents();
+      setIsDeleteModalOpen(false);
+      setEventToDelete(null);
+    } catch (error) {
+      toast.error("Failed to delete event.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -161,11 +189,7 @@ export default function AdminEventsPage() {
             </button>
           </Link>
           <button 
-            onClick={() => {
-              if (confirm("Are you sure?")) {
-                api.delete(`/events/${event.id}`).then(() => fetchEvents());
-              }
-            }}
+            onClick={() => handleDelete(event.id)}
             className="p-2 hover:bg-red-50 rounded-lg text-navy/30 hover:text-red-500 transition-colors" 
           >
             <Trash2 className="size-5" />
@@ -207,6 +231,17 @@ export default function AdminEventsPage() {
         totalPages={totalPages}
         total={total}
         onPageChange={setPage}
+      />
+ 
+      <ConfirmModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => handleDelete(null)}
+        title="Delete Event"
+        description="Are you sure you want to delete this event? This action cannot be undone and will remove all related data."
+        variant="danger"
+        confirmText="Yes, Delete"
+        isLoading={isDeleting}
       />
     </div>
   );

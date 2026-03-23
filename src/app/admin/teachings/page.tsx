@@ -18,6 +18,7 @@ import toast from "react-hot-toast";
 import { resolveFileUrl } from "@/lib/fileUrl";
 import { pickTranslation } from "@/lib/translations";
 import { DataTable, Column } from "@/components/admin/DataTable";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 export default function AdminTeachingsPage() {
   const [teachings, setTeachings] = useState<any[]>([]);
@@ -29,6 +30,10 @@ export default function AdminTeachingsPage() {
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const limit = 10;
+ 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [teachingToDelete, setTeachingToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchTeachings = async () => {
     setIsLoading(true);
@@ -49,6 +54,29 @@ export default function AdminTeachingsPage() {
       console.error("Error fetching teachings:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string | null) => {
+    if (typeof id === "string") {
+      setTeachingToDelete(id);
+      setIsDeleteModalOpen(true);
+      return;
+    }
+
+    if (!teachingToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await api.delete(`/teachings/${teachingToDelete}`);
+      toast.success("Teaching deleted successfully!");
+      fetchTeachings();
+      setIsDeleteModalOpen(false);
+      setTeachingToDelete(null);
+    } catch (error) {
+      toast.error("Failed to delete teaching.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -175,11 +203,7 @@ export default function AdminTeachingsPage() {
             </button>
           </Link>
           <button
-            onClick={() => {
-              if (confirm("Are you sure?")) {
-                api.delete(`/teachings/${teaching.id}`).then(() => fetchTeachings());
-              }
-            }}
+            onClick={() => handleDelete(teaching.id)}
             className="p-2 hover:bg-red-50 rounded-lg text-navy/30 hover:text-red-500 transition-colors"
           >
             <Trash2 className="size-5" />
@@ -221,6 +245,17 @@ export default function AdminTeachingsPage() {
         totalPages={totalPages}
         total={total}
         onPageChange={setPage}
+      />
+ 
+      <ConfirmModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => handleDelete(null)}
+        title="Delete Teaching"
+        description="Are you sure you want to delete this teaching material? This will remove the document and all its translations from the site."
+        variant="danger"
+        confirmText="Yes, Delete"
+        isLoading={isDeleting}
       />
     </div>
   );

@@ -4,12 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import api from "@/lib/api";
 import { useTranslation } from "@/providers/LanguageProvider";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronDown, ChevronUp, Loader2, Search, Sparkles } from "lucide-react";
 import { RegisterMonthlyDonorModal } from "@/components/donors/RegisterMonthlyDonorModal";
 
 type MonthlyDonorRow = {
   donorName: string;
   currency: string;
+  category: string;
   totalAmount: number;
   donationCount: number;
   lastDonationAt: string | null;
@@ -38,6 +39,13 @@ export default function MonthlyDonorsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [sortBy, setSortBy] = useState("totalAmount");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [category, setCategory] = useState("");
+  const limit = 20;
+
   useEffect(() => {
     let cancelled = false;
 
@@ -46,7 +54,16 @@ export default function MonthlyDonorsPage() {
       setError(null);
       try {
         const res = await api.get<PaginatedResponse<MonthlyDonorRow> & { meta: { totalsByCurrency: any[] } }>("/donations/monthly-donors", {
-          params: { year, month, page: 1, limit: 200 },
+          params: { 
+            year, 
+            month, 
+            page, 
+            limit,
+            search: search.trim(),
+            sortBy,
+            sortOrder,
+            category
+          },
         });
         if (cancelled) return;
         setRows(res.data.data ?? []);
@@ -61,11 +78,12 @@ export default function MonthlyDonorsPage() {
       }
     };
 
-    fetchMonthlyDonors();
+    const timeout = setTimeout(fetchMonthlyDonors, 500);
     return () => {
       cancelled = true;
+      clearTimeout(timeout);
     };
-  }, [year, month]);
+  }, [year, month, page, search, sortBy, sortOrder, category]);
 
   const years = useMemo(() => {
     const currentYear = now.getUTCFullYear();
@@ -91,35 +109,63 @@ export default function MonthlyDonorsPage() {
           <RegisterMonthlyDonorModal />
         </div>
 
-        <div className="max-w-4xl mx-auto mb-10 bg-white/5 border border-white/10 rounded-[2.5rem] p-6 md:p-8 flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="flex items-center gap-3 text-gold">
-            <Sparkles className="size-6" />
-            <p className="text-xs font-black uppercase tracking-[0.2em] opacity-70">
-              {t("donors.monthly.filter")}
-            </p>
+        <div className="max-w-4xl mx-auto mb-10 bg-white/5 border border-white/10 rounded-[2.5rem] p-6 md:p-8 space-y-6">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="flex items-center gap-3 text-gold">
+              <Sparkles className="size-6" />
+              <p className="text-xs font-black uppercase tracking-[0.2em] opacity-70">
+                {t("donors.monthly.filter")}
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+              <select
+                value={month}
+                onChange={(e) => { setMonth(Number(e.target.value)); setPage(1); }}
+                className="h-12 w-full sm:w-56 rounded-2xl bg-navy/60 border border-white/10 px-4 text-white font-bold outline-none focus:border-gold/60"
+              >
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                  <option key={m} value={m}>
+                    {monthLabel(m)}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={year}
+                onChange={(e) => { setYear(Number(e.target.value)); setPage(1); }}
+                className="h-12 w-full sm:w-40 rounded-2xl bg-navy/60 border border-white/10 px-4 text-white font-bold outline-none focus:border-gold/60"
+              >
+                {years.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-            <select
-              value={month}
-              onChange={(e) => setMonth(Number(e.target.value))}
-              className="h-12 w-full sm:w-56 rounded-2xl bg-navy/60 border border-white/10 px-4 text-white font-bold outline-none focus:border-gold/60"
-            >
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                <option key={m} value={m}>
-                  {monthLabel(m)}
-                </option>
-              ))}
-            </select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-white/10">
+            <div className="relative group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-cream/20 group-focus-within:text-gold transition-colors" />
+              <input
+                type="text"
+                placeholder={t("contact.form.name") + "..."}
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                className="w-full h-12 bg-navy/40 border border-white/10 rounded-2xl pl-12 pr-4 text-white font-bold outline-none focus:border-gold/60"
+              />
+            </div>
 
             <select
-              value={year}
-              onChange={(e) => setYear(Number(e.target.value))}
-              className="h-12 w-full sm:w-40 rounded-2xl bg-navy/60 border border-white/10 px-4 text-white font-bold outline-none focus:border-gold/60"
+              value={category}
+              onChange={(e) => { setCategory(e.target.value); setPage(1); }}
+              className="h-12 w-full rounded-2xl bg-navy/40 border border-white/10 px-4 text-white font-bold outline-none focus:border-gold/60"
             >
-              {years.map((y) => (
-                <option key={y} value={y}>
-                  {y}
+              <option value="">{t("donors.monthly.categories.label")} (All)</option>
+              {["robes", "alms", "monastery", "medicine", "education", "general"].map((cat) => (
+                <option key={cat} value={cat}>
+                  {t(`donors.monthly.categories.${cat}`)}
                 </option>
               ))}
             </select>
@@ -176,40 +222,109 @@ export default function MonthlyDonorsPage() {
                   </span>
                 </div>
 
-                {rows.map((row, idx) => (
-                  <div
-                    key={`${row.donorName}-${row.currency}-${idx}`}
-                    className="p-6 rounded-[2.5rem] bg-linear-to-br from-white/10 to-white/5 border border-white/10 backdrop-blur-md flex items-center justify-between gap-6"
-                  >
-                    <div className="min-w-0">
-                      <p className="text-lg md:text-xl font-black text-white truncate">
-                        {row.donorName}
-                      </p>
-                      <p className="text-xs text-cream/50 font-bold uppercase tracking-widest mt-1">
-                        {t("donors.monthly.donations")}: {row.donationCount}
-                        {row.lastDonationAt ? (
-                          <span className="ml-3 opacity-80">
-                            {t("donors.monthly.last")}:{" "}
-                            {new Date(row.lastDonationAt).toLocaleDateString("en-US", {
-                              year: "numeric",
-                              month: "short",
-                              day: "2-digit",
-                            })}
-                          </span>
-                        ) : null}
-                      </p>
-                    </div>
+                <div className="overflow-x-auto rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-md">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/10">
+                        <th 
+                          className="px-8 py-6 text-xs font-black text-gold/60 uppercase tracking-widest cursor-pointer hover:text-gold transition-colors"
+                          onClick={() => {
+                            const nextOrder = sortBy === "donorName" && sortOrder === "asc" ? "desc" : "asc";
+                            setSortBy("donorName");
+                            setSortOrder(nextOrder);
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
+                            {t("contact.form.name")}
+                            {sortBy === "donorName" && (sortOrder === "asc" ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />)}
+                          </div>
+                        </th>
+                        <th className="px-8 py-6 text-xs font-black text-gold/60 uppercase tracking-widest">
+                          {t("donors.monthly.categories.label")}
+                        </th>
+                        <th 
+                          className="px-8 py-6 text-xs font-black text-gold/60 uppercase tracking-widest text-right cursor-pointer hover:text-gold transition-colors"
+                          onClick={() => {
+                            const nextOrder = sortBy === "totalAmount" && sortOrder === "asc" ? "desc" : "asc";
+                            setSortBy("totalAmount");
+                            setSortOrder(nextOrder);
+                          }}
+                        >
+                          <div className="flex items-center justify-end gap-2">
+                            {sortBy === "totalAmount" && (sortOrder === "asc" ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />)}
+                            {t("donors.monthly.donations")}
+                          </div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {rows.map((row, idx) => (
+                        <tr
+                          key={`${row.donorName}-${row.currency}-${row.category}-${idx}`}
+                          className="group hover:bg-white/5 transition-colors"
+                        >
+                          <td className="px-8 py-6">
+                            <p className="font-black text-white text-lg tracking-tight group-hover:text-gold transition-colors">
+                              {row.donorName}
+                            </p>
+                            {row.lastDonationAt && (
+                              <p className="text-[10px] text-cream/30 font-bold uppercase tracking-widest mt-0.5">
+                                {t("donors.monthly.last")}:{" "}
+                                {new Date(row.lastDonationAt).toLocaleDateString("en-US", {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "2-digit",
+                                })}
+                              </p>
+                            )}
+                          </td>
+                          <td className="px-8 py-6">
+                            <Badge
+                              variant="outline"
+                              className="bg-white/5 border-white/10 text-cream/60 capitalize font-bold px-3 py-1 rounded-full text-[11px]"
+                            >
+                              {t(`donors.monthly.categories.${row.category || "general"}`)}
+                            </Badge>
+                          </td>
+                          <td className="px-8 py-6 text-right">
+                            <div className="flex flex-col items-end">
+                              <p className="text-xl font-black text-white group-hover:text-gold transition-colors">
+                                {row.totalAmount.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+                              </p>
+                              <p className="text-[10px] text-cream/40 font-black uppercase tracking-widest">
+                                {row.currency}
+                              </p>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
 
-                    <div className="shrink-0 text-right">
-                      <p className="text-2xl font-black text-gold">
-                        {row.totalAmount.toLocaleString("en-US", { maximumFractionDigits: 2 })}
-                      </p>
-                      <p className="text-xs text-cream/50 font-bold uppercase tracking-widest">
-                        {row.currency}
-                      </p>
+                {meta && meta.totalPages > 1 && (
+                  <div className="flex items-center justify-between pt-4">
+                    <p className="text-[10px] font-black text-cream/30 uppercase tracking-[0.2em]">
+                      {t("donors.monthly.showing")} {rows.length} / {meta.total}
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        disabled={page <= 1}
+                        onClick={() => setPage(page - 1)}
+                        className="size-10 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white/10 disabled:opacity-30 transition-all font-bold"
+                      >
+                        <ArrowLeft className="size-4" />
+                      </button>
+                      <button
+                        disabled={page >= meta.totalPages}
+                        onClick={() => setPage(page + 1)}
+                        className="size-10 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white/10 disabled:opacity-30 transition-all font-bold"
+                      >
+                        <ArrowRight className="size-4" />
+                      </button>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           )}
