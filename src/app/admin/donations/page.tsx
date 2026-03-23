@@ -132,21 +132,24 @@ export default function AdminDonationsPage() {
     {
       id: "status",
       header: "Status / Slip",
-      cell: (d) => (
-        <div className="flex flex-col gap-2 items-start">
-          <Badge 
-            variant="outline" 
-            className={`capitalize ${d.status === 'pending' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : 'bg-green-100 text-green-800 border-green-200'}`}
-          >
-            {d.status || "approved"}
-          </Badge>
-          {d.slipUrl && (
-            <a href={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api${d.slipUrl}`} target="_blank" rel="noreferrer" className="text-[10px] text-maroon font-bold uppercase tracking-widest hover:underline whitespace-nowrap">
-               View Slip
-            </a>
-          )}
-        </div>
-      )
+      cell: (d) => {
+        const backendBaseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api').replace('/api', '');
+        return (
+          <div className="flex flex-col gap-2 items-start">
+            <Badge 
+              variant="outline" 
+              className={`capitalize ${d.status === 'pending' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : 'bg-green-100 text-green-800 border-green-200'}`}
+            >
+              {d.status || "approved"}
+            </Badge>
+            {d.slipUrl && (
+              <a href={`${backendBaseUrl}${d.slipUrl}`} target="_blank" rel="noreferrer" className="text-[10px] text-maroon font-bold uppercase tracking-widest hover:underline whitespace-nowrap">
+                 View Slip
+              </a>
+            )}
+          </div>
+        );
+      }
     },
     {
       id: "actions",
