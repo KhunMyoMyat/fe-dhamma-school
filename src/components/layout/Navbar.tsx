@@ -143,7 +143,7 @@ export default function Navbar() {
             href="/donate"
             className={cn(
               buttonVariants({ variant: "default" }),
-              "gradient-maroon text-white border-2 border-gold px-4 sm:px-8 h-10 sm:h-auto rounded-full shadow-lg shadow-maroon/20 hover:shadow-maroon/40 hover:-translate-y-0.5 transition-all font-bold tracking-tight hidden lg:flex items-center gap-2",
+              "gradient-maroon text-white border-2 border-gold px-4 py-2 sm:px-8 h-10 sm:h-auto rounded-full shadow-lg shadow-maroon/20 hover:shadow-maroon/40 hover:-translate-y-0.5 transition-all font-bold tracking-tight hidden lg:flex items-center gap-2",
             )}
           >
             <Heart className="size-4 hidden sm:block" />
@@ -160,7 +160,10 @@ export default function Navbar() {
             >
               <Menu className="size-6" />
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] bg-cream sm:w-[400px] p-0 border-l border-gold/20">
+            <SheetContent
+              side="right"
+              className="w-[300px] bg-cream sm:w-[400px] p-0 border-l border-gold/20"
+            >
               <SheetHeader className="p-8 border-b border-gold/10 bg-white/50">
                 <SheetTitle className="flex items-center gap-3">
                   <div className="size-10 gradient-maroon rounded-full flex items-center justify-center border-2 border-gold shadow-lg">
@@ -176,7 +179,7 @@ export default function Navbar() {
                   </div>
                 </SheetTitle>
               </SheetHeader>
-              
+
               <div className="flex flex-col p-6 gap-2">
                 {allLinks.map((link) => (
                   <Link
@@ -187,7 +190,7 @@ export default function Navbar() {
                       "flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold uppercase tracking-widest transition-all",
                       pathname === link.href
                         ? "bg-maroon text-white shadow-xl shadow-maroon/20"
-                        : "text-navy/60 hover:bg-maroon/5 hover:text-maroon"
+                        : "text-navy/60 hover:bg-maroon/5 hover:text-maroon",
                     )}
                   >
                     {link.label}
@@ -197,8 +200,10 @@ export default function Navbar() {
 
               <div className="absolute bottom-0 left-0 w-full p-8 space-y-4 bg-white/50 border-t border-gold/10">
                 <div className="flex justify-between items-center mb-6">
-                   <p className="text-xs font-black text-gold uppercase tracking-widest">{t("common.language")}</p>
-                   <LanguageSwitcher />
+                  <p className="text-xs font-black text-gold uppercase tracking-widest">
+                    {t("common.language")}
+                  </p>
+                  <LanguageSwitcher />
                 </div>
                 <Link
                   href="/donate"
