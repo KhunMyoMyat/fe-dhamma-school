@@ -4,7 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import api from "@/lib/api";
 import { useTranslation } from "@/providers/LanguageProvider";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, ArrowRight, ChevronDown, ChevronUp, Loader2, Search, Sparkles } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  Search,
+  Sparkles,
+  CheckCircle2,
+} from "lucide-react";
 import { RegisterMonthlyDonorModal } from "@/components/donors/RegisterMonthlyDonorModal";
 
 type MonthlyDonorRow = {
@@ -34,7 +43,9 @@ export default function MonthlyDonorsPage() {
   const [month, setMonth] = useState<number>(now.getUTCMonth() + 1);
 
   const [rows, setRows] = useState<MonthlyDonorRow[]>([]);
-  type MonthlyDonorMeta = PaginatedResponse<MonthlyDonorRow>["meta"] & { totalsByCurrency?: { currency: string; total: number }[] };
+  type MonthlyDonorMeta = PaginatedResponse<MonthlyDonorRow>["meta"] & {
+    totalsByCurrency?: { currency: string; total: number }[];
+  };
   const [meta, setMeta] = useState<MonthlyDonorMeta | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,16 +64,20 @@ export default function MonthlyDonorsPage() {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await api.get<PaginatedResponse<MonthlyDonorRow> & { meta: { totalsByCurrency: any[] } }>("/donations/monthly-donors", {
-          params: { 
-            year, 
-            month, 
-            page, 
+        const res = await api.get<
+          PaginatedResponse<MonthlyDonorRow> & {
+            meta: { totalsByCurrency: any[] };
+          }
+        >("/donations/monthly-donors", {
+          params: {
+            year,
+            month,
+            page,
             limit,
             search: search.trim(),
             sortBy,
             sortOrder,
-            category
+            category,
           },
         });
         if (cancelled) return;
@@ -70,7 +85,9 @@ export default function MonthlyDonorsPage() {
         setMeta(res.data.meta ?? null);
       } catch (e: any) {
         if (cancelled) return;
-        setError(e?.response?.data?.message || "Failed to load monthly donors.");
+        setError(
+          e?.response?.data?.message || "Failed to load monthly donors.",
+        );
         setRows([]);
         setMeta(null);
       } finally {
@@ -96,7 +113,7 @@ export default function MonthlyDonorsPage() {
       <div className="absolute bottom-1/4 -left-20 w-[400px] h-[400px] bg-maroon/10 rounded-full blur-[100px] -z-10" />
 
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto text-center mb-12 flex flex-col items-center">
+        <div className="max-w-6xl mx-auto text-center mb-12 flex flex-col items-center">
           <Badge className="bg-gold/20 text-gold mb-6 border-gold/30 px-4 py-1.5 rounded-full text-xs font-black tracking-widest uppercase">
             {t("donors.monthly.badge")}
           </Badge>
@@ -109,7 +126,7 @@ export default function MonthlyDonorsPage() {
           <RegisterMonthlyDonorModal />
         </div>
 
-        <div className="max-w-4xl mx-auto mb-10 bg-white/5 border border-white/10 rounded-[2.5rem] p-6 md:p-8 space-y-6">
+        <div className="max-w-5xl mx-auto mb-10 bg-white/5 border border-white/10 rounded-[2.5rem] p-6 md:p-8 space-y-6">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="flex items-center gap-3 text-gold">
               <Sparkles className="size-6" />
@@ -121,7 +138,10 @@ export default function MonthlyDonorsPage() {
             <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
               <select
                 value={month}
-                onChange={(e) => { setMonth(Number(e.target.value)); setPage(1); }}
+                onChange={(e) => {
+                  setMonth(Number(e.target.value));
+                  setPage(1);
+                }}
                 className="h-12 w-full sm:w-56 rounded-2xl bg-navy/60 border border-white/10 px-4 text-white font-bold outline-none focus:border-gold/60"
               >
                 {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
@@ -133,7 +153,10 @@ export default function MonthlyDonorsPage() {
 
               <select
                 value={year}
-                onChange={(e) => { setYear(Number(e.target.value)); setPage(1); }}
+                onChange={(e) => {
+                  setYear(Number(e.target.value));
+                  setPage(1);
+                }}
                 className="h-12 w-full sm:w-40 rounded-2xl bg-navy/60 border border-white/10 px-4 text-white font-bold outline-none focus:border-gold/60"
               >
                 {years.map((y) => (
@@ -152,18 +175,33 @@ export default function MonthlyDonorsPage() {
                 type="text"
                 placeholder={t("contact.form.name") + "..."}
                 value={search}
-                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
                 className="w-full h-12 bg-navy/40 border border-white/10 rounded-2xl pl-12 pr-4 text-white font-bold outline-none focus:border-gold/60"
               />
             </div>
 
             <select
               value={category}
-              onChange={(e) => { setCategory(e.target.value); setPage(1); }}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                setPage(1);
+              }}
               className="h-12 w-full rounded-2xl bg-navy/40 border border-white/10 px-4 text-white font-bold outline-none focus:border-gold/60"
             >
-              <option value="">{t("donors.monthly.categories.label")} (All)</option>
-              {["robes", "alms", "monastery", "medicine", "education", "general"].map((cat) => (
+              <option value="">
+                {t("donors.monthly.categories.label")} (All)
+              </option>
+              {[
+                "robes",
+                "alms",
+                "monastery",
+                "medicine",
+                "education",
+                "general",
+              ].map((cat) => (
                 <option key={cat} value={cat}>
                   {t(`donors.monthly.categories.${cat}`)}
                 </option>
@@ -172,7 +210,7 @@ export default function MonthlyDonorsPage() {
           </div>
         </div>
 
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-16">
               <Loader2 className="size-10 text-gold animate-spin mb-4" />
@@ -186,7 +224,9 @@ export default function MonthlyDonorsPage() {
             </div>
           ) : rows.length === 0 ? (
             <div className="rounded-[2.5rem] bg-white/5 border border-white/10 p-10 text-center">
-              <p className="text-cream/60 font-bold">{t("donors.monthly.empty")}</p>
+              <p className="text-cream/60 font-bold">
+                {t("donors.monthly.empty")}
+              </p>
             </div>
           ) : (
             <div className="space-y-8">
@@ -196,7 +236,9 @@ export default function MonthlyDonorsPage() {
                 </p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                   {["MMK", "USD", "THB", "SGD"].map((curr) => {
-                    const amount = meta?.totalsByCurrency?.find(t => t.currency === curr)?.total || 0;
+                    const amount =
+                      meta?.totalsByCurrency?.find((t) => t.currency === curr)
+                        ?.total || 0;
                     return (
                       <div key={curr} className="text-center group">
                         <p className="text-2xl md:text-3xl font-black text-white group-hover:text-gold transition-colors">
@@ -225,33 +267,61 @@ export default function MonthlyDonorsPage() {
                 <div className="overflow-x-auto rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-md">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-white/10">
-                        <th 
+                      <tr className="border-b border-white/10 divide-x divide-white/10">
+                        <th
                           className="px-8 py-6 text-xs font-black text-gold/60 uppercase tracking-widest cursor-pointer hover:text-gold transition-colors"
                           onClick={() => {
-                            const nextOrder = sortBy === "donorName" && sortOrder === "asc" ? "desc" : "asc";
+                            const nextOrder =
+                              sortBy === "donorName" && sortOrder === "asc"
+                                ? "desc"
+                                : "asc";
                             setSortBy("donorName");
                             setSortOrder(nextOrder);
                           }}
                         >
                           <div className="flex items-center gap-2">
                             {t("contact.form.name")}
-                            {sortBy === "donorName" && (sortOrder === "asc" ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />)}
+                            {sortBy === "donorName" &&
+                              (sortOrder === "asc" ? (
+                                <ChevronUp className="size-4" />
+                              ) : (
+                                <ChevronDown className="size-4" />
+                              ))}
                           </div>
                         </th>
-                        <th className="px-8 py-6 text-xs font-black text-gold/60 uppercase tracking-widest">
-                          {t("donors.monthly.categories.label")}
-                        </th>
-                        <th 
+                        {[
+                          "robes",
+                          "alms",
+                          "monastery",
+                          "medicine",
+                          "education",
+                          "general",
+                        ].map((cat) => (
+                          <th
+                            key={cat}
+                            className="px-2 py-6 text-[10px] md:text-xs font-black text-gold/60 uppercase tracking-widest text-center whitespace-nowrap"
+                          >
+                            {t(`donors.monthly.categories.${cat}`)}
+                          </th>
+                        ))}
+                        <th
                           className="px-8 py-6 text-xs font-black text-gold/60 uppercase tracking-widest text-right cursor-pointer hover:text-gold transition-colors"
                           onClick={() => {
-                            const nextOrder = sortBy === "totalAmount" && sortOrder === "asc" ? "desc" : "asc";
+                            const nextOrder =
+                              sortBy === "totalAmount" && sortOrder === "asc"
+                                ? "desc"
+                                : "asc";
                             setSortBy("totalAmount");
                             setSortOrder(nextOrder);
                           }}
                         >
                           <div className="flex items-center justify-end gap-2">
-                            {sortBy === "totalAmount" && (sortOrder === "asc" ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />)}
+                            {sortBy === "totalAmount" &&
+                              (sortOrder === "asc" ? (
+                                <ChevronUp className="size-4" />
+                              ) : (
+                                <ChevronDown className="size-4" />
+                              ))}
                             {t("donors.monthly.donations")}
                           </div>
                         </th>
@@ -261,7 +331,7 @@ export default function MonthlyDonorsPage() {
                       {rows.map((row, idx) => (
                         <tr
                           key={`${row.donorName}-${row.currency}-${row.category}-${idx}`}
-                          className="group hover:bg-white/5 transition-colors"
+                          className="group hover:bg-white/5 transition-colors divide-x divide-white/5"
                         >
                           <td className="px-8 py-6">
                             <p className="font-black text-white text-lg tracking-tight group-hover:text-gold transition-colors">
@@ -270,7 +340,9 @@ export default function MonthlyDonorsPage() {
                             {row.lastDonationAt && (
                               <p className="text-[10px] text-cream/30 font-bold uppercase tracking-widest mt-0.5">
                                 {t("donors.monthly.last")}:{" "}
-                                {new Date(row.lastDonationAt).toLocaleDateString("en-US", {
+                                {new Date(
+                                  row.lastDonationAt,
+                                ).toLocaleDateString("en-US", {
                                   year: "numeric",
                                   month: "short",
                                   day: "2-digit",
@@ -278,18 +350,36 @@ export default function MonthlyDonorsPage() {
                               </p>
                             )}
                           </td>
-                          <td className="px-8 py-6">
-                            <Badge
-                              variant="outline"
-                              className="bg-white/5 border-white/10 text-cream/60 capitalize font-bold px-3 py-1 rounded-full text-[11px]"
-                            >
-                              {t(`donors.monthly.categories.${row.category || "general"}`)}
-                            </Badge>
-                          </td>
+                          {[
+                            "robes",
+                            "alms",
+                            "monastery",
+                            "medicine",
+                            "education",
+                            "general",
+                          ].map((cat) => (
+                            <td key={cat} className="px-2 py-6">
+                              <div className="flex justify-center items-center">
+                                {(row.category || "general").toLowerCase() ===
+                                cat ? (
+                                  <div className="relative group/check">
+                                    <div className="absolute inset-0 bg-gold/30 blur-md rounded-full opacity-0 group-hover/check:opacity-100 transition-opacity" />
+                                    <CheckCircle2 className="size-5 text-gold relative z-10" />
+                                  </div>
+                                ) : (
+                                  <span className="text-white/5 font-black text-lg">
+                                    -
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                          ))}
                           <td className="px-8 py-6 text-right">
                             <div className="flex flex-col items-end">
                               <p className="text-xl font-black text-white group-hover:text-gold transition-colors">
-                                {row.totalAmount.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+                                {row.totalAmount.toLocaleString("en-US", {
+                                  maximumFractionDigits: 2,
+                                })}
                               </p>
                               <p className="text-[10px] text-cream/40 font-black uppercase tracking-widest">
                                 {row.currency}
