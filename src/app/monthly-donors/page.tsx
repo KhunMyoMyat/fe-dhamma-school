@@ -36,7 +36,7 @@ function monthLabel(month: number) {
 }
 
 export default function MonthlyDonorsPage() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const now = useMemo(() => new Date(), []);
 
   const [year, setYear] = useState<number>(now.getUTCFullYear());
@@ -225,7 +225,15 @@ export default function MonthlyDonorsPage() {
           ) : rows.length === 0 ? (
             <div className="rounded-[2.5rem] bg-white/5 border border-white/10 p-10 text-center">
               <p className="text-cream/60 font-bold">
-                {t("donors.monthly.empty")}
+                {!category ? (
+                   t("donors.monthly.empty")
+                ) : language === "mm" ? (
+                   `ယခုလအတွက် ${t(`donors.monthly.categories.${category}`).replace(/\s+/g, '')}ရှင် မရှိသေးပါ။`
+                ) : language === "en" ? (
+                   `No ${t(`donors.monthly.categories.${category}`)} donors recorded for this month yet.`
+                ) : (
+                   `No ${t(`donors.monthly.categories.${category}`)} donors yet.`
+                )}
               </p>
             </div>
           ) : (
