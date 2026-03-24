@@ -11,7 +11,7 @@ import api from "@/lib/api";
 
 export default function SubmitDonationForm() {
   const { t } = useTranslation();
-  
+
   const [formData, setFormData] = useState({
     donorName: "",
     amount: "",
@@ -33,7 +33,9 @@ export default function SubmitDonationForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.donorName || !formData.amount || !file) {
-      setError("Please fill all required fields and upload the bank slip screenshot.");
+      setError(
+        "Please fill all required fields and upload the bank slip screenshot.",
+      );
       return;
     }
 
@@ -72,7 +74,10 @@ export default function SubmitDonationForm() {
       setFile(null);
     } catch (err: any) {
       console.error(err);
-      setError(err.response?.data?.message || "Something went wrong. Please try again.");
+      setError(
+        err.response?.data?.message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -88,7 +93,8 @@ export default function SubmitDonationForm() {
           Submit Transfer Details
         </h3>
         <p className="mt-3 text-[15px] text-navy/60 leading-relaxed max-w-88 mx-auto font-medium">
-          Please upload a screenshot of your successful bank transfer to notify our admins.
+          Please upload a screenshot of your successful bank transfer to notify
+          our admins.
         </p>
       </div>
 
@@ -99,11 +105,12 @@ export default function SubmitDonationForm() {
           </div>
           <h4 className="text-3xl font-black text-navy mb-3">Thank you!</h4>
           <p className="text-navy/60 mb-10 max-w-xs mx-auto text-[15px] font-medium leading-relaxed">
-            Your transfer details have been submitted to our admins for verification. Sadhu!
+            Your transfer details have been submitted to our admins for
+            verification. Sadhu!
           </p>
-          <Button 
+          <Button
             onClick={() => setIsSuccess(false)}
-            variant="outline" 
+            variant="outline"
             className="rounded-2xl h-14 px-8 border-navy/20 font-bold hover:bg-navy/5 transition-colors"
           >
             Submit Another Reference
@@ -116,7 +123,7 @@ export default function SubmitDonationForm() {
               {error}
             </div>
           )}
-          
+
           <div className="space-y-4">
             <div>
               <label className="text-xs font-black text-navy/60 uppercase tracking-widest ml-1 mb-2 block">
@@ -124,13 +131,15 @@ export default function SubmitDonationForm() {
               </label>
               <Input
                 value={formData.donorName}
-                onChange={(e) => setFormData({ ...formData, donorName: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, donorName: e.target.value })
+                }
                 className="h-14 rounded-2xl bg-white/50 border-navy/10 focus:border-gold/50 font-bold text-navy"
                 placeholder="Enter your name"
                 required
               />
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-black text-navy/60 uppercase tracking-widest ml-1 mb-2 block">
@@ -139,7 +148,9 @@ export default function SubmitDonationForm() {
                 <Input
                   type="number"
                   value={formData.amount}
-                  onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, amount: e.target.value })
+                  }
                   className="h-14 rounded-2xl bg-white/50 border-navy/10 focus:border-gold/50 font-bold text-navy"
                   placeholder="e.g. 50000"
                   required
@@ -151,7 +162,9 @@ export default function SubmitDonationForm() {
                 </label>
                 <select
                   value={formData.currency}
-                  onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, currency: e.target.value })
+                  }
                   className="w-full h-14 rounded-2xl bg-white/50 border border-navy/10 px-4 focus:outline-none focus:border-gold/50 font-bold text-navy"
                 >
                   <option value="MMK">MMK (Kyats)</option>
@@ -168,10 +181,19 @@ export default function SubmitDonationForm() {
               </label>
               <select
                 value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, category: e.target.value })
+                }
                 className="w-full h-14 rounded-2xl bg-white/50 border border-navy/10 px-4 focus:outline-none focus:border-gold/50 font-bold text-navy capitalize"
               >
-                {["general", "robes", "alms", "monastery", "medicine", "education"].map((cat) => (
+                {[
+                  "general",
+                  "robes",
+                  "alms",
+                  "monastery",
+                  "medicine",
+                  "education",
+                ].map((cat) => (
                   <option key={cat} value={cat}>
                     {cat}
                   </option>
@@ -183,8 +205,8 @@ export default function SubmitDonationForm() {
               <label className="text-xs font-black text-navy/60 uppercase tracking-widest ml-1 mb-2 block">
                 Transfer Screenshot (Slip) *
               </label>
-              <div 
-                className={`relative w-full h-40 rounded-2xl border-2 border-dashed ${file ? 'border-maroon/40 bg-maroon/5' : 'border-gold/40 bg-white/50'} flex flex-col items-center justify-center transition-colors cursor-pointer overflow-hidden group`}
+              <div
+                className={`relative w-full h-40 rounded-2xl border-2 border-dashed ${file ? "border-maroon/40 bg-maroon/5" : "border-gold/40 bg-white/50"} flex flex-col items-center justify-center transition-colors cursor-pointer overflow-hidden group`}
               >
                 <input
                   type="file"
@@ -195,26 +217,34 @@ export default function SubmitDonationForm() {
                 />
                 {file ? (
                   <div className="flex flex-col items-center">
-                     <CheckCircle2 className="w-8 h-8 text-maroon mb-2" />
-                     <p className="text-sm font-bold text-maroon max-w-[200px] truncate">{file.name}</p>
-                     <p className="text-[10px] uppercase font-black tracking-widest text-maroon/50 mt-1">Click to change</p>
+                    <CheckCircle2 className="w-8 h-8 text-maroon mb-2" />
+                    <p className="text-sm font-bold text-maroon max-w-[200px] truncate">
+                      {file.name}
+                    </p>
+                    <p className="text-[10px] uppercase font-black tracking-widest text-maroon/50 mt-1">
+                      Click to change
+                    </p>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center text-navy/40 group-hover:text-gold transition-colors">
                     <UploadCloud className="w-10 h-10 mb-3" />
-                    <p className="text-[15px] font-bold">Click to upload slip image</p>
+                    <p className="text-[15px] font-bold">
+                      Click to upload slip image
+                    </p>
                   </div>
                 )}
               </div>
             </div>
-            
+
             <div>
               <label className="text-xs font-black text-navy/60 uppercase tracking-widest ml-1 mb-2 block">
                 Message (Optional)
               </label>
               <Textarea
                 value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, message: e.target.value })
+                }
                 className="min-h-[100px] rounded-2xl bg-white/50 border-navy/10 focus:border-gold/50 font-medium resize-none text-navy placeholder:text-navy/30 py-4"
                 placeholder="Any message for your donation?"
               />
@@ -232,11 +262,11 @@ export default function SubmitDonationForm() {
               </>
             ) : (
               <>
-                <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" /> Submit to Admin
+                <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />{" "}
+                Submit to Admin
               </>
             )}
           </Button>
-
         </form>
       )}
     </div>
