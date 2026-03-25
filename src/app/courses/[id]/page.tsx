@@ -3,7 +3,15 @@
 import { use, useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BookOpen, Clock, Users, Calendar, MapPin, Loader2, Star } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { ArrowLeft, BookOpen, Clock, Users, Calendar, MapPin, Loader2, Star, CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import api from "@/lib/api";
@@ -12,6 +20,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
   const { id } = use(params);
   const [course, setCourse] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Enrollment form state
+  const [enrollOpen, setEnrollOpen] = useState(false);
+  const [enrollForm, setEnrollForm] = useState({ name: "", email: "", phone: "" });
+  const [enrolling, setEnrolling] = useState(false);
+  const [enrollResult, setEnrollResult] = useState<"success" | "error" | null>(null);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -27,6 +41,33 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
     fetchCourse();
   }, [id]);
+
+  const handleEnroll = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEnrolling(true);
+    setEnrollResult(null);
+    try {
+      await api.post("/enrollments", {
+        courseId: id,
+        name: enrollForm.name,
+        email: enrollForm.email || undefined,
+        phone: enrollForm.phone,
+      });
+      setEnrollResult("success");
+      setEnrollForm({ name: "", email: "", phone: "" });
+    } catch (error) {
+      console.error("Enrollment failed:", error);
+      setEnrollResult("error");
+    } finally {
+      setEnrolling(false);
+    }
+  };
+
+  const handleDialogClose = () => {
+    setEnrollOpen(false);
+    // Reset result after closing
+    setTimeout(() => setEnrollResult(null), 300);
+  };
 
   if (isLoading) {
     return (
@@ -148,7 +189,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                 </div>
                 <p className="text-navy/50 text-sm italic">This course is offered free of charge as part of our mission to share the Buddha's teachings.</p>
                 
-                <Button size="lg" className="w-full h-20 text-xl font-black bg-maroon hover:bg-gold text-white hover:text-navy rounded-[1.5rem] border-gold border-2 shadow-2xl shadow-maroon/30 transition-all active:scale-95">
+                <Button
+                  size="lg"
+                  onClick={() => setEnrollOpen(true)}
+                  className="w-full h-20 text-xl font-black bg-maroon hover:bg-gold text-white hover:text-navy rounded-[1.5rem] border-gold border-2 shadow-2xl shadow-maroon/30 transition-all active:scale-95"
+                >
                   Confirm Enrollment
                 </Button>
                 
@@ -162,6 +207,114 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
           </div>
         </div>
       </div>
+
+      {/* Enrollment Dialog */}
+      <Dialog open={enrollOpen} onOpenChange={(open) => { if (!open) handleDialogClose(); }}>
+        <DialogContent className="sm:max-w-md !rounded-3xl !p-6 border-gold/20">
+          {enrollResult === "success" ? (
+            <div className="flex flex-col items-center py-6 text-center">
+              <div className="size-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
+                <CheckCircle className="size-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-black text-maroon mb-2">Enrollment Submitted!</h3>
+              <p className="text-navy/60 text-sm mb-6">
+                Your enrollment request has been submitted successfully. We will contact you soon with further details.
+              </p>
+              <Button
+                onClick={handleDialogClose}
+                className="bg-maroon hover:bg-gold text-white hover:text-navy font-bold rounded-xl px-8"
+              >
+                Close
+              </Button>
+            </div>
+          ) : enrollResult === "error" ? (
+            <div className="flex flex-col items-center py-6 text-center">
+              <div className="size-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
+                <XCircle className="size-8 text-red-600" />
+              </div>
+              <h3 className="text-xl font-black text-maroon mb-2">Enrollment Failed</h3>
+              <p className="text-navy/60 text-sm mb-6">
+                Something went wrong. Please try again later.
+              </p>
+              <Button
+                onClick={() => setEnrollResult(null)}
+                className="bg-maroon hover:bg-gold text-white hover:text-navy font-bold rounded-xl px-8"
+              >
+                Try Again
+              </Button>
+            </div>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-xl font-black text-maroon">
+                  Enroll in Course
+                </DialogTitle>
+                <DialogDescription className="text-navy/60">
+                  Fill in your details to enroll in <strong className="text-maroon">{course.title}</strong>.
+                </DialogDescription>
+              </DialogHeader>
+
+              <form onSubmit={handleEnroll} className="space-y-4 mt-2">
+                <div className="space-y-1.5">
+                  <label htmlFor="enroll-name" className="text-xs font-bold text-navy/70 uppercase tracking-wider">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    id="enroll-name"
+                    required
+                    placeholder="Enter your full name"
+                    value={enrollForm.name}
+                    onChange={(e) => setEnrollForm({ ...enrollForm, name: e.target.value })}
+                    className="!h-11 !rounded-xl border-gold/20 focus-visible:!border-maroon"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="enroll-email" className="text-xs font-bold text-navy/70 uppercase tracking-wider">
+                    Email <span className="text-navy/40 font-normal normal-case">(optional)</span>
+                  </label>
+                  <Input
+                    id="enroll-email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={enrollForm.email}
+                    onChange={(e) => setEnrollForm({ ...enrollForm, email: e.target.value })}
+                    className="!h-11 !rounded-xl border-gold/20 focus-visible:!border-maroon"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="enroll-phone" className="text-xs font-bold text-navy/70 uppercase tracking-wider">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    id="enroll-phone"
+                    required
+                    placeholder="09xxxxxxxxx"
+                    value={enrollForm.phone}
+                    onChange={(e) => setEnrollForm({ ...enrollForm, phone: e.target.value })}
+                    className="!h-11 !rounded-xl border-gold/20 focus-visible:!border-maroon"
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={enrolling}
+                  className="w-full !h-12 font-black bg-maroon hover:bg-gold text-white hover:text-navy rounded-xl border-gold border shadow-lg shadow-maroon/20 transition-all active:scale-95 mt-2"
+                >
+                  {enrolling ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="size-4 animate-spin" /> Submitting...
+                    </span>
+                  ) : (
+                    "Submit Enrollment"
+                  )}
+                </Button>
+              </form>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
