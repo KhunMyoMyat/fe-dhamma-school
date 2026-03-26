@@ -35,16 +35,16 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("lang", lang);
   };
 
-  const t = (path: string): string => {
+  const t = React.useCallback((path: string): string => {
     const keys = path.split(".");
-    let current = translations[language];
+    let current = (translations as any)[language];
 
     for (const key of keys) {
-      if (current[key] === undefined) {
+      if (!current || current[key] === undefined) {
         // Fallback to English if key missing in current language
         let fallback = translations["en"];
         for (const fallbackKey of keys) {
-          if (fallback[fallbackKey] === undefined) return path;
+          if (!fallback || fallback[fallbackKey] === undefined) return path;
           fallback = fallback[fallbackKey];
         }
         return typeof fallback === "string" ? fallback : path;
@@ -53,13 +53,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
 
     return typeof current === "string" ? current : path;
-  };
+  }, [language]);
+
+  const contextValue = React.useMemo(() => ({ language, setLanguage, t }), [language, t]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      {/* Prevent hydration mismatch by only rendering after mount if needed, 
-          but usually we want the layout to be there immediately. 
-          For simplicity in this step, we just provide the context. */}
+    <LanguageContext.Provider value={contextValue}>
       {children}
     </LanguageContext.Provider>
   );

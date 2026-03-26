@@ -44,9 +44,11 @@ export default function AdminDashboard() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
-    if (!token) {
+    if (!token || !user) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
       router.push("/admin/login");
-    } else if (user) {
+    } else {
       setAdminUser(JSON.parse(user));
     }
 

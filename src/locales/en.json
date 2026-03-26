@@ -115,16 +115,13 @@
   "courses": {
     "title": "Our Dhamma Courses",
     "subtitle": "Structured courses for learning the Buddha's teachings in depth.",
-    "enroll": "Enroll Course",
-    "startsOn": "Starts On",
-    "schedule": "Schedule",
+    "view": "Watch Video",
+    "videoClass": "Video Class",
     "duration": "Duration",
     "instructor": "Instructor",
     "level": "Level",
     "free": "Free Course",
     "dhammaDana": "Dhamma Dāna",
-    "limitedSeats": "Limited Seats Available",
-    "confirmEnroll": "Confirm Enrollment",
     "noCourses": "No Courses Available",
     "noCoursesDesc": "Stay tuned for upcoming Dhamma courses."
   },

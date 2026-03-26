@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, BookOpen, Users, Calendar } from "lucide-react";
+import { ArrowRight, Users } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -76,7 +76,7 @@ export function FeaturedCourses({ courses }: { courses: any[] }) {
                   className="object-cover group-hover:scale-110 transition-transform duration-1000"
                 />
                 <Badge className="absolute top-6 left-6 z-20 bg-white/90 text-maroon backdrop-blur-md border border-gold/30 font-bold px-4 py-1 rounded-full uppercase text-[10px] tracking-widest">
-                  {course.level}
+                  {t("courses.videoClass")}
                 </Badge>
               </div>
               <CardContent className="p-10">
@@ -90,57 +90,6 @@ export function FeaturedCourses({ courses }: { courses: any[] }) {
                 <div className="flex flex-col gap-4 text-sm text-navy/70 mb-10">
                   <div className="flex items-center gap-4">
                     <div className="size-10 rounded-full bg-cream flex items-center justify-center border border-gold/20">
-                      <Calendar className="size-4 text-maroon" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] uppercase font-black tracking-widest text-gold-dark/60 leading-none mb-1">
-                        {t("courses.startsOn")}
-                      </span>
-                      <span className="font-semibold text-navy/90">
-                        {course.startDate
-                          ? new Date(course.startDate).toLocaleDateString(
-                              language === "en"
-                                ? "en-GB"
-                                : language === "th"
-                                  ? "th-TH"
-                                  : "en-GB",
-                              {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              },
-                            )
-                          : t("common.tba")}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="size-10 rounded-full bg-cream flex items-center justify-center border border-gold/20">
-                      <BookOpen className="size-4 text-maroon" />
-                    </div>
-                    <span className="font-semibold">{course.duration}</span>
-                  </div>
-
-                  {course.daysOfWeek?.length > 0 && (
-                    <div className="flex items-center gap-4">
-                      <div className="size-10 rounded-full bg-cream flex items-center justify-center border border-gold/20">
-                        <ArrowRight className="size-4 text-maroon" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] uppercase font-black tracking-widest text-gold-dark/60 leading-none mb-1">
-                          {t("courses.schedule")}
-                        </span>
-                        <span className="font-semibold text-navy/90 text-[13px]">
-                          {course.daysOfWeek
-                            .map((d: string) => d.substring(0, 3))
-                            .join(", ")}{" "}
-                          • {course.classTime}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-4">
-                    <div className="size-10 rounded-full bg-cream flex items-center justify-center border border-gold/20">
                       <Users className="size-4 text-maroon" />
                     </div>
                     <span className="font-semibold text-navy/90">
@@ -151,7 +100,7 @@ export function FeaturedCourses({ courses }: { courses: any[] }) {
 
                 <Link href={`/courses/${course.id}`}>
                   <Button className="w-full bg-cream hover:bg-gold hover:text-navy text-maroon border-2 border-gold/30 transition-all font-black py-6 rounded-2xl shadow-sm">
-                    {t("courses.enroll")}
+                    {t("courses.view")}
                   </Button>
                 </Link>
               </CardContent>

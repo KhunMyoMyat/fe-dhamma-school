@@ -23,19 +23,15 @@ export default function AdminLayout({
     if (pathname === "/admin/login") {
       if (token) {
         router.push("/admin/dashboard");
-      } else {
-        setIsAuthorized(true);
-        setIsLoading(false);
       }
-      return;
-    }
-
-    if (!token) {
-      router.push("/admin/login");
     } else {
-      setIsAuthorized(true);
-      setIsLoading(false);
+      if (!token) {
+        router.push("/admin/login");
+      }
     }
+    
+    setIsAuthorized(true);
+    setIsLoading(false);
   }, [pathname, router]);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);

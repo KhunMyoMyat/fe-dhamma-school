@@ -13,8 +13,7 @@ import {
   Info,
   BookOpen,
   Languages,
-  User,
-  Calendar
+  User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
@@ -35,6 +34,8 @@ const courseSchema = z.object({
   daysOfWeek: z.array(z.string()),
   classTime: z.string().optional().or(z.literal("")),
   daysPerWeek: z.number().optional().or(z.literal(0)),
+  type: z.literal("VIDEO"),
+  videoUrl: z.string().optional().or(z.literal("")),
   isActive: z.boolean(),
 });
 
@@ -66,6 +67,8 @@ export function CourseForm({ initialData, isEditing = false }: CourseFormProps) 
       classTime: initialData?.classTime || "",
       daysPerWeek: initialData?.daysPerWeek || 0,
       level: initialData?.level || "beginner",
+      type: "VIDEO",
+      videoUrl: initialData?.videoUrl || "",
       isActive: initialData?.isActive ?? true,
     },
   });
@@ -97,6 +100,8 @@ export function CourseForm({ initialData, isEditing = false }: CourseFormProps) 
         classTime: values.classTime || undefined,
         daysPerWeek: values.daysPerWeek ? Number(values.daysPerWeek) : undefined,
         startDate: values.startDate ? new Date(values.startDate).toISOString() : undefined,
+        type: "VIDEO",
+        videoUrl: values.videoUrl || undefined,
         isActive: Boolean(values.isActive),
       };
 
@@ -198,7 +203,16 @@ export function CourseForm({ initialData, isEditing = false }: CourseFormProps) 
           Additional Settings
         </h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-2 col-span-full">
+            <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">YouTube Video Link</label>
+            <input 
+              {...register("videoUrl")}
+              placeholder="Ex: https://www.youtube.com/watch?v=..."
+              className="w-full h-16 bg-cream/50 border-2 border-gold/10 rounded-2xl px-6 focus:border-maroon focus:bg-white outline-none transition-all font-bold text-navy"
+            />
+          </div>
+
           <div className="space-y-2">
             <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Course Level</label>
             <select 
@@ -224,76 +238,6 @@ export function CourseForm({ initialData, isEditing = false }: CourseFormProps) 
                 ))}
               </select>
               <User className="absolute right-6 top-1/2 -translate-y-1/2 size-5 text-navy/20 pointer-events-none" />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Duration / Schedule</label>
-            <input 
-              {...register("duration")}
-              placeholder="Ex: 8 Weeks, Sat 9-11AM"
-              className="w-full h-16 bg-cream/50 border-2 border-gold/10 rounded-2xl px-6 focus:border-maroon focus:bg-white outline-none transition-all font-bold text-navy"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Start Date</label>
-            <div className="relative">
-              <input 
-                {...register("startDate")}
-                type="date"
-                className="w-full h-16 bg-cream/50 border-2 border-gold/10 rounded-2xl px-6 focus:border-maroon focus:bg-white outline-none transition-all font-bold text-navy appearance-none"
-              />
-              <Calendar className="absolute right-6 top-1/2 -translate-y-1/2 size-5 text-navy/20 pointer-events-none" />
-            </div>
-          </div>
-        </div>
-
-        <div className="pt-6 border-t border-gold/10 space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-2">
-              <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Days Per Week</label>
-              <select 
-                {...register("daysPerWeek", { valueAsNumber: true })}
-                className="w-full h-16 bg-cream/50 border-2 border-gold/10 rounded-2xl px-6 focus:border-maroon focus:bg-white outline-none transition-all font-bold text-navy appearance-none"
-              >
-                <option value={0}>Select frequency</option>
-                {[1,2,3,4,5,6,7].map(n => <option key={n} value={n}>{n} Days / Week</option>)}
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Class Time</label>
-              <input 
-                {...register("classTime")}
-                placeholder="Ex: 9:00 AM - 11:00 AM"
-                className="w-full h-16 bg-cream/50 border-2 border-gold/10 rounded-2xl px-6 focus:border-maroon focus:bg-white outline-none transition-all font-bold text-navy"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Select Days of Week</label>
-            <div className="flex flex-wrap gap-3">
-              {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
-                <label 
-                  key={day} 
-                  className={cn(
-                    "flex items-center gap-2 px-6 py-3 rounded-xl border-2 cursor-pointer transition-all font-bold text-sm",
-                    watch("daysOfWeek")?.includes(day) 
-                      ? "bg-maroon border-maroon text-white shadow-lg shadow-maroon/20" 
-                      : "bg-white border-gold/10 text-navy/40 hover:border-gold/30"
-                  )}
-                >
-                  <input 
-                    type="checkbox" 
-                    value={day} 
-                    {...register("daysOfWeek")} 
-                    className="hidden"
-                  />
-                  {day}
-                </label>
-              ))}
             </div>
           </div>
         </div>

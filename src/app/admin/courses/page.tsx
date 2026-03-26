@@ -7,7 +7,6 @@ import {
   Edit2, 
   Trash2, 
   Eye,
-  Calendar,
   User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -111,28 +110,16 @@ export default function AdminCoursesPage() {
     },
     {
       id: "teacherId",
-      header: "Teacher & Schedule",
+      header: "Teacher",
       sortable: true,
       cell: (course) => (
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <div className="size-8 rounded-full bg-maroon/5 flex items-center justify-center">
-              <User className="size-3 text-maroon" />
-            </div>
-            <span className="font-bold text-navy/70 text-sm">
-              {course.teacher?.name || "Unassigned"}
-            </span>
+        <div className="flex items-center gap-2">
+          <div className="size-8 rounded-full bg-maroon/5 flex items-center justify-center">
+            <User className="size-3 text-maroon" />
           </div>
-          <div className="flex flex-col pl-2 border-l-2 border-gold/20">
-            <div className="flex items-center gap-1.5 text-navy/80 font-bold text-[10px] uppercase tracking-wider mb-0.5">
-              <Calendar className="size-3 text-gold" />
-              {course.startDate ? new Date(course.startDate).toLocaleDateString() : "TBA"}
-            </div>
-            <div className="font-bold text-maroon text-[11px] mb-0.5">
-              {course.daysOfWeek?.length > 0 ? course.daysOfWeek.map((d: any) => d.substring(0, 3)).join(', ') : "No days set"}
-            </div>
-            {course.classTime && <span className="text-[10px] text-navy/40 font-medium">{course.classTime}</span>}
-          </div>
+          <span className="font-bold text-navy/70 text-sm">
+            {course.teacher?.name || "Unassigned"}
+          </span>
         </div>
       )
     },
