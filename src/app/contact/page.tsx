@@ -127,7 +127,7 @@ export default function ContactPage() {
                       required
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      placeholder="Question about Dhamma Courses"
+                      placeholder="Question about Dhamma Teachings"
                       className="h-14 rounded-2xl border-gold/20 focus:border-maroon focus:ring-maroon/5 bg-cream/5"
                     />
                   </div>

@@ -51,22 +51,22 @@ export function Hero() {
           </p>
 
           <div className="flex flex-wrap gap-6">
-            <Link href="/courses">
+            <Link href="/teachings">
               <Button
                 size="lg"
                 className="gradient-maroon text-white h-16 px-10 text-xl border-2 border-gold shadow-2xl shadow-maroon/40 hover:scale-105 transition-all rounded-full group"
               >
-                {t("common.viewAll")}{" "}
+                {t("nav.teachings")}{" "}
                 <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" />
               </Button>
             </Link>
-            <Link href="/teachings">
+            <Link href="/events">
               <Button
                 size="lg"
                 variant="outline"
                 className="glass-card text-gold h-16 px-10 text-xl border-2 border-gold/50 hover:bg-gold hover:text-navy transition-all rounded-full"
               >
-                {t("nav.teachings")}
+                {t("nav.events")}
               </Button>
             </Link>
           </div>

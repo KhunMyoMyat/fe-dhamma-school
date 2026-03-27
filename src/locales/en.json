@@ -8,13 +8,11 @@
     "tba": "TBA",
     "scroll": "Scroll",
     "dhammaSchool": "Dhamma School",
-    "loadingCourses": "Loading Sacred Teachings...",
     "loadingEvents": "Loading Events..."
   },
   "nav": {
     "home": "Home",
     "about": "About Us",
-    "courses": "Courses",
     "events": "Events",
     "teachings": "Teachings",
     "contact": "Contact",
@@ -52,21 +50,21 @@
   "home": {
     "hero": {
       "badge": "Education for Enlightenment",
-      "title": "Our",
-      "titleGold": "Dhamma Courses",
-      "subtitle": "Discover the path to inner peace and wisdom through our comprehensive studies of Buddha's teachings."
+      "title": "Welcome to",
+      "titleGold": "Dhamma School",
+      "subtitle": "Discover the path to inner peace and wisdom through our authentic Buddhist teachings."
     },
     "stats": {
       "students": "Active Students",
-      "courses": "Online Courses",
+      "teachings": "Dhamma Teachings",
       "teachers": "Qualified Teachers",
       "sessions": "Guided Sessions"
     },
     "featured": {
       "badge": "Dhamma Education",
-      "title": "Featured",
-      "titleGold": "Studies",
-      "subtitle": "Available Dhamma Courses"
+      "title": "Sacred",
+      "titleGold": "Teachings",
+      "subtitle": "Available Dhamma Wisdom"
     },
     "events": {
       "title": "Spiritual",
@@ -112,19 +110,7 @@
       "footer": "Every donation counts"
     }
   },
-  "courses": {
-    "title": "Our Dhamma Courses",
-    "subtitle": "Structured courses for learning the Buddha's teachings in depth.",
-    "view": "Watch Video",
-    "videoClass": "Video Class",
-    "duration": "Duration",
-    "instructor": "Instructor",
-    "level": "Level",
-    "free": "Free Course",
-    "dhammaDana": "Dhamma Dāna",
-    "noCourses": "No Courses Available",
-    "noCoursesDesc": "Stay tuned for upcoming Dhamma courses."
-  },
+ 
   "events": {
     "title": "Upcoming Events",
     "subtitle": "Religious ceremonies and Dhamma talks.",

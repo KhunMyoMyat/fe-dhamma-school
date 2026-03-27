@@ -130,7 +130,7 @@ export default function AboutPage() {
             { icon: Users, label: "Students", val: "500+" },
             { icon: Heart, label: "Monasteries", val: "12" },
             { icon: Globe, label: "Countries", val: "15" },
-            { icon: BookOpen, label: "Courses", val: "40+" },
+            { icon: BookOpen, label: "Teachings", val: "450+" },
           ].map((stat, i) => (
             <motion.div 
               key={i}

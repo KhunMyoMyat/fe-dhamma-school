@@ -18,7 +18,6 @@ import { ChevronLeft, Menu } from "lucide-react";
 
 const menuItems = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/admin/dashboard" },
-  { label: "Courses", icon: BookOpen, href: "/admin/courses" },
   { label: "Events", icon: Calendar, href: "/admin/events" },
   { label: "Teachings", icon: Sprout, href: "/admin/teachings" },
   { label: "Donations", icon: HandCoins, href: "/admin/donations" },

@@ -27,7 +27,6 @@ export default function Navbar() {
 
   const mainLinks = [
     { href: "/", label: t("nav.home") },
-    { href: "/courses", label: t("nav.courses") },
     { href: "/teachings", label: t("nav.teachings") },
     { href: "/monthly-donors", label: t("nav.monthlyDonors") },
   ];
@@ -41,7 +40,7 @@ export default function Navbar() {
   const allLinks = [...mainLinks, ...infoLinks];
 
   return (
-    <nav className="sticky top-0 z-50 bg-cream/90 backdrop-blur-xl border-b border-gold/20 shadow-sm">
+    <nav className="sticky top-0 z-50 bg-cream border-b border-gold/20 shadow-sm">
       <div className="container mx-auto h-20 flex items-center justify-between gap-4 px-4 sm:px-6">
         <Link
           href="/"

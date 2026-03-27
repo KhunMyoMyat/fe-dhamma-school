@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${inter.variable} ${padauk.variable} antialiased selection:bg-gold selection:text-white`}>
+      <body suppressHydrationWarning className={`${inter.variable} ${padauk.variable} antialiased selection:bg-gold selection:text-white`}>
         <LanguageProvider>
           <QueryProvider>
             <div className="flex flex-col min-h-screen">

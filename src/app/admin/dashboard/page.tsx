@@ -23,23 +23,21 @@ import { Badge } from "@/components/ui/badge";
 
 const stats = [
   { label: "Active Students", value: "1,280", icon: Users, color: "blue" },
-  { label: "Online Courses", value: "24", icon: BookOpen, color: "maroon" },
-  { label: "Future Events", value: "12", icon: Calendar, color: "gold" },
   { label: "Dhamma Teachings", value: "450", icon: Sprout, color: "bodhi" },
+  { label: "Future Events", value: "12", icon: Calendar, color: "gold" },
 ];
 
 export default function AdminDashboard() {
   const router = useRouter();
   const [adminUser, setAdminUser] = useState<any>(null);
   const [counts, setCounts] = useState({ 
-    courses: 0, 
     events: 0, 
     teachings: 0, 
     inquiries: 0, 
     unreadInquiries: 0,
     pendingDonors: 0 
   });
-  const [recentCourses, setRecentCourses] = useState<any[]>([]);
+  const [recentTeachings, setRecentTeachings] = useState<any[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -54,8 +52,7 @@ export default function AdminDashboard() {
 
     const fetchStats = async () => {
       try {
-        const [coursesRes, eventsRes, teachingsRes, contactRes, donorsRes] = await Promise.all([
-          api.get("/courses"),
+        const [eventsRes, teachingsRes, contactRes, donorsRes] = await Promise.all([
           api.get("/events"),
           api.get("/teachings"),
           api.get("/contact"),
@@ -69,14 +66,13 @@ export default function AdminDashboard() {
         const pendingDonors = donorsData.filter((d: any) => d.status === "pending").length;
 
         setCounts({
-          courses: coursesRes.data.meta?.total || coursesRes.data.length || 0,
           events: eventsRes.data.meta?.total || eventsRes.data.length || 0,
           teachings: teachingsRes.data.meta?.total || teachingsRes.data.length || 0,
           inquiries: contactData.length || 0,
           unreadInquiries,
           pendingDonors
         });
-        setRecentCourses((coursesRes.data.data || coursesRes.data || []).slice(0, 3));
+        setRecentTeachings((teachingsRes.data.data || teachingsRes.data || []).slice(0, 5));
       } catch (err) {
         console.error("Failed to fetch dashboard stats", err);
       }
@@ -88,8 +84,8 @@ export default function AdminDashboard() {
   const totalNotifications = counts.unreadInquiries + counts.pendingDonors;
 
   const dashboardStats = [
-    { label: "Online Courses", value: counts.courses, icon: BookOpen, color: "maroon" },
     { label: "Future Events", value: counts.events, icon: Calendar, color: "gold" },
+    { label: "Dhamma Teachings", value: counts.teachings, icon: Sprout, color: "bodhi" },
     { label: "New Messages", value: counts.unreadInquiries, icon: Bell, color: "navy" },
     { label: "Pending Donors", value: counts.pendingDonors, icon: Users, color: "bodhi" },
   ];
@@ -197,13 +193,13 @@ export default function AdminDashboard() {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-10">
-            {/* Recent Courses/Content Section */}
+            {/* Recent Teachings Section */}
             <section className="bg-white rounded-[3rem] border border-gold/10 p-10 shadow-xl shadow-maroon/5">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-2xl font-black text-maroon uppercase tracking-tight">
-                  Recent Content
+                  Recent Teachings
                 </h2>
-                <Link href="/admin/courses">
+                <Link href="/admin/teachings">
                   <Button variant="ghost" className="text-gold hover:text-maroon font-bold">
                     View All <ArrowRight className="size-4 ml-2" />
                   </Button>
@@ -211,18 +207,17 @@ export default function AdminDashboard() {
               </div>
               
               <div className="space-y-4">
-                {recentCourses.map((course) => (
-                  <div key={course.id} className="flex items-center justify-between p-6 rounded-2xl bg-cream/30 border border-gold/5 hover:border-gold/20 transition-all">
+                {recentTeachings.map((teaching) => (
+                  <div key={teaching.id} className="flex items-center justify-between p-6 rounded-2xl bg-cream/30 border border-gold/5 hover:border-gold/20 transition-all">
                     <div className="flex items-center gap-4">
                       <div className="size-12 rounded-xl bg-maroon/10 flex items-center justify-center">
-                        <BookOpen className="size-6 text-maroon" />
+                        <Sprout className="size-6 text-maroon" />
                       </div>
                       <div>
-                        <p className="font-bold text-navy">{course.title}</p>
-                        <p className="text-xs text-navy/40">Updated {new Date(course.updatedAt).toLocaleDateString()}</p>
+                        <p className="font-bold text-navy">{teaching.title}</p>
+                        <p className="text-xs text-navy/40">Updated {new Date(teaching.updatedAt).toLocaleDateString()}</p>
                       </div>
                     </div>
-                    <Badge color="gold">{course.isActive ? "Active" : "Draft"}</Badge>
                   </div>
                 ))}
               </div>
@@ -234,9 +229,9 @@ export default function AdminDashboard() {
               Quick Actions
             </h2>
             <div className="space-y-4">
-              <QuickButton href="/admin/courses/new" label="Add New Course" icon={Plus} color="maroon" />
               <QuickButton href="/admin/events/new" label="Schedule Event" icon={Calendar} color="gold" />
               <QuickButton href="/admin/teachings/new" label="Post Teaching" icon={Sprout} color="bodhi" />
+              <QuickButton href="/admin/donations" label="Manage Donations" icon={TrendingUp} color="navy" />
               <QuickButton href="/admin/dashboard" label="View Analytics" icon={TrendingUp} color="navy" />
             </div>
           </div>
