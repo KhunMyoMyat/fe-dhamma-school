@@ -14,7 +14,7 @@ interface LanguageContextType {
   t: (path: string) => string;
 }
 
-const translations: Record<Language, any> = { en, mm, th };
+const translations: Record<Language, Translations> = { en, mm, th };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
@@ -28,6 +28,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       setLanguageState(savedLang);
     }
     setMounted(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setLanguage = (lang: Language) => {
@@ -37,19 +38,19 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const t = React.useCallback((path: string): string => {
     const keys = path.split(".");
-    let current = (translations as any)[language];
+    let current: any = translations[language];
 
     for (const key of keys) {
-      if (!current || current[key] === undefined) {
+      if (!current || (current as any)[key] === undefined) {
         // Fallback to English if key missing in current language
-        let fallback = translations["en"];
+        let fallback: any = translations["en"];
         for (const fallbackKey of keys) {
           if (!fallback || fallback[fallbackKey] === undefined) return path;
           fallback = fallback[fallbackKey];
         }
         return typeof fallback === "string" ? fallback : path;
       }
-      current = current[key];
+      current = (current as any)[key];
     }
 
     return typeof current === "string" ? current : path;
