@@ -20,6 +20,7 @@ const menuItems = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/admin/dashboard" },
   { label: "Events", icon: Calendar, href: "/admin/events" },
   { label: "Teachings", icon: Sprout, href: "/admin/teachings" },
+  { label: "Lessons", icon: BookOpen, href: "/admin/lessons" },
   { label: "Donations", icon: HandCoins, href: "/admin/donations" },
   { label: "Inquiries", icon: MessageSquare, href: "/admin/inquiries" },
 ];
