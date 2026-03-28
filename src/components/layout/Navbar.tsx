@@ -27,6 +27,7 @@ export default function Navbar() {
 
   const mainLinks = [
     { href: "/", label: t("nav.home") },
+    { href: "/lessons", label: t("nav.lessons") },
     { href: "/teachings", label: t("nav.teachings") },
     { href: "/monthly-donors", label: t("nav.monthlyDonors") },
   ];
