@@ -124,33 +124,35 @@ export default function AdminDashboard() {
               </button>
               
               {/* Notification Popover on Hover */}
-              <div className="absolute top-full right-0 mt-2 w-64 bg-white border border-gold/20 rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all z-50 overflow-hidden">
-                <div className="p-4 border-b border-gold/5 bg-cream/30">
-                  <p className="text-xs font-black text-maroon uppercase tracking-widest">Notifications</p>
-                </div>
-                <div className="p-2">
-                  <Link href="/admin/inquiries" className="flex items-center justify-between p-3 rounded-xl hover:bg-cream/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="size-8 rounded-lg bg-gold/10 flex items-center justify-center">
-                        <MessageSquare className="size-4 text-gold-dark" />
+              <div className="absolute top-full right-0 pt-2 w-64 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all z-50">
+                <div className="bg-white border border-gold/20 rounded-2xl shadow-2xl overflow-hidden">
+                  <div className="p-4 border-b border-gold/5 bg-cream/30">
+                    <p className="text-xs font-black text-maroon uppercase tracking-widest">Notifications</p>
+                  </div>
+                  <div className="p-2">
+                    <Link href="/admin/inquiries" className="flex items-center justify-between p-3 rounded-xl hover:bg-cream/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="size-8 rounded-lg bg-gold/10 flex items-center justify-center">
+                          <MessageSquare className="size-4 text-gold-dark" />
+                        </div>
+                        <span className="text-sm font-bold text-navy/70">Messages</span>
                       </div>
-                      <span className="text-sm font-bold text-navy/70">Messages</span>
-                    </div>
-                    {counts.unreadInquiries > 0 && (
-                      <Badge className="bg-gold text-white text-[10px]">{counts.unreadInquiries}</Badge>
-                    )}
-                  </Link>
-                  <Link href="/admin/monthly-donors" className="flex items-center justify-between p-3 rounded-xl hover:bg-cream/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="size-8 rounded-lg bg-bodhi/10 flex items-center justify-center">
-                        <Users className="size-4 text-bodhi" />
+                      {counts.unreadInquiries > 0 && (
+                        <Badge className="bg-gold text-white text-[10px]">{counts.unreadInquiries}</Badge>
+                      )}
+                    </Link>
+                    <Link href="/admin/monthly-donors" className="flex items-center justify-between p-3 rounded-xl hover:bg-cream/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="size-8 rounded-lg bg-bodhi/10 flex items-center justify-center">
+                          <Users className="size-4 text-bodhi" />
+                        </div>
+                        <span className="text-sm font-bold text-navy/70">Pending Donors</span>
                       </div>
-                      <span className="text-sm font-bold text-navy/70">Pending Donors</span>
-                    </div>
-                    {counts.pendingDonors > 0 && (
-                      <Badge className="bg-bodhi text-white text-[10px]">{counts.pendingDonors}</Badge>
-                    )}
-                  </Link>
+                      {counts.pendingDonors > 0 && (
+                        <Badge className="bg-bodhi text-white text-[10px]">{counts.pendingDonors}</Badge>
+                      )}
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
