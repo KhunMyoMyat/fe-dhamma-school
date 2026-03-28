@@ -10,11 +10,32 @@ import { HandCoins, History } from "lucide-react";
 import { AddDonationModal } from "@/components/admin/donations/AddDonationModal";
 import { DataTable, Column } from "@/components/admin/DataTable";
 
+interface Donation {
+  id: string;
+  donorName: string;
+  amount: number;
+  currency: string;
+  category: string;
+  message?: string;
+  slipUrl?: string;
+  status: string;
+  date?: string;
+  createdAt: string;
+}
+
+interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalsByCurrency?: Array<{ currency: string; total: number }>;
+}
+
 export default function AdminDonationsPage() {
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
-  const [rows, setRows] = useState<any[]>([]);
-  const [meta, setMeta] = useState<any | null>(null);
+  const [rows, setRows] = useState<Donation[]>([]);
+  const [meta, setMeta] = useState<PaginationMeta | null>(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("createdAt");
@@ -79,19 +100,19 @@ export default function AdminDonationsPage() {
     return () => { cancelled = true; clearTimeout(timeout); };
   }, [page, search, refreshKey, sortBy, sortOrder, categoryFilter, statusFilter]);
 
-  const columns: Column<any>[] = [
+  const columns: Column<Donation>[] = [
     {
       id: "donorName",
       header: "Donor",
       sortable: true,
       accessorKey: "donorName",
-      cell: (d) => <p className="font-black text-navy tracking-tight">{d.donorName}</p>
+      cell: (d: Donation) => <p className="font-black text-navy tracking-tight">{d.donorName}</p>
     },
     {
       id: "amount",
       header: "Amount",
       sortable: true,
-      cell: (d) => (
+      cell: (d: Donation) => (
         <div className="flex items-baseline gap-2">
           <p className="font-black text-maroon text-lg">
             {Number(d.amount || 0).toLocaleString("en-US", { maximumFractionDigits: 2 })}
@@ -104,7 +125,7 @@ export default function AdminDonationsPage() {
       id: "category",
       header: "Category",
       sortable: true,
-      cell: (d) => (
+      cell: (d: Donation) => (
         <Badge variant="outline" className="bg-navy/5 text-navy/70 border-navy/10 capitalize">
           {t(`donors.monthly.categories.${d.category || 'general'}`)}
         </Badge>
@@ -114,13 +135,13 @@ export default function AdminDonationsPage() {
       id: "message",
       header: "Message",
       className: "max-w-xl",
-      cell: (d) => <p className="text-sm text-navy/60 line-clamp-2">{d.message || "-"}</p>
+      cell: (d: Donation) => <p className="text-sm text-navy/60 line-clamp-2">{d.message || "-"}</p>
     },
     {
       id: "date",
       header: "Date",
       sortable: true,
-      cell: (d) => {
+      cell: (d: Donation) => {
         const date = d.date || d.createdAt;
         return (
           <p className="text-sm font-bold text-navy/60">
@@ -132,7 +153,7 @@ export default function AdminDonationsPage() {
     {
       id: "status",
       header: "Status / Slip",
-      cell: (d) => {
+      cell: (d: Donation) => {
         const backendBaseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api').replace('/api', '');
         return (
           <div className="flex flex-col gap-2 items-start">
@@ -155,7 +176,7 @@ export default function AdminDonationsPage() {
       id: "actions",
       header: "Actions",
       className: "text-right",
-      cell: (d) => (
+      cell: (d: Donation) => (
         <div className="flex items-center justify-end gap-2 text-right">
           {(!d.status || d.status === "pending") && (
             <Button
@@ -209,7 +230,7 @@ export default function AdminDonationsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {["MMK", "USD", "THB", "SGD"].map((curr) => {
-          const amount = meta?.totalsByCurrency?.find((t: any) => t.currency === curr)?.total || 0;
+          const amount = meta?.totalsByCurrency?.find((t: { currency: string }) => t.currency === curr)?.total || 0;
           return (
             <div key={curr} className="bg-cream/20 p-6 rounded-[2rem] border border-gold/10">
               <p className="text-[10px] font-black text-navy/30 uppercase tracking-[0.2em] mb-1">{curr}</p>

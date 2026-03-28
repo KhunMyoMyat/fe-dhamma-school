@@ -28,10 +28,32 @@ const stats = [
   { label: "Future Events", value: "12", icon: Calendar, color: "gold" },
 ];
 
+interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+interface DashboardCounts {
+  events: number;
+  teachings: number;
+  inquiries: number;
+  unreadInquiries: number;
+  unreadSponsors: number;
+  pendingDonors: number;
+}
+
+interface Teaching {
+  id: string;
+  title: string;
+  updatedAt: string;
+}
+
 export default function AdminDashboard() {
   const router = useRouter();
-  const [adminUser, setAdminUser] = useState<any>(null);
-  const [counts, setCounts] = useState({ 
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
+  const [counts, setCounts] = useState<DashboardCounts>({ 
     events: 0, 
     teachings: 0, 
     inquiries: 0, 
@@ -39,7 +61,7 @@ export default function AdminDashboard() {
     unreadSponsors: 0,
     pendingDonors: 0 
   });
-  const [recentTeachings, setRecentTeachings] = useState<any[]>([]);
+  const [recentTeachings, setRecentTeachings] = useState<Teaching[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -63,12 +85,12 @@ export default function AdminDashboard() {
         ]);
 
         const contactData = contactRes.data.data || contactRes.data || [];
-        const unreadInquiries = contactData.filter((i: any) => !i.isRead && !i.eventId).length;
-        const unreadSponsors = contactData.filter((i: any) => !i.isRead && !!i.eventId).length;
+        const unreadInquiries = contactData.filter((i: { isRead: boolean; eventId: string | null }) => !i.isRead && !i.eventId).length;
+        const unreadSponsors = contactData.filter((i: { isRead: boolean; eventId: string | null }) => !i.isRead && !!i.eventId).length;
 
         const donorsData = donorsRes.data.data || donorsRes.data || [];
         const oneTimeData = oneTimeRes.data.data || oneTimeRes.data || [];
-        const pendingDonors = donorsData.filter((d: any) => d.status === "pending").length + oneTimeData.filter((d: any) => d.status === "pending").length;
+        const pendingDonors = donorsData.filter((d: { status: string }) => d.status === "pending").length + oneTimeData.filter((d: { status: string }) => d.status === "pending").length;
 
         setCounts({
           events: eventsRes.data.meta?.total || eventsRes.data.length || 0,
@@ -78,7 +100,7 @@ export default function AdminDashboard() {
           unreadSponsors,
           pendingDonors
         });
-        setRecentTeachings((teachingsRes.data.data || teachingsRes.data || []).slice(0, 5));
+        setRecentTeachings((teachingsRes.data.data || teachingsRes.data || []).slice(0, 5) as Teaching[]);
       } catch (err) {
         console.error("Failed to fetch dashboard stats", err);
       }
@@ -260,7 +282,7 @@ export default function AdminDashboard() {
   );
 }
 
-function QuickButton({ label, icon: Icon, color, href }: any) {
+function QuickButton({ label, icon: Icon, color, href }: { label: string; icon: any; color: string; href: string }) {
   return (
     <Link href={href || "#"}>
       <button className="w-full h-20 bg-white hover:bg-cream rounded-[1.5rem] border border-gold/10 hover:border-gold/50 transition-all p-6 flex items-center justify-between group shadow-sm mb-4">
