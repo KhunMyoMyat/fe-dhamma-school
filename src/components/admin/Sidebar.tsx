@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import api from "@/lib/api";
 import {
   LayoutDashboard,
   BookOpen,
@@ -17,12 +19,12 @@ import { cn } from "@/lib/utils";
 import { ChevronLeft, Menu } from "lucide-react";
 
 const menuItems = [
-  { label: "Dashboard", icon: LayoutDashboard, href: "/admin/dashboard" },
-  { label: "Events", icon: Calendar, href: "/admin/events" },
-  { label: "Teachings", icon: Sprout, href: "/admin/teachings" },
-  { label: "Lessons", icon: BookOpen, href: "/admin/lessons" },
-  { label: "Donations", icon: HandCoins, href: "/admin/donations" },
-  { label: "Inquiries", icon: MessageSquare, href: "/admin/inquiries" },
+  { label: "Dashboard", icon: LayoutDashboard, href: "/admin/dashboard", badgeKey: null },
+  { label: "Events", icon: Calendar, href: "/admin/events", badgeKey: "sponsors" },
+  { label: "Teachings", icon: Sprout, href: "/admin/teachings", badgeKey: null },
+  { label: "Lessons", icon: BookOpen, href: "/admin/lessons", badgeKey: null },
+  { label: "Donations", icon: HandCoins, href: "/admin/donations", badgeKey: "donations" },
+  { label: "Inquiries", icon: MessageSquare, href: "/admin/inquiries", badgeKey: "messages" },
 ];
 
 interface SidebarProps {
@@ -33,6 +35,37 @@ interface SidebarProps {
 export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+
+  const [counts, setCounts] = useState<Record<string, number>>({ messages: 0, sponsors: 0, donations: 0 });
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const [contactRes, donationsRes, monthlyRes] = await Promise.all([
+          api.get("/contact"),
+          api.get("/donations"),
+          api.get("/donations/monthly-donor-subscriptions")
+        ]);
+
+        const contactData = contactRes.data?.data || contactRes.data || [];
+        const monthlyData = monthlyRes.data?.data || monthlyRes.data || [];
+        const donationsData = donationsRes.data?.data || donationsRes.data || [];
+
+        setCounts({
+          messages: contactData.filter((i: any) => !i.isRead && !i.eventId).length,
+          sponsors: contactData.filter((i: any) => !i.isRead && !!i.eventId).length,
+          donations: monthlyData.filter((d: any) => d.status === "pending").length + 
+                     donationsData.filter((d: any) => d.status === "pending").length
+        });
+      } catch (e) {
+        console.error("Failed to fetch notification counts", e);
+      }
+    };
+
+    fetchCounts();
+    const interval = setInterval(fetchCounts, 60000);
+    return () => clearInterval(interval);
+  }, [pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -123,7 +156,14 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                   />
                   <span className="font-bold tracking-tight">{item.label}</span>
                 </div>
-                {isActive && <ChevronRight className="size-4 text-gold" />}
+                <div className="flex items-center gap-2">
+                  {item.badgeKey && counts[item.badgeKey] > 0 && (
+                    <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full flex items-center justify-center min-w-[20px]">
+                      {counts[item.badgeKey]}
+                    </span>
+                  )}
+                  {isActive && <ChevronRight className="size-4 text-gold" />}
+                </div>
               </Link>
             );
           })}

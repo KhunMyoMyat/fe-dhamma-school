@@ -14,7 +14,8 @@ import {
   Search,
   Plus,
   ArrowRight,
-  MessageSquare
+  MessageSquare,
+  HandCoins
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
@@ -35,6 +36,7 @@ export default function AdminDashboard() {
     teachings: 0, 
     inquiries: 0, 
     unreadInquiries: 0,
+    unreadSponsors: 0,
     pendingDonors: 0 
   });
   const [recentTeachings, setRecentTeachings] = useState<any[]>([]);
@@ -52,24 +54,28 @@ export default function AdminDashboard() {
 
     const fetchStats = async () => {
       try {
-        const [eventsRes, teachingsRes, contactRes, donorsRes] = await Promise.all([
+        const [eventsRes, teachingsRes, contactRes, donorsRes, oneTimeRes] = await Promise.all([
           api.get("/events"),
           api.get("/teachings"),
           api.get("/contact"),
-          api.get("/donations/monthly-donor-subscriptions")
+          api.get("/donations/monthly-donor-subscriptions"),
+          api.get("/donations")
         ]);
 
         const contactData = contactRes.data.data || contactRes.data || [];
-        const unreadInquiries = contactData.filter((i: any) => !i.isRead).length;
+        const unreadInquiries = contactData.filter((i: any) => !i.isRead && !i.eventId).length;
+        const unreadSponsors = contactData.filter((i: any) => !i.isRead && !!i.eventId).length;
 
         const donorsData = donorsRes.data.data || donorsRes.data || [];
-        const pendingDonors = donorsData.filter((d: any) => d.status === "pending").length;
+        const oneTimeData = oneTimeRes.data.data || oneTimeRes.data || [];
+        const pendingDonors = donorsData.filter((d: any) => d.status === "pending").length + oneTimeData.filter((d: any) => d.status === "pending").length;
 
         setCounts({
           events: eventsRes.data.meta?.total || eventsRes.data.length || 0,
           teachings: teachingsRes.data.meta?.total || teachingsRes.data.length || 0,
           inquiries: contactData.length || 0,
           unreadInquiries,
+          unreadSponsors,
           pendingDonors
         });
         setRecentTeachings((teachingsRes.data.data || teachingsRes.data || []).slice(0, 5));
@@ -81,13 +87,13 @@ export default function AdminDashboard() {
     fetchStats();
   }, [router]);
 
-  const totalNotifications = counts.unreadInquiries + counts.pendingDonors;
+  const totalNotifications = counts.unreadInquiries + counts.unreadSponsors + counts.pendingDonors;
 
   const dashboardStats = [
     { label: "Future Events", value: counts.events, icon: Calendar, color: "gold" },
     { label: "Dhamma Teachings", value: counts.teachings, icon: Sprout, color: "bodhi" },
     { label: "New Messages", value: counts.unreadInquiries, icon: Bell, color: "navy" },
-    { label: "Pending Donors", value: counts.pendingDonors, icon: Users, color: "bodhi" },
+    { label: "Pending Slips", value: counts.pendingDonors, icon: HandCoins, color: "bodhi" },
   ];
 
   const handleLogout = () => {
@@ -141,12 +147,23 @@ export default function AdminDashboard() {
                         <Badge className="bg-gold text-white text-[10px]">{counts.unreadInquiries}</Badge>
                       )}
                     </Link>
-                    <Link href="/admin/monthly-donors" className="flex items-center justify-between p-3 rounded-xl hover:bg-cream/50 transition-colors">
+                    <Link href="/admin/events" className="flex items-center justify-between p-3 rounded-xl hover:bg-cream/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="size-8 rounded-lg bg-orange-100 flex items-center justify-center">
+                          <Calendar className="size-4 text-orange-600" />
+                        </div>
+                        <span className="text-sm font-bold text-navy/70">Event Sponsors</span>
+                      </div>
+                      {counts.unreadSponsors > 0 && (
+                        <Badge className="bg-orange-500 text-white text-[10px]">{counts.unreadSponsors}</Badge>
+                      )}
+                    </Link>
+                    <Link href="/admin/donations" className="flex items-center justify-between p-3 rounded-xl hover:bg-cream/50 transition-colors">
                       <div className="flex items-center gap-3">
                         <div className="size-8 rounded-lg bg-bodhi/10 flex items-center justify-center">
-                          <Users className="size-4 text-bodhi" />
+                          <HandCoins className="size-4 text-bodhi" />
                         </div>
-                        <span className="text-sm font-bold text-navy/70">Pending Donors</span>
+                        <span className="text-sm font-bold text-navy/70">Pending Slips</span>
                       </div>
                       {counts.pendingDonors > 0 && (
                         <Badge className="bg-bodhi text-white text-[10px]">{counts.pendingDonors}</Badge>

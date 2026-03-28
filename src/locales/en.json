@@ -33,10 +33,10 @@
       "filter": "Select month",
       "categories": {
         "label": "Category",
-        "robes": "Robes (Chivara)",
-        "alms": "Alms (Piṇḍapāta)",
-        "monastery": "Monastery (Senāsana)",
-        "medicine": "Medicine (Bhesajja)",
+        "robes": "Robes",
+        "alms": "Alms",
+        "monastery": "Monastery",
+        "medicine": "Medicine",
         "education": "Education",
         "general": "General Donation"
       },
