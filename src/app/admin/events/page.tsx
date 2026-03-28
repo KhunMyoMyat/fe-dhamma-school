@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { 
   Plus, 
   Edit2, 
@@ -19,8 +19,19 @@ import toast from "react-hot-toast";
 import { DataTable, Column } from "@/components/admin/DataTable";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
+interface Event {
+  id: string;
+  title: string;
+  titleMm: string;
+  image?: string;
+  date: string;
+  endDate?: string;
+  location?: string;
+  isActive: boolean;
+}
+
 export default function AdminEventsPage() {
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -34,7 +45,7 @@ export default function AdminEventsPage() {
   const [eventToDelete, setEventToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await api.get("/events", {
@@ -54,7 +65,7 @@ export default function AdminEventsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [page, search, sortBy, sortOrder]);
 
   const handleDelete = async (id: string | null) => {
     if (typeof id === "string") {
@@ -84,7 +95,7 @@ export default function AdminEventsPage() {
       fetchEvents();
     }, 300);
     return () => clearTimeout(delayDebounceFn);
-  }, [page, search, sortBy, sortOrder]);
+  }, [fetchEvents]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -101,12 +112,12 @@ export default function AdminEventsPage() {
     });
   };
 
-  const columns: Column<any>[] = [
+  const columns: Column<Event>[] = [
     {
       id: "title",
       header: "Event Info",
       sortable: true,
-      cell: (event) => (
+      cell: (event: Event) => (
         <div className="flex items-center gap-4">
           <div className="size-14 rounded-xl relative overflow-hidden border border-gold/20 shrink-0">
             <Image 
@@ -127,7 +138,7 @@ export default function AdminEventsPage() {
       id: "date",
       header: "Date & Time",
       sortable: true,
-      cell: (event) => (
+      cell: (event: Event) => (
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2 text-navy/70 font-bold text-sm">
             <Calendar className="size-4 text-gold" />
@@ -145,7 +156,7 @@ export default function AdminEventsPage() {
       id: "location",
       header: "Location",
       sortable: true,
-      cell: (event) => (
+      cell: (event: Event) => (
         <div className="flex items-center gap-2 text-navy/70 font-bold text-sm">
           <MapPin className="size-4 text-maroon/40" />
           {event.location || "Online / Not Set"}
@@ -156,7 +167,7 @@ export default function AdminEventsPage() {
       id: "isActive",
       header: "Status",
       sortable: true,
-      cell: (event) => (
+      cell: (event: Event) => (
         <div className="flex items-center gap-2">
           <div className={cn(
             "size-2 rounded-full",
@@ -176,7 +187,7 @@ export default function AdminEventsPage() {
       header: "Actions",
       className: "text-right",
       hideable: false,
-      cell: (event) => (
+      cell: (event: Event) => (
         <div className="flex items-center justify-end gap-2">
           <Link href={`/events/${event.id}`} target="_blank">
             <button className="p-2 hover:bg-maroon/5 rounded-lg text-navy/30 hover:text-maroon transition-colors" title="View on Site">

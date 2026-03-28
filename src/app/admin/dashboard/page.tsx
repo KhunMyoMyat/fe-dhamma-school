@@ -5,14 +5,11 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { 
   Users, 
-  BookOpen, 
   Calendar, 
   Sprout, 
   TrendingUp, 
   LogOut,
   Bell,
-  Search,
-  Plus,
   ArrowRight,
   MessageSquare,
   HandCoins
@@ -22,11 +19,7 @@ import api from "@/lib/api";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 
-const stats = [
-  { label: "Active Students", value: "1,280", icon: Users, color: "blue" },
-  { label: "Dhamma Teachings", value: "450", icon: Sprout, color: "bodhi" },
-  { label: "Future Events", value: "12", icon: Calendar, color: "gold" },
-];
+
 
 interface AdminUser {
   id: string;
@@ -65,13 +58,16 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const user = localStorage.getItem("user");
-    if (!token || !user) {
+    const userStr = localStorage.getItem("user");
+    if (!token || !userStr) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       router.push("/admin/login");
     } else {
-      setAdminUser(JSON.parse(user));
+      const user = JSON.parse(userStr);
+      if (JSON.stringify(adminUser) !== userStr) {
+        setAdminUser(user);
+      }
     }
 
     const fetchStats = async () => {
@@ -270,10 +266,10 @@ export default function AdminDashboard() {
               Quick Actions
             </h2>
             <div className="space-y-4">
-              <QuickButton href="/admin/events/new" label="Schedule Event" icon={Calendar} color="gold" />
-              <QuickButton href="/admin/teachings/new" label="Post Teaching" icon={Sprout} color="bodhi" />
-              <QuickButton href="/admin/donations" label="Manage Donations" icon={TrendingUp} color="navy" />
-              <QuickButton href="/admin/dashboard" label="View Analytics" icon={TrendingUp} color="navy" />
+              <QuickButton href="/admin/events/new" label="Schedule Event" icon={Calendar} />
+              <QuickButton href="/admin/teachings/new" label="Post Teaching" icon={Sprout} />
+              <QuickButton href="/admin/donations" label="Manage Donations" icon={TrendingUp} />
+              <QuickButton href="/admin/dashboard" label="View Analytics" icon={TrendingUp} />
             </div>
           </div>
         </div>
@@ -282,7 +278,7 @@ export default function AdminDashboard() {
   );
 }
 
-function QuickButton({ label, icon: Icon, color, href }: { label: string; icon: any; color: string; href: string }) {
+function QuickButton({ label, icon: Icon, href }: { label: string; icon: any; href: string }) {
   return (
     <Link href={href || "#"}>
       <button className="w-full h-20 bg-white hover:bg-cream rounded-[1.5rem] border border-gold/10 hover:border-gold/50 transition-all p-6 flex items-center justify-between group shadow-sm mb-4">
