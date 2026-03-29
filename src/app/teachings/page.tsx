@@ -23,7 +23,9 @@ export default function TeachingsPage() {
     const fetchTeachings = async () => {
       try {
         const response = await api.get("/teachings/published");
-        setTeachings(response.data || []);
+        // Handle both paginated and non-paginated responses for robustness
+        const data = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+        setTeachings(data);
       } catch (error) {
         console.error("Failed to fetch teachings:", error);
       } finally {

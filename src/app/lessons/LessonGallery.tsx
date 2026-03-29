@@ -9,8 +9,10 @@ export function LessonGallery({ initialLessons }: { initialLessons: any[] }) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8; // Adjust as needed
 
-  // Extract unique categories from lessons to determine if they match our filter
-  const filteredLessons = initialLessons.filter((lesson) => {
+  // Ensure initialLessons is an array even if it comes from a paginated response object
+  const lessons = Array.isArray(initialLessons) ? initialLessons : ((initialLessons as any)?.data || []);
+
+  const filteredLessons = lessons.filter((lesson: any) => {
     if (category === "All") return true;
     return lesson.category?.toLowerCase() === category.toLowerCase();
   });
@@ -58,7 +60,7 @@ export function LessonGallery({ initialLessons }: { initialLessons: any[] }) {
       {filteredLessons.length === 0 ? (
         <div className="text-center py-32 bg-white rounded-3xl border border-yellow-50 shadow-sm">
           <h3 className="text-2xl font-semibold text-gray-400">
-            {initialLessons.length === 0
+            {lessons.length === 0
               ? "Our video library is currently being prepared."
               : "No lessons found for this category."}
           </h3>
