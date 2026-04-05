@@ -34,18 +34,10 @@ export default async function LessonsPage() {
             meditations brought to you by venerable monks and teachers.
           </p>
 
-          <div className="mt-12 flex flex-wrap justify-center gap-4">
-            <Stats
-              icon={<Youtube className="w-5 h-5 text-red-500" />}
-              label="Free Access"
-            />
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Stats
               icon={<Play className="w-5 h-5 text-emerald-500" />}
               label="Video Lessons"
-            />
-            <Stats
-              icon={<Calendar className="w-5 h-5 text-blue-500" />}
-              label="Updated Weekly"
             />
           </div>
         </div>
