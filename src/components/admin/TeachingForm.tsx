@@ -16,7 +16,7 @@ import {
   Music2,
   Video,
   X,
-  Image as ImageIcon
+  Image as ImageIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
@@ -24,36 +24,46 @@ import { cn } from "@/lib/utils";
 import { resolveFileUrl } from "@/lib/fileUrl";
 import toast from "react-hot-toast";
 
-const teachingSchema = z.object({
-  translations: z
-    .array(
-      z.object({
-        locale: z.enum(["mm", "en", "th"]),
-        title: z.string().min(2, "Title is required"),
-        content: z.string().optional().or(z.literal("")),
-      })
-    )
-    .min(1, "Add at least one translation"),
-  category: z.string().optional().or(z.literal("")),
-  coverImageUrl: z.string().optional().or(z.literal("")),
-  audioUrl: z.string().optional().or(z.literal("")),
-  videoUrl: z.string().optional().or(z.literal("")),
-  documentUrl: z.string().optional().or(z.literal("")),
-  documentName: z.string().optional().or(z.literal("")),
-  documentType: z.string().optional().or(z.literal("")),
-  documentSize: z.number().optional().or(z.literal(0)),
-  teacherId: z.string().optional().or(z.literal("")),
-  isPublished: z.boolean(),
-}).superRefine((val, ctx) => {
-  if (val.category === "dhamma_book") {
-    if (!val.documentUrl) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Document is required for Dhamma Book", path: ["documentUrl"] });
+const teachingSchema = z
+  .object({
+    translations: z
+      .array(
+        z.object({
+          locale: z.enum(["mm", "en", "th"]),
+          title: z.string().min(2, "Title is required"),
+          content: z.string().optional().or(z.literal("")),
+        }),
+      )
+      .min(1, "Add at least one translation"),
+    category: z.string().optional().or(z.literal("")),
+    coverImageUrl: z.string().optional().or(z.literal("")),
+    audioUrl: z.string().optional().or(z.literal("")),
+    videoUrl: z.string().optional().or(z.literal("")),
+    documentUrl: z.string().optional().or(z.literal("")),
+    documentName: z.string().optional().or(z.literal("")),
+    documentType: z.string().optional().or(z.literal("")),
+    documentSize: z.number().optional().or(z.literal(0)),
+    teacherId: z.string().optional().or(z.literal("")),
+    isPublished: z.boolean(),
+  })
+  .superRefine((val, ctx) => {
+    if (val.category === "dhamma_book") {
+      if (!val.documentUrl) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Document is required for Dhamma Book",
+          path: ["documentUrl"],
+        });
+      }
+      if (!val.coverImageUrl) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Cover image is required for Dhamma Book",
+          path: ["coverImageUrl"],
+        });
+      }
     }
-    if (!val.coverImageUrl) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Cover image is required for Dhamma Book", path: ["coverImageUrl"] });
-    }
-  }
-});
+  });
 
 type TeachingFormValues = z.infer<typeof teachingSchema>;
 
@@ -69,8 +79,6 @@ const CATEGORY_OPTIONS = [
   "vinaya",
   "abhidhamma",
   "meditation",
-  "chanting",
-  "other",
 ];
 
 const LOCALE_OPTIONS = [
@@ -87,7 +95,10 @@ function formatBytes(bytes?: number) {
   return `${value.toFixed(value >= 10 || i === 0 ? 0 : 1)} ${sizes[i]}`;
 }
 
-export function TeachingForm({ initialData, isEditing = false }: TeachingFormProps) {
+export function TeachingForm({
+  initialData,
+  isEditing = false,
+}: TeachingFormProps) {
   const router = useRouter();
   const [teachers, setTeachers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -155,8 +166,13 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
       setValue("documentSize", data.size || 0);
       toast.success("Document uploaded successfully!");
     } catch (err: any) {
-      console.error("Document upload failed:", err?.response?.data || err?.message);
-      toast.error(err?.response?.data?.message || "Upload failed. Please try again.");
+      console.error(
+        "Document upload failed:",
+        err?.response?.data || err?.message,
+      );
+      toast.error(
+        err?.response?.data?.message || "Upload failed. Please try again.",
+      );
     } finally {
       setIsUploading(false);
     }
@@ -174,8 +190,14 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
       setValue("coverImageUrl", data.url);
       toast.success("Cover uploaded successfully!");
     } catch (err: any) {
-      console.error("Cover upload failed:", err?.response?.data || err?.message);
-      toast.error(err?.response?.data?.message || "Cover upload failed. Please try again.");
+      console.error(
+        "Cover upload failed:",
+        err?.response?.data || err?.message,
+      );
+      toast.error(
+        err?.response?.data?.message ||
+          "Cover upload failed. Please try again.",
+      );
     } finally {
       setIsUploading(false);
     }
@@ -198,9 +220,15 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
         audioUrl: values.audioUrl || undefined,
         videoUrl: values.videoUrl || undefined,
         documentUrl: shouldClearDocument ? "" : values.documentUrl || undefined,
-        documentName: shouldClearDocument ? "" : values.documentName || undefined,
-        documentType: shouldClearDocument ? "" : values.documentType || undefined,
-        documentSize: shouldClearDocument ? 0 : values.documentSize || undefined,
+        documentName: shouldClearDocument
+          ? ""
+          : values.documentName || undefined,
+        documentType: shouldClearDocument
+          ? ""
+          : values.documentType || undefined,
+        documentSize: shouldClearDocument
+          ? 0
+          : values.documentSize || undefined,
         teacherId: values.teacherId || undefined,
         isPublished: Boolean(values.isPublished),
       };
@@ -218,8 +246,14 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
         router.refresh();
       }, 900);
     } catch (err: any) {
-      console.error("Teaching Submit Error:", err.response?.data || err.message);
-      toast.error(err.response?.data?.message || "Something went wrong. Please try again.");
+      console.error(
+        "Teaching Submit Error:",
+        err.response?.data || err.message,
+      );
+      toast.error(
+        err.response?.data?.message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -235,7 +269,9 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
   const resolvedCoverImageUrl = resolveFileUrl(coverImageUrl);
   const translationValues = watch("translations");
   const usedLocales = new Set((translationValues || []).map((t) => t?.locale));
-  const nextLocale = LOCALE_OPTIONS.find((opt) => !usedLocales.has(opt.value))?.value;
+  const nextLocale = LOCALE_OPTIONS.find(
+    (opt) => !usedLocales.has(opt.value),
+  )?.value;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-10 max-w-5xl">
@@ -245,17 +281,22 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
             <div className="size-10 rounded-xl bg-gold/5 flex items-center justify-center">
               <Languages className="size-5 text-gold" />
             </div>
-            <h3 className="font-black text-maroon uppercase tracking-tight text-xl">Translations</h3>
+            <h3 className="font-black text-maroon uppercase tracking-tight text-xl">
+              Translations
+            </h3>
           </div>
           <Button
             type="button"
             disabled={!nextLocale}
-            onClick={() => nextLocale && append({ locale: nextLocale, title: "", content: "" })}
+            onClick={() =>
+              nextLocale &&
+              append({ locale: nextLocale, title: "", content: "" })
+            }
             className={cn(
               "h-11 px-5 rounded-xl font-bold text-sm",
               nextLocale
                 ? "bg-maroon text-white hover:bg-gold hover:text-navy"
-                : "bg-cream/40 text-navy/40 cursor-not-allowed"
+                : "bg-cream/40 text-navy/40 cursor-not-allowed",
             )}
           >
             Add Translation
@@ -263,23 +304,36 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
         </div>
 
         {errors.translations?.message && (
-          <p className="text-xs font-bold text-red-500">{errors.translations.message as string}</p>
+          <p className="text-xs font-bold text-red-500">
+            {errors.translations.message as string}
+          </p>
         )}
 
         <div className="space-y-6">
           {fields.map((field, index) => (
-            <div key={field.id} className="border border-gold/10 rounded-2xl p-6 space-y-5">
+            <div
+              key={field.id}
+              className="border border-gold/10 rounded-2xl p-6 space-y-5"
+            >
               <div className="flex flex-col md:flex-row md:items-center gap-4">
                 <div className="space-y-2 flex-1">
-                  <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Locale</label>
+                  <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">
+                    Locale
+                  </label>
                   <select
                     {...register(`translations.${index}.locale`)}
                     className="w-full h-12 bg-cream/30 border-2 border-gold/10 rounded-xl px-4 focus:border-maroon focus:bg-white outline-none transition-all font-bold text-navy"
                   >
                     {LOCALE_OPTIONS.map((opt) => {
-                      const isUsed = usedLocales.has(opt.value) && translationValues?.[index]?.locale !== opt.value;
+                      const isUsed =
+                        usedLocales.has(opt.value) &&
+                        translationValues?.[index]?.locale !== opt.value;
                       return (
-                        <option key={opt.value} value={opt.value} disabled={isUsed}>
+                        <option
+                          key={opt.value}
+                          value={opt.value}
+                          disabled={isUsed}
+                        >
                           {opt.label}
                         </option>
                       );
@@ -301,7 +355,9 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Title</label>
+                  <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">
+                    Title
+                  </label>
                   <input
                     {...register(`translations.${index}.title`)}
                     className="w-full h-14 bg-cream/30 border-2 border-gold/10 rounded-2xl px-6 focus:border-maroon focus:bg-white outline-none transition-all font-bold text-navy"
@@ -315,7 +371,9 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Content</label>
+                  <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">
+                    Content
+                  </label>
                   <textarea
                     {...register(`translations.${index}.content`)}
                     rows={4}
@@ -337,7 +395,9 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="space-y-2">
-            <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Category</label>
+            <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">
+              Category
+            </label>
             <select
               {...register("category")}
               className="w-full h-16 bg-cream/50 border-2 border-gold/10 rounded-2xl px-6 focus:border-maroon focus:bg-white outline-none transition-all font-bold text-navy appearance-none"
@@ -351,7 +411,9 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Assigned Teacher</label>
+            <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">
+              Assigned Teacher
+            </label>
             <div className="relative">
               <select
                 {...register("teacherId")}
@@ -359,7 +421,9 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
               >
                 <option value="">Select Teacher</option>
                 {teachers.map((t) => (
-                  <option key={t.id} value={t.id}>{t.name} ({t.nameMm})</option>
+                  <option key={t.id} value={t.id}>
+                    {t.name} ({t.nameMm})
+                  </option>
                 ))}
               </select>
               <User className="absolute right-6 top-1/2 -translate-y-1/2 size-5 text-navy/20 pointer-events-none" />
@@ -367,7 +431,9 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Publish Status</label>
+            <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">
+              Publish Status
+            </label>
             <div className="flex items-center gap-4 p-4 bg-cream/30 border border-gold/10 rounded-2xl">
               <input
                 type="checkbox"
@@ -375,7 +441,10 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
                 id="isPublished"
                 className="size-5 accent-maroon border-gold/30 rounded"
               />
-              <label htmlFor="isPublished" className="font-bold text-maroon cursor-pointer">
+              <label
+                htmlFor="isPublished"
+                className="font-bold text-maroon cursor-pointer"
+              >
                 Publish immediately
               </label>
             </div>
@@ -389,8 +458,12 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
                 <ImageIcon className="size-5 text-maroon" />
               </div>
               <div>
-                <p className="font-black text-maroon uppercase tracking-tight text-lg">Book Cover</p>
-                <p className="text-xs text-navy/40 font-bold">Upload a cover image (recommended)</p>
+                <p className="font-black text-maroon uppercase tracking-tight text-lg">
+                  Book Cover
+                </p>
+                <p className="text-xs text-navy/40 font-bold">
+                  Upload a cover image (recommended)
+                </p>
               </div>
             </div>
 
@@ -400,15 +473,25 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
                   <div className="flex items-center gap-4">
                     <div className="size-16 rounded-2xl overflow-hidden border border-gold/10 bg-white">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={resolvedCoverImageUrl} alt="Cover" className="w-full h-full object-cover" />
+                      <img
+                        src={resolvedCoverImageUrl}
+                        alt="Cover"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                    <div className="text-sm font-bold text-navy/60 break-words">{coverImageUrl}</div>
+                    <div className="text-sm font-bold text-navy/60 break-words">
+                      {coverImageUrl}
+                    </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-navy/40 font-bold">Upload a cover so the book card shows an image.</p>
+                  <p className="text-sm text-navy/40 font-bold">
+                    Upload a cover so the book card shows an image.
+                  </p>
                 )}
                 {errors.coverImageUrl && (
-                  <p className="text-xs font-bold text-red-500 mt-2">{errors.coverImageUrl.message as string}</p>
+                  <p className="text-xs font-bold text-red-500 mt-2">
+                    {errors.coverImageUrl.message as string}
+                  </p>
                 )}
               </div>
 
@@ -422,12 +505,24 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
                     <X className="size-4 mr-1" /> Remove
                   </button>
                 )}
-                <label className={cn(
-                  "inline-flex items-center gap-2 h-11 px-5 rounded-xl font-bold cursor-pointer transition-colors",
-                  isUploading ? "bg-gold/20 text-gold" : "bg-maroon text-white hover:bg-gold hover:text-navy"
-                )}>
-                  {isUploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
-                  {isUploading ? "Uploading..." : coverImageUrl ? "Replace" : "Upload"}
+                <label
+                  className={cn(
+                    "inline-flex items-center gap-2 h-11 px-5 rounded-xl font-bold cursor-pointer transition-colors",
+                    isUploading
+                      ? "bg-gold/20 text-gold"
+                      : "bg-maroon text-white hover:bg-gold hover:text-navy",
+                  )}
+                >
+                  {isUploading ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Upload className="size-4" />
+                  )}
+                  {isUploading
+                    ? "Uploading..."
+                    : coverImageUrl
+                      ? "Replace"
+                      : "Upload"}
                   <input
                     type="file"
                     accept=".jpg,.jpeg,.png,.gif,.webp"
@@ -445,7 +540,9 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-2">
-            <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Audio URL</label>
+            <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">
+              Audio URL
+            </label>
             <div className="relative group">
               <div className="absolute left-6 top-1/2 -translate-y-1/2 text-navy/20 group-focus-within:text-maroon transition-colors">
                 <Music2 className="size-5" />
@@ -459,7 +556,9 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">Video URL</label>
+            <label className="text-xs font-black text-navy/40 uppercase tracking-widest ml-4">
+              Video URL
+            </label>
             <div className="relative group">
               <div className="absolute left-6 top-1/2 -translate-y-1/2 text-navy/20 group-focus-within:text-maroon transition-colors">
                 <Video className="size-5" />
@@ -479,27 +578,45 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
               <FileText className="size-5 text-maroon" />
             </div>
             <div>
-              <p className="font-black text-maroon uppercase tracking-tight text-lg">PDF / eBook Upload</p>
-              <p className="text-xs text-navy/40 font-bold">Accepted: PDF, EPUB (max 25MB)</p>
+              <p className="font-black text-maroon uppercase tracking-tight text-lg">
+                PDF / eBook Upload
+              </p>
+              <p className="text-xs text-navy/40 font-bold">
+                Accepted: PDF, EPUB (max 25MB)
+              </p>
             </div>
           </div>
 
-          <div className={cn(
-            "border-2 border-dashed rounded-2xl p-6 bg-cream/30 flex flex-col md:flex-row md:items-center gap-4",
-            isUploading ? "border-gold/40" : "border-gold/10"
-          )}>
+          <div
+            className={cn(
+              "border-2 border-dashed rounded-2xl p-6 bg-cream/30 flex flex-col md:flex-row md:items-center gap-4",
+              isUploading ? "border-gold/40" : "border-gold/10",
+            )}
+          >
             <div className="flex-1">
               {documentUrl ? (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-maroon font-bold">
                     <FileText className="size-5" />
-                    <span className="truncate">{documentName || "Document"}</span>
+                    <span className="truncate">
+                      {documentName || "Document"}
+                    </span>
                   </div>
                   <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-navy/50">
-                    {documentType && <span className="uppercase">{documentType.split("/").pop()}</span>}
-                    {documentSize ? <span>{formatBytes(documentSize)}</span> : null}
+                    {documentType && (
+                      <span className="uppercase">
+                        {documentType.split("/").pop()}
+                      </span>
+                    )}
+                    {documentSize ? (
+                      <span>{formatBytes(documentSize)}</span>
+                    ) : null}
                     {resolvedDocumentUrl && (
-                      <a href={resolvedDocumentUrl} target="_blank" className="inline-flex items-center gap-1 text-maroon hover:text-gold transition-colors">
+                      <a
+                        href={resolvedDocumentUrl}
+                        target="_blank"
+                        className="inline-flex items-center gap-1 text-maroon hover:text-gold transition-colors"
+                      >
                         <LinkIcon className="size-3" />
                         View
                       </a>
@@ -507,10 +624,14 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-navy/40 font-bold">Upload a PDF or EPUB so users can read and download.</p>
+                <p className="text-sm text-navy/40 font-bold">
+                  Upload a PDF or EPUB so users can read and download.
+                </p>
               )}
               {errors.documentUrl && (
-                <p className="text-xs font-bold text-red-500 mt-2">{errors.documentUrl.message as string}</p>
+                <p className="text-xs font-bold text-red-500 mt-2">
+                  {errors.documentUrl.message as string}
+                </p>
               )}
             </div>
 
@@ -529,12 +650,24 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
                   <X className="size-4 mr-1" /> Remove
                 </button>
               )}
-              <label className={cn(
-                "inline-flex items-center gap-2 h-11 px-5 rounded-xl font-bold cursor-pointer transition-colors",
-                isUploading ? "bg-gold/20 text-gold" : "bg-maroon text-white hover:bg-gold hover:text-navy"
-              )}>
-                {isUploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
-                {isUploading ? "Uploading..." : documentUrl ? "Replace" : "Upload"}
+              <label
+                className={cn(
+                  "inline-flex items-center gap-2 h-11 px-5 rounded-xl font-bold cursor-pointer transition-colors",
+                  isUploading
+                    ? "bg-gold/20 text-gold"
+                    : "bg-maroon text-white hover:bg-gold hover:text-navy",
+                )}
+              >
+                {isUploading ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Upload className="size-4" />
+                )}
+                {isUploading
+                  ? "Uploading..."
+                  : documentUrl
+                    ? "Replace"
+                    : "Upload"}
                 <input
                   type="file"
                   accept=".pdf,.epub"
@@ -558,7 +691,14 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
           disabled={isLoading}
           className="w-full md:w-64 h-16 bg-maroon hover:bg-gold text-white hover:text-navy rounded-2xl px-8 font-black text-xl shadow-lg shadow-maroon/20 transition-all active:scale-95"
         >
-          {isLoading ? <Loader2 className="animate-spin" /> : <><Save className="mr-3" /> {isEditing ? "Update" : "Create"} Teaching</>}
+          {isLoading ? (
+            <Loader2 className="animate-spin" />
+          ) : (
+            <>
+              <Save className="mr-3" /> {isEditing ? "Update" : "Create"}{" "}
+              Teaching
+            </>
+          )}
         </Button>
         <Button
           type="button"
@@ -576,7 +716,15 @@ export function TeachingForm({ initialData, isEditing = false }: TeachingFormPro
 function SettingsIcon({ className }: { className?: string }) {
   return (
     <div className={className}>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="size-full">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="size-full"
+      >
         <path d="M12.22 2h-.44a2 2 0 0 0-2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 0-2-2h-.44a2 2 0 0 0-2 2a2 2 0 0 0 2 2a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 0-2 2a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2a2 2 0 0 1 2-2a2 2 0 0 1 2 2a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2a2 2 0 0 0-2-2a2 2 0 0 1-2-2a2 2 0 0 1 2-2a2 2 0 0 0 2-2a2 2 0 0 0-2-2z" />
         <circle cx="12" cy="12" r="3" />
       </svg>
