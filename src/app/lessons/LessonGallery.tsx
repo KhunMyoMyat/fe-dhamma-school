@@ -10,7 +10,11 @@ export function LessonGallery({ initialLessons }: { initialLessons: any[] }) {
   const itemsPerPage = 8; // Adjust as needed
 
   // Ensure initialLessons is an array even if it comes from a paginated response object
-  const lessons = Array.isArray(initialLessons) ? initialLessons : ((initialLessons as any)?.data || []);
+  const lessons = Array.isArray(initialLessons)
+    ? initialLessons
+    : (initialLessons as any)?.data || [];
+
+  const categories = ["All", "Abhidhamma", "Sutta", "Dhamma"];
 
   const filteredLessons = lessons.filter((lesson: any) => {
     if (category === "All") return true;
@@ -19,17 +23,15 @@ export function LessonGallery({ initialLessons }: { initialLessons: any[] }) {
 
   const totalPages = Math.ceil(filteredLessons.length / itemsPerPage) || 1;
 
+  const paginatedLessons = filteredLessons.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
   const handleCategoryChange = (newCat: string) => {
     setCategory(newCat);
     setCurrentPage(1);
   };
-
-  const paginatedLessons = filteredLessons.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const categories = ["All", "Abhidhamma", "Sutta", "Dhamma"];
 
   return (
     <div className="container mx-auto py-20 px-4">
@@ -47,7 +49,7 @@ export function LessonGallery({ initialLessons }: { initialLessons: any[] }) {
               className={`px-4 py-2 rounded-full font-medium transition-colors shadow-sm
                 ${
                   category === cat
-                    ? "bg-maroon-800 text-gold shadow-md"
+                    ? "bg-maroon text-white shadow-md"
                     : "bg-white text-gray-600 hover:bg-yellow-50 border border-yellow-100"
                 }`}
             >
@@ -105,7 +107,9 @@ export function LessonGallery({ initialLessons }: { initialLessons: any[] }) {
               </div>
 
               <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
                 disabled={currentPage === totalPages}
                 className="p-2 rounded-full bg-white border border-yellow-100 text-maroon hover:bg-yellow-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
               >
